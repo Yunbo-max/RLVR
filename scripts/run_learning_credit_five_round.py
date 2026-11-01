@@ -91,9 +91,11 @@ def _load_schedule(path: Path, args, manifest_sha: str, adapter_sha: str,
 def load_matched_data(data_dir: Path, train_limit: int, eval_limit: int):
     train, eval_rows, manifest = legacy.read_dataset(data_dir, train_limit, eval_limit)
     if manifest.get("behavioral_schema") != "eesd-runbugrun-behavioral-v1":
-        raise ValueError(
-            "requires new 4+4+4 behavioral data split; old audit is not trainable"
-        )
+        raise ValueError("behavioral RunBugRun train/feedback/calibration/audit split required")
+    n_cal=int(manifest.get("calibration_tests",4))
+    n_audit=int(manifest.get("audit_tests",4))
+    if n_cal<2 or n_audit<2:
+        raise ValueError("insufficient calibration / audit test evidence")
     calibration = legacy.read_records(
         data_dir / "train_calibration.jsonl",
         {"source_id", "problem_id", "calibration_tests"},
@@ -116,13 +118,21 @@ def load_matched_data(data_dir: Path, train_limit: int, eval_limit: int):
             or heldout["problem_id"] != row["problem_id"]
         ):
             raise ValueError("calibration/held-out source identity mismatch")
-        if len(probe["calibration_tests"]) != 4 or len(heldout["audit_tests"]) != 4:
-            raise ValueError("expected 4 calibration and 4 held-out tests")
+        if (len(probe["calibration_tests"])!=n_cal
+            or len(heldout["audit_tests"])!=n_audit):
+            raise ValueError("actual calibration/audit counts differ from sealed manifest")
         pub = {x["id"] for x in row["public_tests"]}
         cal = {x["id"] for x in probe["calibration_tests"]}
         aud = {x["id"] for x in heldout["audit_tests"]}
-        if len(cal) != 4 or len(aud) != 4 or pub & cal or pub & aud or cal & aud:
+        if (len(pub)!=4 or len(cal)!=n_cal or len(aud)!=n_audit
+            or pub & cal or pub & aud or cal & aud):
             raise ValueError("feedback/calibration/audit test contamination")
+        if manifest.get("formal_protocol") == "eesd-nested-T4-vs-T8-20261101":
+            sequences=(row["public_tests"],probe["calibration_tests"],
+                       heldout["audit_tests"])
+            inputs=[str(t["input"]) for group in sequences for t in group]
+            if len(set(inputs)) != 4+n_cal+n_audit:
+                raise ValueError("formal feedback/calibration/audit input overlap")
     return train, eval_rows, by_id, manifest
 
 
@@ -426,7 +436,7 @@ def main():
         "calibration_budget_per_rollout": len(
             next(iter(audit.values()))["calibration_tests"]
         ),
-        "reserved_train_audit_tests_per_source": 4,
+        "reserved_train_audit_tests_per_source": int(manifest.get("audit_tests",4)),
         "feedback_tests": 4,
         "rollouts": args.rollouts,
         "rounds": args.rounds,
@@ -549,8 +559,9 @@ def main():
                      else 2) for r in records)),
                 "public_test_executions":int(sum(4*len(r.get("candidate_sources",[]))
                                                 for r in records)),
-                "calibration_test_executions":int(sum(4*len(r.get("candidate_sources",[]))
-                                                     for r in records)),
+                "calibration_test_executions":int(sum(
+                  int(manifest.get("calibration_tests",4))*len(r.get("candidate_sources",[]))
+                  for r in records)),
                 "training_wallclock_seconds":train_wallclock_s,
                 "peak_cuda_allocated_bytes":gpu_peak_bytes,
                 "choice_reasons":dict(Counter(r.get("choice_rule",r.get("skip","unknown")) for r in records)),

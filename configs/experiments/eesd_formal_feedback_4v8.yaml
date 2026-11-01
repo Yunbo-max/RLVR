@@ -1,0 +1,129 @@
+schema: eesd-formal-experiment-preregistration-v1
+status: prospective_not_executed
+base_branch: research/eesd-learning-credit-5round-20261030
+one_model: Qwen/Qwen2.5-Coder-7B-Instruct
+revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+one_dataset: RunBugRun_official_SQLite_Python
+hardware: H100_80GB
+model_adaptation: NF4_BF16_LoRA_r16
+no_gold_fixed_code: true
+data_prerequisite:
+  audit_command: scripts/audit_runbugrun_feedback_feasibility.py
+  min_unique_input_tests_for_shared_T4_T8_population: 24
+  exclude_conflicting_expected_outputs_for_identical_input: true
+  problem_id_disjoint_between_train_dev_meta_final: true
+  max_bug_instances_per_problem_in_primary_aggregate: 4
+  test_splits:
+    public_feedback_T4: 4
+    public_feedback_T8: 8
+    calibration: 8
+    reserved_audit: 8
+  frozen_master_bank: 24
+  nested_T4_in_T8: true
+  no_truncation_or_silent_test_dropping: true
+  report_eligibility_rate_by_official_split: true
+  exact_population_counts: TO_BE_FILLED_FROM_AUDIT_NOT_INVENTED
+pilot:
+  feedback_tests: 4
+  rollouts: 8
+  train_bug_instances: 64
+  dev_bug_instances: 64
+  rounds: 2
+  seed: 1701
+  gate:
+    - safe_bubblewrap_execution
+    - dataset_sha256_and_test_input_disjointness
+    - count_distinct_candidate_outcome_vectors
+    - evidence_contrast_rate
+    - teacher_calls_and_actual_gpu_time
+    - no_zero_gradient_false_updates
+  no_final_test_read: true
+primary_T4_exact:
+  feedback_tests: 4
+  coalitions_exact: 16
+  candidate_rollouts_per_task: 8
+  recursive_updates: 5
+  train_bug_instances_target: 512
+  min_distinct_training_problem_ids_target: 256
+  dev_bug_instances_target: 128
+  meta_bug_instances_target: 64
+  final_bug_instances_target: 1024
+  min_distinct_final_problem_ids_target: 200
+  conditional_on_eligibility_audit: true
+  seeds: [1701,1702,1703]
+  arms:
+    - no_update
+    - matched_sdpo_style_full_feedback
+    - audit_gate
+    - direct_exact_argmax_J
+    - behavioral_shapley_exact
+    - random_feedback_same_cardinality
+    - random_update_sources_same_realized_steps
+  primary_contrast: behavioral_shapley_exact_vs_direct_exact_argmax_J
+  secondary_contrasts:
+    - shapley_vs_frozen
+    - shapley_vs_matched_sdpo_style
+    - shapley_vs_matched_random_update_sources
+    - shapley_vs_random_feedback
+  evaluation: all_test_pass_greedy_at_R0_R1_R2_R3_R4_R5
+  inference: problem_id_cluster_paired_bootstrap_plus_independent_training_seed_replication
+T8_rich_feedback_robustness:
+  status: requires_new_generalized_8_test_runner_and_mc_shapley
+  feedback_tests: 8
+  exact_coalitions_if_exhaustive: 256
+  exact_enumeration: false
+  calibration_tests: 8
+  reserved_audit_tests: 8
+  share_same_eligible_population_and_fixed_master_test_bank_as_T4: true
+  matched_core_train_bug_instances_target: 256
+  same_model_and_final_problem_population: true
+  candidate_rollouts_per_task: 8
+  recursive_updates: 5
+  seeds: [1701,1702,1703]
+  stratified_or_antithetic_permutation_shapley: true
+  permutations_pilot: [4,8,16]
+  choose_permutation_budget_using_T4_exact_approximation_validation_only: true
+  direct_max_comparator: equal_teacher_query_budget_beam_or_greedy_search
+  reporting:
+    - approximate_phi_std_error
+    - subset_selection_stability
+    - heldout_benefit
+    - gpu_hours_per_success
+  do_not_label_budgeted_search_as_exact_direct_max: true
+rollout_count_secondary:
+  feedback_tests: 4
+  candidate_rollouts: [8,16,32]
+  heldout_problems_and_training_sources_fixed: true
+  measure_cost_as_well_as_success: true
+learning_credit_intervention:
+  rounds: [0,2,4]
+  target_accepted_training_anchors_per_round: 16
+  meta_bug_instances_target: 64
+  meta_problem_ids_disjoint: true
+  cloned_preupdate_policy_per_feedback_choice: true
+  one_real_lora_update_per_intervention: true
+  choices:
+    - behavioral_shapley
+    - direct_J
+    - random_same_cardinality
+    - full_feedback
+  primary: delta_meta_greedy_all_test_pass_after_minus_before
+  secondary:
+    - delta_meta_mean_test_pass_fraction
+    - paired_fixes_and_regressions
+    - actual_policy_KL
+    - gradient_norm_and_actual_parameter_change
+    - heldout_A_feedback_alignment
+  never_select_feedback_using_meta_outcomes: true
+publication_gate:
+  require_three_independent_training_seeds: true
+  no_cherry_pick_best_recursive_round: true
+  main_primary: R5_paired_problem_level_shapley_minus_direct
+  uncertainty: cluster_by_problem_id_not_bug_id
+  multiple_testing_correction: Holm_for_confirmatory_contrasts
+  official_SDPO_full_implementation_required_for_named_method_comparison: true
+  raw_training_receipts_and_result_hashes_required: true
+  report_abstention_and_realized_grad_steps: true
+  report_effective_label_budget_F_plus_C: true
+  report_compute_costs_and_errors: true
+  if_insufficient_unique_problem_ids: report_actual_coverage_and_do_not_claim_target_met

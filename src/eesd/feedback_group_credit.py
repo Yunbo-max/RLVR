@@ -259,3 +259,45 @@ def budgeted_random_subset_masks(test_count:int,teacher_value_budget:int, *,
     if len(masks)<teacher_value_budget:
         raise ValueError('cannot generate required distinct subsets within budget')
     return tuple(sorted(masks))
+
+
+
+def nested_execution_discrimination(outcomes:Sequence[Sequence[dict]],
+                                    *,levels:tuple[int,...]=VALID_T)->dict:
+    """No model or hidden labels needed: how informative are 4..64 tests?
+
+    - unique_code_outcome_patterns: number of distinct G-length code behaviors
+      over the first T test cases (range 1..G).
+    - distinct_test_outcome_signatures: number of distinct G-candidate outcome
+      patterns among the first T tests (range 1..T).
+    - mean_test_outcome_entropy: mean categorical entropy across G programs
+      for each test, measured in bits.
+    - all_candidates_identical_rate: indicator that every code sample behaves
+      identically on that T-sized public set.
+    Compute from PUBLIC tests only; no calibration/heldout exposure.
+    """
+    g=len(outcomes)
+    if g<2:raise ValueError('at least two candidate programs required')
+    width=len(outcomes[0])
+    if width<max(levels) or any(len(v)!=width for v in outcomes):
+        raise ValueError('need entire nested 64-test outcome matrix')
+    signatures=[[ _status(v[j]) for j in range(width)] for v in outcomes]
+    result={}
+    for t in levels:
+        if t<1 or t>width:raise ValueError('invalid nested test-prefix size')
+        code_patterns={tuple(signatures[i][:t]) for i in range(g)}
+        test_patterns={tuple(signatures[i][j] for i in range(g))
+                       for j in range(t)}
+        entropies=[]
+        for j in range(t):
+            hist=Counter(signatures[i][j] for i in range(g))
+            entropies.append(-sum((n/g)*math.log2(n/g) for n in hist.values()))
+        result[str(t)]={
+            'unique_code_outcome_patterns':len(code_patterns),
+            'distinct_test_outcome_signatures':len(test_patterns),
+            'mean_test_outcome_entropy_bits':float(np.mean(entropies)),
+            'all_candidates_identical':len(code_patterns)==1,
+            'public_pass_fraction':sum(signatures[i][j]=='PASS'
+                for i in range(g) for j in range(t))/(g*t),
+        }
+    return result

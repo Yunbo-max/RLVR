@@ -4,7 +4,8 @@ import pytest
 
 from eesd.feedback_group_credit import (
     form_groups,compact_candidate_groups,marginal_pairs,
-    approximate_individual_shapley,budgeted_random_subset_masks
+    approximate_individual_shapley,budgeted_random_subset_masks,
+    nested_execution_discrimination
 )
 
 
@@ -85,3 +86,23 @@ def test_direct_search_is_subset_budgeted_not_exact():
     assert chosen==budgeted_random_subset_masks(64,128,seed=1701,source_id='train-1')
     assert all(0<=s<(1<<64) for s in chosen)
     with pytest.raises(ValueError):budgeted_random_subset_masks(4,256,seed=1,source_id='bad')
+
+
+
+def test_feedback_richness_report_detects_redundant_64_tests():
+    _,fb=records(64,g=8)
+    report=nested_execution_discrimination(fb)
+    assert list(report)==['4','8','16','32','64']
+    assert report['64']['unique_code_outcome_patterns']<=8
+    assert report['64']['distinct_test_outcome_signatures']<=64
+    assert 0<=report['64']['mean_test_outcome_entropy_bits']<=math.log2(8)
+    assert report['64']['distinct_test_outcome_signatures']==4
+    assert report['4']['unique_code_outcome_patterns']==4
+
+
+def test_feedback_diversity_reports_zero_for_identical_candidates():
+    _,fb=records(64,g=8)
+    identical=[fb[0] for _ in range(8)]
+    report=nested_execution_discrimination(identical)
+    assert report['64']['all_candidates_identical'] is True
+    assert report['64']['mean_test_outcome_entropy_bits']==0.0

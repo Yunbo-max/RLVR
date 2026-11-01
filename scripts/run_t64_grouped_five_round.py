@@ -27,7 +27,8 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
 import run_learning_credit_five_round as previous
 
-from eesd.feedback_group_credit import VALID_T,form_groups,compact_candidate_groups
+from eesd.feedback_group_credit import (VALID_T,form_groups,
+    compact_candidate_groups,nested_execution_discrimination)
 from eesd.learning_credit_selection import (
     selection_from_arm,sample_matched_update_sources)
 from eesd.strict_execution import run_test,audit_vector
@@ -128,6 +129,7 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
     # All arms execute EXACTLY 64 public tests on every evaluated candidate.
     public=row['public_tests']
     transcript=[_safe_feedback(code,public) for _,code in clean]
+    nested_diagnostics=nested_execution_discrimination(transcript)
     cal=np.array([audit_vector(code,calibration_tests)
                   for _,code in clean],dtype=np.float64)
     # Crucially: do NOT read the hidden 64-T test results into the group builder.
@@ -174,6 +176,7 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
         'candidate_shift_means':[(v.mean(axis=1)-v[0].mean()).tolist() for v in scores],
         'candidate_calibration_pass_fraction':cal.mean(axis=1).tolist(),
         'group_test_indices':[list(x) for x in grouping.members],
+        'nested_feedback_discrimination':nested_diagnostics,
     }
     if mask==0 or sum(float(w.sum()) for w in weights)<=1e-9:
         return {**base,'step':False,'skip':'abstained_or_zero_token_credit'}

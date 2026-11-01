@@ -23,7 +23,7 @@ import statistics
 from collections import Counter
 from pathlib import Path
 
-THRESHOLDS=(4,8,12,16,20,24,32,40,48)
+THRESHOLDS=(4,8,12,16,20,24,32,40,48,64,72,80,96,128)
 SPLITS={0:"train",1:"validation",2:"test"}
 
 
@@ -107,6 +107,16 @@ def audit(db_path:Path,*,min_tokens:int|None=None,max_tokens:int|None=None)->dic
         stats[name]={
             'python_distinct_problem_ids_with_tests':len(records),
             'python_bug_instances_with_tests':sum(x['bugs'] for x in records),
+            'eligible_for_64feedback_8cal_8audit_distinct_problems':
+                eligible['80']['distinct_problem_ids'],
+            'eligible_for_64feedback_8cal_8audit_bug_instances':
+                eligible['80']['total_bug_instances'],
+            'theoretical_cap_8bugs_per_eligible_problem':
+                sum(min(x['bugs'],8) for x in pool if x['unique_inputs']>=80),
+            'theoretical_cap_16bugs_per_eligible_problem':
+                sum(min(x['bugs'],16) for x in pool if x['unique_inputs']>=80),
+            'theoretical_cap_32bugs_per_eligible_problem':
+                sum(min(x['bugs'],32) for x in pool if x['unique_inputs']>=80),
             'problems_with_conflicting_expected_output_for_same_input':
                 sum(x['inconsistent_expected_inputs']>0 for x in records),
             'unique_input_tests_per_problem':quantiles([x['unique_inputs'] for x in records]),

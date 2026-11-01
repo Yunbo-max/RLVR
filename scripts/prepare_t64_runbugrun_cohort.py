@@ -15,7 +15,7 @@ No fixed_code column is queried, and this script executes no generated code.
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
+from collections import Counter, defaultdict
 import hashlib
 import json
 from pathlib import Path
@@ -202,13 +202,12 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         'unique_input_tests_per_train_problem_required':
                  64+calibration_tests+audit_tests,
         'max_bug_instances_per_problem':max(counts.values()),
-        'train_problem_instance_histogram':dict(sorted(Counter(counts.values()).items())) if False else None,
+        'train_problem_instance_histogram':{str(k):v for k,v in sorted(Counter(counts.values()).items())},
         'all_arms_execute_64_public_tests_but_expose_only_nested_T':True,
         'gold_fixed_code_never_queried':True,
         'final_evaluation_protocol':'fixed first 80 (or 64+C+A) active test inputs per distinct problem, not all official tests',
         'file_sha256':{p:file_sha(root/p) for p in output},
     }
-    del manifest['train_problem_instance_histogram']
     (root/'manifest.json').write_text(json.dumps(manifest,sort_keys=True,indent=2)+'\n')
     return manifest
 

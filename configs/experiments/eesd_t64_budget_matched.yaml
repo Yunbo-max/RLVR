@@ -1,0 +1,130 @@
+schema: eesd-rich64-budget-matched-v1
+status: prospective_not_h100_run
+model: Qwen/Qwen2.5-Coder-7B-Instruct
+revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+benchmark: RunBugRun_Python_official_SQLite
+objective: feedback_to_delta_theta_to_independent_correctness
+hypothesis: group_based_behavioral_Shapley_transfers_more_than_equal_budget_direct_J_search
+data:
+  training_bug_instances_target: 8000
+  max_bug_instances_per_problem: 16
+  min_distinct_training_problem_ids_to_reach_8000: 500
+  independent_meta_problem_ids_target: 64
+  independent_final_problem_ids_target: 256
+  sample_conditional_on_real_eligibility_audit: true
+  runbugrun_python_problem_count_not_assumed: true
+  required_unique_test_inputs_per_eligible_problem: 80
+  public_test_input_bank: 64
+  calibration_test_inputs: 8
+  reserved_audit_inputs: 8
+  same_frozen_problem_and_test_bank_across_T_and_arms: true
+  disjoint_problem_ids_for_train_meta_final: true
+  no_gold_fixed_code: true
+  actual_max_eval_test_cases: 80
+  paper_metric: fixed_80_case_all_tests_pass_not_full_official_tests
+  clustered_problem_id_inference: true
+evidence:
+  public_tests_executed_per_scored_candidate: 64
+  exposed_test_prefix_T: [4,8,16,32,64]
+  all_T_arms_use_same_64_real_executions: true
+  group_count_K: 4
+  groups_from_public_outcome_vectors_only: true
+  group_summary_char_budget: 440
+  group_shapley_exact_coalitions: 16
+  test_shapley_approximation:
+    status: offline_value_game_estimator_implemented_not_integrated_GPU_training
+    input_tests: 64
+    teacher_value_budgets: [128,256,512]
+    expected_pairs_per_test: [1,2,4]
+    direct_subset_search_cost_matched: true
+  caveat: K4_GROUP_Shapley_is_not_exact_individual_T64_test_Shapley
+  log_tied_token_count_and_gpu_hours: true
+training:
+  model_adaptation: NF4_BF16_LoRA_r16
+  recursive_rounds: 5
+  checkpoint_evaluations: [0,1,2,3,4,5]
+  main_rollouts_per_task_G: 8
+  secondary_rollouts_G: [4,16,32]
+  frozen_shared_initial_adapter_for_all_T_and_arms: true
+  optimizer: AdamW
+  learning_rate: 0.00001
+  anchor_KL_beta: 0.02
+  old_reference_negative_result_preserved: true
+staged_protocol:
+  stage1_census:
+    action: audit_SQLite_unique_input_test_and_8K_capacity
+    minimum_80_inputs: true
+  stage2_pilot:
+    train_bugs: 64
+    eval_problem_ids: 64
+    rollouts: 4
+    repeat_same_bugs_each_round: true
+    T: 64
+    K: 4
+    all_7_arms: true
+  stage3_mechanism:
+    train_bug_instances: 512
+    eval_problem_ids: 256
+    rollouts: 8
+    repeat_same_bugs_each_round: true
+    feedback_levels_T: [4,8,16,32,64]
+    exact_group_shapley_vs_exact_group_direct_max: true
+    T64_all_7_arms: true
+    seeds: [1701,1702,1703]
+  stage4_scale:
+    train_bug_instances: 8000
+    rotation: 1600_bugs_per_round_for_5_rounds
+    max_public_execution_test_calls_per_arm: 4096000
+    max_group_coalition_teacher_scoring_calls_per_arm: 1024000
+    main_arms: [shapley,direct_max,audit_gate,no_update]
+    seed_first: 1701
+    confirmation_seeds_conditional_on_result_and_compute: [1702,1703]
+    frozen_problem_id_clusters: true
+  stage5_real_parameter_intervention:
+    source: accepted_shapley_training_anchors
+    rounds: [0,2,4]
+    target_anchors_per_round: 16
+    meta_problem_ids: 64
+    compare: [shapley,direct_max,random_subset,full_feedback]
+    equal_frozen_teacher_candidate_code_and_adapter: true
+    read_meta_only_after_one_real_lora_step: true
+  stage6_individual_test_shapley:
+    stage: estimator_validation_only_unless_GPU_training_implemented
+    T: 64
+    B: [128,256,512]
+    direct_search_same_value_query_budget: true
+analysis:
+  main_primary_contrast: R5_shapley_minus_direct_exact_group_J_on_distinct_problem_ids
+  no_best_round_selection_on_final_holdout: true
+  final_test_grouping: problem_id
+  primary_seed_replications: 3
+  extra_controls:
+    - random_group_subset_same_cardinality
+    - random_source_updates_same_actual_step_count
+    - group_all_feedback
+    - frozen_Qwen
+  test_and_compute_ablations:
+    - T4_T8_T16_T32_T64_same_64_executions
+    - G4_G8_G16_G32_fixed_T64
+    - N64_N512_N8000
+    - individual_test_estimator_B128_B256_B512
+  report:
+    - all_R0_to_R5_pass_at_1
+    - test_fraction_and_exact_cases_pass
+    - source_cluster_95pct_CI
+    - training_seed_variability
+    - public_execution_entropy_and_signature_diversity
+    - calibration_contrast_and_abstention
+    - selected_group_count_and_mask_distribution
+    - reserved_audit_behavioral_transfer
+    - real_lora_parameter_delta_and_meta_correctness
+    - teacher_scoring_calls
+    - full_end_to_end_GPU_hours_and_execution_CPU_time
+  label_budget_note: each_train_candidate_executes_F64_and_C8; A8_reserved
+  official_full_SDPO_reproduction: still_required_for_external_performance_claim
+stop_rules:
+  - no_eligible_80_input_cohort_do_not_fabricate_64_tests
+  - if_8K_eligible_bug_cap_missing_report_true_max_and_revise_protocol
+  - if_T64_does_not_add_outcome_discrimination_no_64_feedback_advantage_claim
+  - if_shapley_does_not_outperform_direct_J_random_and_equal_step_no_independent_ShAP_credit_claim
+  - no_paper_accuracy_claim_without_actual_H100_results

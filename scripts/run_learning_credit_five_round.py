@@ -158,7 +158,7 @@ def _coalition_score(
 
 
 def _coalition_score_batch(
-    teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens, microbatch=4
+    teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens, microbatch=16
 ):
     """Score many coalitions in batched teacher forwards (padding + mask).
 
@@ -204,11 +204,16 @@ def _coalition_score_batch(
                 resp_logits, dim=-1
             )
             out.append(selected.detach().cpu().numpy())
+        # Release the [chunk, seq, vocab] FP32 logits before the next chunk
+        # allocates its own, otherwise the CUDA allocator can fragment and stall
+        # on later chunks of a long-prompt candidate.
+        del logits, batch, attn, resp_logits
+        torch.cuda.empty_cache()
     return out
 
 
 def score_candidate(
-    teacher, tokenizer, row, tokens, feedback, *, arm, max_prompt_tokens, microbatch=4
+    teacher, tokenizer, row, tokens, feedback, *, arm, max_prompt_tokens, microbatch=16
 ) -> np.ndarray:
     ntests = len(feedback)
     if ntests != 4:

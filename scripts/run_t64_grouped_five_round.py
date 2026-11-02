@@ -101,7 +101,15 @@ def _safe_feedback(code:str,tests:list[dict])->list[dict]:
 def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
                args,round_idx:int,schedule_round:dict|None=None):
     import torch
+    import time as _time
     sid=row['source_id']
+    _dbg=args.debug_timing if hasattr(args,'debug_timing') else False
+    def _t(label):
+        nonlocal _last
+        if _dbg:
+            print(f'[debug] {label}: {_time.time()-_last:.2f}s', flush=True)
+            _last=_time.time()
+    _last=_time.time()
     reference_mask=None
     random_sources=None
     if schedule_round is not None:
@@ -115,6 +123,7 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
                     'selected_mask':0,'skip':'not_on_random_count_schedule'}
 
     sampled=previous.legacy._sample_rollouts(teacher,tokenizer,row,args,round_idx)
+    _t('sample_rollouts')
     clean=[]
     for _,code in sampled:
         tokens=previous._normalized_ids(tokenizer,code,args.max_new_tokens)
@@ -127,9 +136,11 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
     # All arms execute EXACTLY 64 public tests on every evaluated candidate.
     public=row['public_tests']
     transcript=[_safe_feedback(code,public) for _,code in clean]
+    _t(f'safe_feedback({len(clean)}x64)')
     nested_diagnostics=nested_execution_discrimination(transcript)
     cal=np.array([audit_vector(code,calibration_tests)
                   for _,code in clean],dtype=np.float64)
+    _t('audit_vector')
     # Crucially: do NOT read the hidden 64-T test results into the group builder.
     exposed_public=public[:args.exposed_feedback]
     exposed_transcripts=[v[:args.exposed_feedback] for v in transcript]
@@ -145,6 +156,7 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
                arm=scoring_arm,max_prompt_tokens=args.max_prompt_tokens,
                microbatch=args.microbatch)
              for (tokens,_),fb in zip(clean,feedback)]
+    _t('score_candidate')
     choice=selection_from_arm(args.arm,scores,cal,
             round_index=round_idx,source_id=sid,seed=args.seed,
             reference_mask=reference_mask,reference_update_sources=random_sources,
@@ -257,7 +269,8 @@ def main():
     p.add_argument('--generate-batch',type=int,default=4)
     p.add_argument('--max-new-tokens',type=int,default=256)
     p.add_argument('--max-prompt-tokens',type=int,default=8192)
-    p.add_argument('--microbatch',type=int,default=4)
+    p.add_argument('--microbatch',type=int,default=16)
+    p.add_argument('--debug-timing',action='store_true')
     p.add_argument('--temperature',type=float,default=.7)
     p.add_argument('--learning-rate',type=float,default=1e-5)
     p.add_argument('--beta',type=float,default=.02)

@@ -37,7 +37,7 @@ def digest(path: Path) -> str:
 def read_records(path: Path, keys: set[str]) -> list[dict]:
     rows = []
     seen = set()
-    for line in path.read_text().splitlines():
+    for line in path.read_text().split('\n'):
         if not line.strip():
             continue
         item = json.loads(line)

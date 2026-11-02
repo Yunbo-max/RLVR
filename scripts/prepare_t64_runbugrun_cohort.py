@@ -21,6 +21,7 @@ import json
 from pathlib import Path
 import random
 import sqlite3
+import sys
 
 
 def sha_string(s:str)->str:
@@ -61,17 +62,19 @@ def get_unique_input_bank(db:sqlite3.Connection,pid:str,*,seed:int,
     return bank
 
 
-def _top_bugs_by_problem(db:sqlite3.Connection,split:int,*,seed:int,
+def _top_bugs_by_problem(db:sqlite3.Connection,split:int|tuple[int,...],*,seed:int,
                          cap:int,max_code_chars:int=16000,
                          max_task_chars:int=18000)->dict[str,list[dict]]:
     if cap<1:raise ValueError('positive maximum instances/problem required')
     import heapq
     heaps=defaultdict(list)
-    query='''SELECT b.id,b.problem_id,b.buggy_code,p.text
+    splits=(split,) if isinstance(split,int) else tuple(split)
+    placeholders=','.join('?'*len(splits))
+    query=f'''SELECT b.id,b.problem_id,b.buggy_code,p.text
            FROM bugs b JOIN problems p ON p.problem_id=b.problem_id
-           WHERE b.active=1 AND b.language=5 AND b.split=?
+           WHERE b.active=1 AND b.language=5 AND b.split IN ({placeholders})
            ORDER BY b.problem_id,b.id'''
-    for bugid,pid,code,task in db.execute(query,(split,)):
+    for bugid,pid,code,task in db.execute(query,splits):
         if not isinstance(pid,str) or not isinstance(code,str) or not isinstance(task,str):
             continue
         if not code.strip() or not task.strip() or len(code)>max_code_chars or len(task)>max_task_chars:
@@ -123,7 +126,11 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
     try:
         con.execute('PRAGMA query_only=ON')
         train_bugs_per_problem=_top_bugs_by_problem(con,0,seed=seed,cap=max_per_problem)
-        test_bugs_per_problem=_top_bugs_by_problem(con,2,seed=seed,cap=1)
+        # Final evaluation pool = official validation + test splits (both are
+        # non-training; they overlap heavily on problem IDs, so take the union
+        # rather than pretending val/test are disjoint). We do NOT inflate the
+        # count to a prespecified eval_problems target if fewer are eligible.
+        test_bugs_per_problem=_top_bugs_by_problem(con,(1,2),seed=seed,cap=1)
         def find_banks(pid_collection,exclude=None):
             out={}
             for pid in pid_collection:
@@ -144,14 +151,19 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
                 train_bugs,seed=seed,max_per_problem=max_per_problem)
         eval_banks=find_banks(test_bugs_per_problem,exclude=set(training_banks))
         eval_ids=sorted(eval_banks,key=lambda pid:sha_string(f'{seed}:eval:{pid}'))
-        if len(eval_ids)<eval_problems:
-            raise ValueError(f'need {eval_problems} distinct final problem IDs '
-                             f'with >= {public_tests+calibration_tests+audit_tests} '
-                             f'unique input tests, available only {len(eval_ids)}')
+        if not eval_ids:
+            raise ValueError(f'no eligible final problem IDs with >= '
+                             f'{public_tests+calibration_tests+audit_tests} '
+                             f'unique input tests')
+        eval_take=min(eval_problems,len(eval_ids))
+        if eval_take<eval_problems:
+            print(f'NOTE: requested {eval_problems} eval problems, only '
+                  f'{len(eval_ids)} eligible non-training problems available; '
+                  f'using {eval_take}.', file=sys.stderr)
         selected_meta=[(train_bugs_per_problem[pid][0],training_banks[pid])
                        for pid in pids[:meta_problems]]
         selected_eval=[(test_bugs_per_problem[pid][0],eval_banks[pid])
-                       for pid in eval_ids[:eval_problems]]
+                       for pid in eval_ids[:eval_take]]
     finally:
         con.close()
 
@@ -197,6 +209,8 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         'train_distinct_problem_ids':len(train_pids),
         'meta_distinct_problem_ids':len(meta_pids),
         'eval_distinct_problem_ids':len(eval_pids),
+        'eval_problem_pool':'official validation+test split union (they overlap; not inflated)',
+        'requested_eval_problems':eval_problems,
         'min_public_feedback_tests':64,
         'calibration_tests':calibration_tests,'reserved_audit_tests':audit_tests,
         'unique_input_tests_per_train_problem_required':

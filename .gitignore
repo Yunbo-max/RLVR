@@ -16,6 +16,9 @@ wheels/
 runs/
 logs/qz/full-*.log
 logs/qz/recursive-pilot.log
+logs/qz/lc-pilot.log
+logs/qz/rich64-pilot-*.log
+logs/qz/rich64-pilot-*_job_id.txt
 
 bin/
 logs/qz/behavioral-*.log

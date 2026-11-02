@@ -158,17 +158,24 @@ def _coalition_score(
 
 
 def _coalition_score_batch(
-    teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens
+    teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens, microbatch=4
 ):
-    """Score many coalitions in ONE batched teacher forward (padding + mask).
+    """Score many coalitions in batched teacher forwards (padding + mask).
 
     The 16 group-coalitions share the same fixed response_ids but differ only
     in the feedback prompt prefix. Padding to the longest prefix and masking
     gives identical per-coalition logits at a fraction of 16 sequential calls.
+    Chunk into `microbatch`-sized forwards so a full batch=16 never materializes
+    [16, seq_len, vocab] FP32 logits (which would exceed an 80GB H100 near the
+    8192-token budget). Each chunk is numerically identical to its sequential
+    counterpart because right-padding + causal mask do not perturb the logits of
+    real (non-padding) positions.
     """
     import torch
 
     ntests = len(feedback)
+    if microbatch < 1:
+        raise ValueError("positive microbatch required")
     contexts = []
     for mask in masks:
         chosen = [feedback[j] for j in range(ntests) if mask & (1 << j)]
@@ -177,29 +184,31 @@ def _coalition_score_batch(
         if len(ctx_ids) > max_prompt_tokens:
             raise ValueError("feedback prompt exceeds fixed model input budget")
         contexts.append(ctx_ids)
-    seqs = [ctx + tokens for ctx in contexts]
-    max_len = max(len(s) for s in seqs)
-    batch = torch.zeros(len(seqs), max_len, dtype=torch.long, device=teacher.device)
-    attn = torch.zeros(len(seqs), max_len, dtype=torch.long, device=teacher.device)
-    for i, s in enumerate(seqs):
-        batch[i, : len(s)] = torch.as_tensor(s, dtype=torch.long, device=teacher.device)
-        attn[i, : len(s)] = 1
-    with torch.no_grad():
-        logits = teacher(input_ids=batch, attention_mask=attn, use_cache=False).logits.float()
     chosen = torch.as_tensor(tokens, dtype=torch.long, device=teacher.device)
     out = []
-    for i, ctx in enumerate(contexts):
-        start = len(ctx) - 1
-        resp_logits = logits[i, start : start + len(tokens)]
-        selected = resp_logits.gather(1, chosen.unsqueeze(1)).squeeze(1) - torch.logsumexp(
-            resp_logits, dim=-1
-        )
-        out.append(selected.detach().cpu().numpy())
+    for start in range(0, len(contexts), microbatch):
+        chunk_ctx = contexts[start : start + microbatch]
+        chunk_seqs = [ctx + tokens for ctx in chunk_ctx]
+        max_len = max(len(s) for s in chunk_seqs)
+        batch = torch.zeros(len(chunk_seqs), max_len, dtype=torch.long, device=teacher.device)
+        attn = torch.zeros(len(chunk_seqs), max_len, dtype=torch.long, device=teacher.device)
+        for i, s in enumerate(chunk_seqs):
+            batch[i, : len(s)] = torch.as_tensor(s, dtype=torch.long, device=teacher.device)
+            attn[i, : len(s)] = 1
+        with torch.no_grad():
+            logits = teacher(input_ids=batch, attention_mask=attn, use_cache=False).logits.float()
+        for i, ctx in enumerate(chunk_ctx):
+            s_start = len(ctx) - 1
+            resp_logits = logits[i, s_start : s_start + len(tokens)]
+            selected = resp_logits.gather(1, chosen.unsqueeze(1)).squeeze(1) - torch.logsumexp(
+                resp_logits, dim=-1
+            )
+            out.append(selected.detach().cpu().numpy())
     return out
 
 
 def score_candidate(
-    teacher, tokenizer, row, tokens, feedback, *, arm, max_prompt_tokens
+    teacher, tokenizer, row, tokens, feedback, *, arm, max_prompt_tokens, microbatch=4
 ) -> np.ndarray:
     ntests = len(feedback)
     if ntests != 4:
@@ -210,7 +219,8 @@ def score_candidate(
     else:
         masks = (0, (1 << ntests) - 1)
     scores = _coalition_score_batch(
-        teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens
+        teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens,
+        microbatch=microbatch,
     )
     for mask, s in zip(masks, scores):
         result[mask] = s

@@ -142,8 +142,9 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
     scoring_arm='shapley_select' if args.arm in (
            'shapley','direct_max','random_subset') else 'audit_gate'
     scores=[previous.score_candidate(teacher,tokenizer,row,tokens,fb,
-               arm=scoring_arm,max_prompt_tokens=args.max_prompt_tokens)
-            for (tokens,_),fb in zip(clean,feedback)]
+               arm=scoring_arm,max_prompt_tokens=args.max_prompt_tokens,
+               microbatch=args.microbatch)
+             for (tokens,_),fb in zip(clean,feedback)]
     choice=selection_from_arm(args.arm,scores,cal,
             round_index=round_idx,source_id=sid,seed=args.seed,
             reference_mask=reference_mask,reference_update_sources=random_sources,
@@ -256,6 +257,7 @@ def main():
     p.add_argument('--generate-batch',type=int,default=4)
     p.add_argument('--max-new-tokens',type=int,default=256)
     p.add_argument('--max-prompt-tokens',type=int,default=8192)
+    p.add_argument('--microbatch',type=int,default=4)
     p.add_argument('--temperature',type=float,default=.7)
     p.add_argument('--learning-rate',type=float,default=1e-5)
     p.add_argument('--beta',type=float,default=.02)
@@ -267,9 +269,10 @@ def main():
     args=p.parse_args()
     previous.legacy._require_model_config(args.model_config)
     if (args.rounds!=5 or args.rollouts<2 or args.group_char_budget<200
-        or args.group_char_budget>2048 or not args.init_adapter.is_dir()
+        or args.group_char_budget>2048 or args.microbatch<1
+        or not args.init_adapter.is_dir()
         or not (args.init_adapter/'adapter_config.json').exists()):
-        raise ValueError('five updates, >=2 rollouts, bounded group evidence and fixed LoRA adapter required')
+        raise ValueError('five updates, >=2 rollouts, bounded group evidence, microbatch>=1 and fixed LoRA adapter required')
     train,ev,bycal,manifest=_load_data(args.data_dir,args.train_limit,args.eval_limit)
     manifest_sha=_sha(args.data_dir/'manifest.json')
     adapter_sha=previous._digest_adapter(args.init_adapter)

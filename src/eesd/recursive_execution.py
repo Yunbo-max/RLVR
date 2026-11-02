@@ -142,7 +142,7 @@ def _run_bwrap(
 # tests and candidates cannot introspect the test oracle. The harness compares
 # each child stdout against the expected output it holds privately.
 _BATCH_HARNESS = r'''
-import sys, json, subprocess
+import sys, json, subprocess, signal, os
 
 data = json.loads(sys.stdin.read())
 code = data["code"]
@@ -153,31 +153,43 @@ out = []
 for t in tests:
     inp = str(t["input"])
     expected = str(t["output"])
+    p = subprocess.Popen(
+        [python, "-I", "-S", "-B", "-c", code],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,  # own process group so descendants can be reaped
+        env={"PATH": "/usr/bin:/bin", "PYTHONHASHSEED": "0"},
+    )
     try:
-        r = subprocess.run(
-            [python, "-I", "-B", "-c", code],
-            input=inp,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=timeout,
-            env={"PATH": "/usr/bin:/bin", "PYTHONHASHSEED": "0"},
-        )
+        actual, err = p.communicate(input=inp, timeout=timeout)
     except subprocess.TimeoutExpired:
+        # Kill the whole process group: a forked grandchild holding the pipe
+        # would otherwise make communicate() block forever.
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError, OSError):
+            p.kill()
+        p.communicate()
         out.append({"status": "TIMEOUT", "actual": "",
                     "expected": expected[:4096], "stderr": "time limit exceeded"})
         continue
-    except Exception as e:  # infracstructure failure, not a candidate verdict
+    except Exception as e:  # infrastructure failure, not a candidate verdict
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except Exception:
+            pass
         out.append({"status": "RUNTIME_EXCEPTION", "actual": "",
                     "expected": expected[:4096], "stderr": str(e)[-1000:]})
         continue
-    if r.returncode != 0:
-        status = "COMPILE_ERROR" if "SyntaxError" in r.stderr else "RUNTIME_EXCEPTION"
+    if p.returncode != 0:
+        status = "COMPILE_ERROR" if "SyntaxError" in err else "RUNTIME_EXCEPTION"
     else:
-        status = ("PASS" if r.stdout.rstrip("\r\n") == expected.rstrip("\r\n")
+        status = ("PASS" if actual.rstrip("\r\n") == expected.rstrip("\r\n")
                   else "WRONG_OUTPUT")
-    out.append({"status": status, "actual": r.stdout[:4096],
-                "expected": expected[:4096], "stderr": r.stderr[-1000:]})
+    out.append({"status": status, "actual": actual[:4096],
+                "expected": expected[:4096], "stderr": err[-1000:]})
 sys.stdout.write(json.dumps(out))
 '''
 

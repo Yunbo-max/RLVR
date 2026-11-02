@@ -79,12 +79,13 @@ def test_batch_harness_spawns_independent_child_processes():
     # never exec() the candidate in the harness process (which would share
     # builtins/import/environment state across tests).
     from eesd.recursive_execution import _BATCH_HARNESS
-    assert "subprocess.run" in _BATCH_HARNESS
+    assert "subprocess.Popen" in _BATCH_HARNESS
     assert "exec(" not in _BATCH_HARNESS
     # The child command receives the candidate code and its own input only;
     # the expected output is compared by the harness, never passed to the child.
-    assert "[python, \"-I\", \"-B\", \"-c\", code]" in _BATCH_HARNESS
-    assert "input=inp" in _BATCH_HARNESS
+    assert "[python, \"-I\", \"-S\", \"-B\", \"-c\", code]" in _BATCH_HARNESS
+    assert "start_new_session=True" in _BATCH_HARNESS  # killpg on timeout
+    assert "os.killpg" in _BATCH_HARNESS
 
 
 _bwrap_available = shutil.which("bwrap") is not None
@@ -133,3 +134,20 @@ def test_batch_isolates_environment_mutation_across_tests():
     )
     # Each test starts from CNT=0 in its own process => always prints "1".
     assert [r.status for r in rs] == ["PASS", "PASS"]
+
+
+@pytest.mark.skipif(not _bwrap_available, reason="bwrap not available")
+def test_batch_times_out_forked_grandchild():
+    # A forked grandchild that inherits the stdout pipe would make a plain
+    # subprocess.run(...).communicate() block forever. start_new_session +
+    # killpg must reap the whole group and return TIMEOUT promptly.
+    code = (
+        "import os, sys\n"
+        "c = os.fork()\n"
+        "if c == 0:\n"
+        "    import time; time.sleep(60)\n"
+        "    sys.exit(0)\n"
+        "print('done')"
+    )
+    rs = run_tests_batched(code, [{"input": "", "expected": "done"}], timeout=2)
+    assert rs[0].status == "TIMEOUT"

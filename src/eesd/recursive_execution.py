@@ -135,58 +135,49 @@ def _run_bwrap(
 
 # One bwrap invocation executes MANY tests for the SAME candidate program, so
 # that T=64 (or more) executed public tests do not pay one namespace+interpreter
-# startup per test. The harness reads {code, tests, timeout} as JSON on stdin,
-# exec's the candidate once per test in a fresh namespace with redirected
-# stdin/stdout and per-test SIGALRM timeout, and prints a JSON array of results.
+# startup per test. The harness reads {code, tests, timeout} as JSON on stdin.
+# Each test runs in its OWN child python process inside the bwrap sandbox: the
+# child receives only its own stdin input (never other tests' inputs or any
+# expected output), so builtins/import/environment mutations cannot leak across
+# tests and candidates cannot introspect the test oracle. The harness compares
+# each child stdout against the expected output it holds privately.
 _BATCH_HARNESS = r'''
-import sys, io, json, signal, builtins, traceback
-
-class _Timeout(Exception):
-    pass
-
-def _on_alarm(signum, frame):
-    raise _Timeout()
-
-def _exec_one(code, inp, timeout):
-    out = io.StringIO()
-    err = io.StringIO()
-    saved = (sys.stdin, sys.stdout, sys.stderr)
-    sys.stdin = io.StringIO(inp)
-    sys.stdout = out
-    sys.stderr = err
-    status = "PASS"
-    prev = signal.signal(signal.SIGALRM, _on_alarm)
-    signal.alarm(timeout)
-    try:
-        exec(compile(code, "<candidate>", "exec"),
-             {"__name__": "__main__", "__builtins__": builtins})
-    except SyntaxError:
-        status = "COMPILE_ERROR"
-    except _Timeout:
-        status = "TIMEOUT"
-    except SystemExit as e:
-        status = "RUNTIME_EXCEPTION"
-        err.write("SystemExit: %r" % (e,))
-    except Exception:
-        status = "RUNTIME_EXCEPTION"
-        err.write(traceback.format_exc(limit=3))
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, prev)
-        sys.stdin, sys.stdout, sys.stderr = saved
-    return status, out.getvalue(), err.getvalue()
+import sys, json, subprocess
 
 data = json.loads(sys.stdin.read())
 code = data["code"]
 tests = data["tests"]
 timeout = int(data.get("timeout", 2))
+python = "/usr/bin/python3"
 out = []
 for t in tests:
-    status, actual, stderr = _exec_one(code, str(t["input"]), timeout)
-    if status == "PASS" and actual.rstrip("\r\n") != str(t["output"]).rstrip("\r\n"):
-        status = "WRONG_OUTPUT"
-    out.append({"status": status, "actual": actual[:4096],
-                "expected": str(t["output"])[:4096], "stderr": stderr[-1000:]})
+    inp = str(t["input"])
+    expected = str(t["output"])
+    try:
+        r = subprocess.run(
+            [python, "-I", "-B", "-c", code],
+            input=inp,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=timeout,
+            env={"PATH": "/usr/bin:/bin", "PYTHONHASHSEED": "0"},
+        )
+    except subprocess.TimeoutExpired:
+        out.append({"status": "TIMEOUT", "actual": "",
+                    "expected": expected[:4096], "stderr": "time limit exceeded"})
+        continue
+    except Exception as e:  # infracstructure failure, not a candidate verdict
+        out.append({"status": "RUNTIME_EXCEPTION", "actual": "",
+                    "expected": expected[:4096], "stderr": str(e)[-1000:]})
+        continue
+    if r.returncode != 0:
+        status = "COMPILE_ERROR" if "SyntaxError" in r.stderr else "RUNTIME_EXCEPTION"
+    else:
+        status = ("PASS" if r.stdout.rstrip("\r\n") == expected.rstrip("\r\n")
+                  else "WRONG_OUTPUT")
+    out.append({"status": status, "actual": r.stdout[:4096],
+                "expected": expected[:4096], "stderr": r.stderr[-1000:]})
 sys.stdout.write(json.dumps(out))
 '''
 

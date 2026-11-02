@@ -1,7 +1,9 @@
 from unittest.mock import patch
 from types import SimpleNamespace
+import shutil
 import pytest
 from eesd.recursive_execution import run_test, feedback_for_tests, Outcome
+from eesd.strict_execution import run_tests_batched
 
 
 def test_soft_sandbox_fallback_without_bwrap():
@@ -70,3 +72,64 @@ def test_feedback_requires_distinct_four_tests():
 def test_feedback_requires_distinct_four_tests():
     with pytest.raises(ValueError):
         feedback_for_tests("print(0)", [{"id": 0}] * 4)
+
+
+def test_batch_harness_spawns_independent_child_processes():
+    # The batch harness must run each test in its own child python process,
+    # never exec() the candidate in the harness process (which would share
+    # builtins/import/environment state across tests).
+    from eesd.recursive_execution import _BATCH_HARNESS
+    assert "subprocess.run" in _BATCH_HARNESS
+    assert "exec(" not in _BATCH_HARNESS
+    # The child command receives the candidate code and its own input only;
+    # the expected output is compared by the harness, never passed to the child.
+    assert "[python, \"-I\", \"-B\", \"-c\", code]" in _BATCH_HARNESS
+    assert "input=inp" in _BATCH_HARNESS
+
+
+_bwrap_available = shutil.which("bwrap") is not None
+
+
+@pytest.mark.skipif(not _bwrap_available, reason="bwrap not available")
+def test_batch_matches_sequential_execution():
+    code = "import sys\nx=int(sys.stdin.read())\nprint(x*x)"
+    tests = [{"input": str(n), "expected": str(n * n)} for n in range(8)]
+    tests[3]["expected"] = "999"  # one deliberately wrong oracle
+    batch = run_tests_batched(code, tests, timeout=2)
+    seq = [run_test(code, t, timeout=2) for t in tests]
+    assert [r.status for r in batch] == [r.status for r in seq]
+    assert [r.actual for r in batch] == [r.actual for r in seq]
+
+
+@pytest.mark.skipif(not _bwrap_available, reason="bwrap not available")
+def test_batch_isolates_builtins_mutation_across_tests():
+    # Test 1 poisons builtins.print; test 2 must run in a fresh child and still
+    # print normally. Under the old exec() harness test 2 would inherit the
+    # poisoned builtins.
+    code = (
+        "import builtins, sys\n"
+        "if sys.stdin.read().strip() == '1':\n"
+        "    builtins.print = lambda *a, **k: None\n"
+        "print('hello')"
+    )
+    rs = run_tests_batched(
+        code,
+        [{"input": "1", "expected": "hello"}, {"input": "2", "expected": "hello"}],
+        timeout=2,
+    )
+    assert rs[0].status == "WRONG_OUTPUT"  # poisoned, prints nothing
+    assert rs[1].status == "PASS"  # fresh child, prints hello
+
+
+@pytest.mark.skipif(not _bwrap_available, reason="bwrap not available")
+def test_batch_isolates_environment_mutation_across_tests():
+    code = (
+        "import os, sys\n"
+        "os.environ['CNT'] = str(int(os.environ.get('CNT', '0')) + 1)\n"
+        "print(os.environ['CNT'])"
+    )
+    rs = run_tests_batched(
+        code, [{"input": "", "expected": "1"}, {"input": "", "expected": "1"}], timeout=2
+    )
+    # Each test starts from CNT=0 in its own process => always prints "1".
+    assert [r.status for r in rs] == ["PASS", "PASS"]

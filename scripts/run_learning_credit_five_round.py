@@ -157,6 +157,47 @@ def _coalition_score(
     )[0]
 
 
+def _coalition_score_batch(
+    teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens
+):
+    """Score many coalitions in ONE batched teacher forward (padding + mask).
+
+    The 16 group-coalitions share the same fixed response_ids but differ only
+    in the feedback prompt prefix. Padding to the longest prefix and masking
+    gives identical per-coalition logits at a fraction of 16 sequential calls.
+    """
+    import torch
+
+    ntests = len(feedback)
+    contexts = []
+    for mask in masks:
+        chosen = [feedback[j] for j in range(ntests) if mask & (1 << j)]
+        ctx = None if mask == 0 else chosen
+        ctx_ids = legacy.prompt_ids(tokenizer, row, ctx)
+        if len(ctx_ids) > max_prompt_tokens:
+            raise ValueError("feedback prompt exceeds fixed model input budget")
+        contexts.append(ctx_ids)
+    seqs = [ctx + tokens for ctx in contexts]
+    max_len = max(len(s) for s in seqs)
+    batch = torch.zeros(len(seqs), max_len, dtype=torch.long, device=teacher.device)
+    attn = torch.zeros(len(seqs), max_len, dtype=torch.long, device=teacher.device)
+    for i, s in enumerate(seqs):
+        batch[i, : len(s)] = torch.as_tensor(s, dtype=torch.long, device=teacher.device)
+        attn[i, : len(s)] = 1
+    with torch.no_grad():
+        logits = teacher(input_ids=batch, attention_mask=attn, use_cache=False).logits.float()
+    chosen = torch.as_tensor(tokens, dtype=torch.long, device=teacher.device)
+    out = []
+    for i, ctx in enumerate(contexts):
+        start = len(ctx) - 1
+        resp_logits = logits[i, start : start + len(tokens)]
+        selected = resp_logits.gather(1, chosen.unsqueeze(1)).squeeze(1) - torch.logsumexp(
+            resp_logits, dim=-1
+        )
+        out.append(selected.detach().cpu().numpy())
+    return out
+
+
 def score_candidate(
     teacher, tokenizer, row, tokens, feedback, *, arm, max_prompt_tokens
 ) -> np.ndarray:
@@ -165,13 +206,14 @@ def score_candidate(
         raise ValueError("four public feedback tests required")
     result = np.zeros((1 << ntests, len(tokens)), dtype=np.float64)
     if arm == "shapley_select":
-        masks = range(1 << ntests)
+        masks = list(range(1 << ntests))
     else:
         masks = (0, (1 << ntests) - 1)
-    for mask in masks:
-        result[mask] = _coalition_score(
-            teacher, tokenizer, row, tokens, feedback, mask, max_prompt_tokens
-        )
+    scores = _coalition_score_batch(
+        teacher, tokenizer, row, tokens, feedback, masks, max_prompt_tokens
+    )
+    for mask, s in zip(masks, scores):
+        result[mask] = s
     return result
 
 

@@ -31,7 +31,7 @@ from eesd.feedback_group_credit import (VALID_T,form_groups,
     compact_candidate_groups,nested_execution_discrimination)
 from eesd.learning_credit_selection import (
     selection_from_arm,sample_matched_update_sources)
-from eesd.strict_execution import run_test,audit_vector
+from eesd.strict_execution import run_test,audit_vector,run_tests_batched
 
 ARMS=('no_update','sdpo','audit_gate','direct_max','shapley',
       'random_subset','matched_random_updates')
@@ -89,15 +89,13 @@ def _panel(train:list[dict],round_id:int,*,seed:int,mode:str)->set[str]:
 
 def _safe_feedback(code:str,tests:list[dict])->list[dict]:
     """Faithful compact execution transcript, no reference fixed code."""
-    rows=[]
-    for test in tests:
-        v=run_test(code,test)
-        rows.append({'id':str(test['id']),
+    outcomes=run_tests_batched(code,tests)
+    return [{'id':str(test['id']),
             'input':test['input'][:512],
             'expected':test['expected'][:512],
             'actual':v.actual[:512], 'stderr':v.stderr[:512],
-            'outcome':v.status})
-    return rows
+            'outcome':v.status}
+            for test,v in zip(tests,outcomes)]
 
 
 def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,

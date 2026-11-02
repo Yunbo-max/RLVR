@@ -1,0 +1,301 @@
+{
+  "dataset": "RunBugRun official SQLite, Python language=5",
+  "db_sha256": "a4d604ad968f7078775403e21ee6565be85e7ab0efd2d15935bb9fc4a6cf4bc2",
+  "interpretation": {
+    "T4_requires_12_unique_test_inputs": "4 feedback + 4 calibration + 4 reserved",
+    "T4_with_better_calibration_requires_20": "4 feedback + 8 calibration + 8 reserved",
+    "T8_requires_24_unique_test_inputs": "8 feedback + 8 calibration + 8 reserved",
+    "execution_feedback_diversity": "not measurable from SQLite test rows alone; run a fixed-model pilot",
+    "nested_T4_vs_T8_pool": "Use the exact SAME >=24-unique-input eligible problem population, split once, hold C8/A8 fixed",
+    "safety": "No buggy/fixed code was executed, fixed_code was never queried",
+    "statistical_unit": "problem_id, not independent bugs sampled from the same problem"
+  },
+  "model_input_token_filter": {
+    "max": null,
+    "min": null
+  },
+  "problem_id_overlap_raw_dataset": {
+    "train_test": 0,
+    "train_validation": 0,
+    "validation_test": 225
+  },
+  "schema": "eesd-runbugrun-feasibility-audit-v1",
+  "split_stats": {
+    "test": {
+      "active_test_ids_per_problem": {
+        "max": 123,
+        "median": 100,
+        "min": 1,
+        "n": 247,
+        "p10": 3,
+        "p90": 105
+      },
+      "duplicate_test_rows_per_problem": {
+        "max": 0,
+        "median": 0,
+        "min": 0,
+        "n": 247,
+        "p10": 0,
+        "p90": 0
+      },
+      "eligible_for_64feedback_8cal_8audit_bug_instances": 5678,
+      "eligible_for_64feedback_8cal_8audit_distinct_problems": 162,
+      "eligible_without_conflicting_inputs": {
+        "12": {
+          "distinct_problem_ids": 200,
+          "total_bug_instances": 6598
+        },
+        "128": {
+          "distinct_problem_ids": 0,
+          "total_bug_instances": 0
+        },
+        "16": {
+          "distinct_problem_ids": 199,
+          "total_bug_instances": 6596
+        },
+        "20": {
+          "distinct_problem_ids": 197,
+          "total_bug_instances": 6538
+        },
+        "24": {
+          "distinct_problem_ids": 195,
+          "total_bug_instances": 6442
+        },
+        "32": {
+          "distinct_problem_ids": 189,
+          "total_bug_instances": 6313
+        },
+        "4": {
+          "distinct_problem_ids": 213,
+          "total_bug_instances": 7003
+        },
+        "40": {
+          "distinct_problem_ids": 183,
+          "total_bug_instances": 6176
+        },
+        "48": {
+          "distinct_problem_ids": 177,
+          "total_bug_instances": 6125
+        },
+        "64": {
+          "distinct_problem_ids": 167,
+          "total_bug_instances": 5881
+        },
+        "72": {
+          "distinct_problem_ids": 166,
+          "total_bug_instances": 5830
+        },
+        "8": {
+          "distinct_problem_ids": 201,
+          "total_bug_instances": 6611
+        },
+        "80": {
+          "distinct_problem_ids": 162,
+          "total_bug_instances": 5678
+        },
+        "96": {
+          "distinct_problem_ids": 137,
+          "total_bug_instances": 4845
+        }
+      },
+      "problems_with_conflicting_expected_output_for_same_input": 0,
+      "python_bug_instances_with_tests": 7832,
+      "python_distinct_problem_ids_with_tests": 247,
+      "theoretical_cap_16bugs_per_eligible_problem": 1796,
+      "theoretical_cap_32bugs_per_eligible_problem": 3109,
+      "theoretical_cap_8bugs_per_eligible_problem": 1010,
+      "unique_input_tests_per_problem": {
+        "max": 123,
+        "median": 100,
+        "min": 1,
+        "n": 247,
+        "p10": 3,
+        "p90": 105
+      }
+    },
+    "train": {
+      "active_test_ids_per_problem": {
+        "max": 184,
+        "median": 101,
+        "min": 1,
+        "n": 1583,
+        "p10": 6,
+        "p90": 111
+      },
+      "duplicate_test_rows_per_problem": {
+        "max": 3,
+        "median": 0,
+        "min": 0,
+        "n": 1583,
+        "p10": 0,
+        "p90": 0
+      },
+      "eligible_for_64feedback_8cal_8audit_bug_instances": 129621,
+      "eligible_for_64feedback_8cal_8audit_distinct_problems": 1098,
+      "eligible_without_conflicting_inputs": {
+        "12": {
+          "distinct_problem_ids": 1371,
+          "total_bug_instances": 148779
+        },
+        "128": {
+          "distinct_problem_ids": 34,
+          "total_bug_instances": 8903
+        },
+        "16": {
+          "distinct_problem_ids": 1346,
+          "total_bug_instances": 147090
+        },
+        "20": {
+          "distinct_problem_ids": 1322,
+          "total_bug_instances": 146361
+        },
+        "24": {
+          "distinct_problem_ids": 1310,
+          "total_bug_instances": 144685
+        },
+        "32": {
+          "distinct_problem_ids": 1273,
+          "total_bug_instances": 142754
+        },
+        "4": {
+          "distinct_problem_ids": 1465,
+          "total_bug_instances": 156991
+        },
+        "40": {
+          "distinct_problem_ids": 1255,
+          "total_bug_instances": 141992
+        },
+        "48": {
+          "distinct_problem_ids": 1228,
+          "total_bug_instances": 140571
+        },
+        "64": {
+          "distinct_problem_ids": 1173,
+          "total_bug_instances": 136114
+        },
+        "72": {
+          "distinct_problem_ids": 1134,
+          "total_bug_instances": 133839
+        },
+        "8": {
+          "distinct_problem_ids": 1405,
+          "total_bug_instances": 152991
+        },
+        "80": {
+          "distinct_problem_ids": 1098,
+          "total_bug_instances": 129621
+        },
+        "96": {
+          "distinct_problem_ids": 996,
+          "total_bug_instances": 120687
+        }
+      },
+      "problems_with_conflicting_expected_output_for_same_input": 0,
+      "python_bug_instances_with_tests": 160054,
+      "python_distinct_problem_ids_with_tests": 1583,
+      "theoretical_cap_16bugs_per_eligible_problem": 11755,
+      "theoretical_cap_32bugs_per_eligible_problem": 20754,
+      "theoretical_cap_8bugs_per_eligible_problem": 6613,
+      "unique_input_tests_per_problem": {
+        "max": 184,
+        "median": 101,
+        "min": 1,
+        "n": 1583,
+        "p10": 6,
+        "p90": 111
+      }
+    },
+    "validation": {
+      "active_test_ids_per_problem": {
+        "max": 123,
+        "median": 99,
+        "min": 1,
+        "n": 249,
+        "p10": 3,
+        "p90": 105
+      },
+      "duplicate_test_rows_per_problem": {
+        "max": 0,
+        "median": 0,
+        "min": 0,
+        "n": 249,
+        "p10": 0,
+        "p90": 0
+      },
+      "eligible_for_64feedback_8cal_8audit_bug_instances": 5645,
+      "eligible_for_64feedback_8cal_8audit_distinct_problems": 161,
+      "eligible_without_conflicting_inputs": {
+        "12": {
+          "distinct_problem_ids": 200,
+          "total_bug_instances": 6569
+        },
+        "128": {
+          "distinct_problem_ids": 0,
+          "total_bug_instances": 0
+        },
+        "16": {
+          "distinct_problem_ids": 199,
+          "total_bug_instances": 6568
+        },
+        "20": {
+          "distinct_problem_ids": 197,
+          "total_bug_instances": 6506
+        },
+        "24": {
+          "distinct_problem_ids": 195,
+          "total_bug_instances": 6425
+        },
+        "32": {
+          "distinct_problem_ids": 189,
+          "total_bug_instances": 6295
+        },
+        "4": {
+          "distinct_problem_ids": 215,
+          "total_bug_instances": 6963
+        },
+        "40": {
+          "distinct_problem_ids": 182,
+          "total_bug_instances": 6146
+        },
+        "48": {
+          "distinct_problem_ids": 176,
+          "total_bug_instances": 6076
+        },
+        "64": {
+          "distinct_problem_ids": 167,
+          "total_bug_instances": 5824
+        },
+        "72": {
+          "distinct_problem_ids": 164,
+          "total_bug_instances": 5787
+        },
+        "8": {
+          "distinct_problem_ids": 201,
+          "total_bug_instances": 6575
+        },
+        "80": {
+          "distinct_problem_ids": 161,
+          "total_bug_instances": 5645
+        },
+        "96": {
+          "distinct_problem_ids": 136,
+          "total_bug_instances": 4868
+        }
+      },
+      "problems_with_conflicting_expected_output_for_same_input": 0,
+      "python_bug_instances_with_tests": 7796,
+      "python_distinct_problem_ids_with_tests": 249,
+      "theoretical_cap_16bugs_per_eligible_problem": 1803,
+      "theoretical_cap_32bugs_per_eligible_problem": 3049,
+      "theoretical_cap_8bugs_per_eligible_problem": 1006,
+      "unique_input_tests_per_problem": {
+        "max": 123,
+        "median": 99,
+        "min": 1,
+        "n": 249,
+        "p10": 3,
+        "p90": 105
+      }
+    }
+  }
+}

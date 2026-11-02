@@ -38,8 +38,14 @@ def file_sha(path:Path)->str:
 
 def get_unique_input_bank(db:sqlite3.Connection,pid:str,*,seed:int,
                           feedback:int=64,calibration:int=8,audit:int=8,
-                          max_io_chars:int=8192) -> list[dict] | None:
-    """Exclude inconsistent or oversized test oracle records."""
+                          max_io_chars:int=8192,min_unique:int|None=None) -> list[dict] | None:
+    """Exclude inconsistent or oversized test oracle records.
+
+    Training problems need feedback+calibration+audit unique inputs (F64+C8+A8)
+    for grouped Shapley. Final evaluation does NOT use Shapley grouping, so it
+    only needs a reasonably reliable official test set; pass min_unique to relax
+    that threshold (e.g. 10) while still taking every unique input as the oracle.
+    """
     rows={}
     for tid,inp,out,origin in db.execute(
         'SELECT id,input,output,origin FROM tests '
@@ -54,7 +60,8 @@ def get_unique_input_bank(db:sqlite3.Connection,pid:str,*,seed:int,
             continue
         rows[inp]={'id':str(tid),'input':inp,'expected':out,
                    'origin':int(origin or 0)}
-    if len(rows)<feedback+calibration+audit:
+    required=feedback+calibration+audit if min_unique is None else min_unique
+    if len(rows)<required:
         return None
     bank=list(rows.values())
     rng=random.Random(int(sha_string(f'{seed}:{pid}:frozen-testbank')[:16],16))
@@ -117,26 +124,28 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
            meta_problems:int=64,eval_problems:int=256,
            max_per_problem:int=16,seed:int=1701,
            public_tests:int=64,calibration_tests:int=8,
-           audit_tests:int=8)->dict:
+           audit_tests:int=8,min_eval_tests:int=10)->dict:
     if (min(train_bugs,meta_problems,eval_problems,max_per_problem,
-            public_tests,calibration_tests,audit_tests)<1
+            public_tests,calibration_tests,audit_tests,min_eval_tests)<1
         or public_tests!=64 or not db_path.is_file() or root.exists()):
         raise ValueError('fresh output, official SQLite, T64 and positive counts required')
     con=sqlite3.connect(f'file:{db_path.resolve().as_posix()}?mode=ro',uri=True)
     try:
         con.execute('PRAGMA query_only=ON')
         train_bugs_per_problem=_top_bugs_by_problem(con,0,seed=seed,cap=max_per_problem)
-        # Final evaluation pool = official validation + test splits (both are
-        # non-training; they overlap heavily on problem IDs, so take the union
-        # rather than pretending val/test are disjoint). We do NOT inflate the
-        # count to a prespecified eval_problems target if fewer are eligible.
-        test_bugs_per_problem=_top_bugs_by_problem(con,(1,2),seed=seed,cap=1)
-        def find_banks(pid_collection,exclude=None):
+        # Final evaluation uses the OFFICIAL test split only (test-only), NOT the
+        # validation+test union. Evaluation does not run grouped Shapley, so it
+        # only needs a reasonably reliable official test bank (>= min_eval_tests
+        # unique inputs), which admits far more independent problems than the
+        # training-side >=80 threshold.
+        test_bugs_per_problem=_top_bugs_by_problem(con,2,seed=seed,cap=1)
+        def find_banks(pid_collection,exclude=None,min_unique=None):
             out={}
             for pid in pid_collection:
                 if pid in (exclude or set()):continue
                 bank=get_unique_input_bank(con,pid,seed=seed,feedback=64,
-                         calibration=calibration_tests,audit=audit_tests)
+                         calibration=calibration_tests,audit=audit_tests,
+                         min_unique=min_unique)
                 if bank is not None:out[pid]=bank
             return out
         training_banks=find_banks(train_bugs_per_problem)
@@ -149,12 +158,12 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         selected_train=select_balanced(train_bugs_per_problem,
                 {pid:bank for pid,bank in training_banks.items() if pid not in meta_ids},
                 train_bugs,seed=seed,max_per_problem=max_per_problem)
-        eval_banks=find_banks(test_bugs_per_problem,exclude=set(training_banks))
+        eval_banks=find_banks(test_bugs_per_problem,exclude=set(training_banks),
+                              min_unique=min_eval_tests)
         eval_ids=sorted(eval_banks,key=lambda pid:sha_string(f'{seed}:eval:{pid}'))
         if not eval_ids:
             raise ValueError(f'no eligible final problem IDs with >= '
-                             f'{public_tests+calibration_tests+audit_tests} '
-                             f'unique input tests')
+                             f'{min_eval_tests} unique input tests')
         eval_take=min(eval_problems,len(eval_ids))
         if eval_take<eval_problems:
             print(f'NOTE: requested {eval_problems} eval problems, only '
@@ -191,8 +200,10 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         output['meta_do_not_train.jsonl'].append({**row,
                      'evaluation_tests':bank[:64+calibration_tests+audit_tests]})
     for row,bank in selected_eval:
+        # Final evaluation uses the full official test bank (every unique input),
+        # not the fixed 64+8+8 slice that only grouped-Shapley training needs.
         output['eval_private.jsonl'].append({**row,
-                     'evaluation_tests':bank[:64+calibration_tests+audit_tests]})
+                     'evaluation_tests':bank})
 
     root.mkdir(parents=True,exist_ok=False)
     for filename,records in output.items():
@@ -209,8 +220,9 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         'train_distinct_problem_ids':len(train_pids),
         'meta_distinct_problem_ids':len(meta_pids),
         'eval_distinct_problem_ids':len(eval_pids),
-        'eval_problem_pool':'official validation+test split union (they overlap; not inflated)',
+        'eval_problem_pool':'official test split only (test-only; NOT validation+test union)',
         'requested_eval_problems':eval_problems,
+        'min_eval_tests':min_eval_tests,
         'min_public_feedback_tests':64,
         'calibration_tests':calibration_tests,'reserved_audit_tests':audit_tests,
         'unique_input_tests_per_train_problem_required':
@@ -219,7 +231,7 @@ def freeze(db_path:Path,root:Path,*,train_bugs:int=8000,
         'train_problem_instance_histogram':{str(k):v for k,v in sorted(Counter(counts.values()).items())},
         'all_arms_execute_64_public_tests_but_expose_only_nested_T':True,
         'gold_fixed_code_never_queried':True,
-        'final_evaluation_protocol':'fixed first 80 (or 64+C+A) active test inputs per distinct problem, not all official tests',
+        'final_evaluation_protocol':'full official test bank (every unique active input) per distinct test-split problem, not the fixed 80-test slice; test count varies by problem (~80-123)',
         'file_sha256':{p:file_sha(root/p) for p in output},
     }
     (root/'manifest.json').write_text(json.dumps(manifest,sort_keys=True,indent=2)+'\n')
@@ -232,10 +244,12 @@ if __name__=='__main__':
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--train-bugs',type=int,default=8000)
     parser.add_argument('--meta-problems',type=int,default=64)
-    parser.add_argument('--eval-problems',type=int,default=256)
+    parser.add_argument('--eval-problems',type=int,default=248)
     parser.add_argument('--max-per-problem',type=int,default=16)
+    parser.add_argument('--min-eval-tests',type=int,default=10)
     parser.add_argument('--seed',type=int,default=1701)
     a=parser.parse_args()
     print(json.dumps(freeze(a.db,a.output,train_bugs=a.train_bugs,
           meta_problems=a.meta_problems,eval_problems=a.eval_problems,
-          max_per_problem=a.max_per_problem,seed=a.seed),indent=2))
+          max_per_problem=a.max_per_problem,min_eval_tests=a.min_eval_tests,
+          seed=a.seed),indent=2))

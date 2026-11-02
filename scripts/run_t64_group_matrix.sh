@@ -10,8 +10,10 @@ DATA="$1"; OUT="$2"; T="$3"; STAGE="$4"; SEED="$5"
 case "$T" in 4|8|16|32|64) ;; *) echo "T must be 4/8/16/32/64" >&2; exit 2 ;; esac
 case "$STAGE" in
  pilot) TRAIN=64; EVAL=64; G=4; PANEL=repeat ;;
- mechanism) TRAIN=512; EVAL=256; G=8; PANEL=repeat ;;
- scale) TRAIN=8000; EVAL=256; G=8; PANEL=rotate ;;
+ # eval pool = official test split (test-only) with >=10 unique input tests;
+ # prepare_t64_runbugrun_cohort.py freezes 199 such problems (not 256, not 248).
+ mechanism) TRAIN=512; EVAL=199; G=8; PANEL=repeat ;;
+ scale) TRAIN=8000; EVAL=199; G=8; PANEL=rotate ;;
  *) echo "STAGE must be pilot, mechanism or scale" >&2; exit 2 ;;
 esac
 if [[ -e "$OUT" ]]; then echo "Refusing to overwrite $OUT" >&2; exit 1; fi

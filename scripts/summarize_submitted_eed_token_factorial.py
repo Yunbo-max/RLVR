@@ -52,7 +52,9 @@ def _read(path:Path)->tuple[dict,dict]:
         v=r.get("all_tests_pass")
         if v not in (True,False,0,1) or isinstance(v,str):
             raise ValueError("all_tests_pass must be boolean/binary")
-        pid=r.get("problem_id",r.get("task_id"))
+        # PBPF returns task_id, but a task ID is NOT guaranteed to be an
+        # independent benchmark problem. Require an external frozen mapping.
+        pid=r.get("problem_id")
         rows[sid]={"success":int(v),"problem_id":str(pid) if pid is not None else None}
     for key in IDENTITY_FIELDS:
         if key=="execution_lock_sha256" and report.get("execution_profile")=="sandbox":

@@ -110,8 +110,12 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
     if receipt.get("schema")!="eesd-iclr2027-independent-case-v1":
         raise ValueError("invalid EED independent case")
     if receipt["status"] not in (
-        "trained_awaiting_independent_evaluation","completed_without_gpu"):
+        "trained_awaiting_independent_evaluation","completed_diagnostic_without_gpu"):
         raise ValueError("case has no verified training/baseline adapter")
+    if (receipt["case"]["kind"]=="baseline") != (
+        receipt["status"]=="completed_diagnostic_without_gpu"
+    ):
+        raise ValueError("baseline/trained status does not match case type")
     if workers<1 or workers>64:raise ValueError("invalid evaluation parallel worker count")
     kind=receipt["case"]["kind"]
     if kind not in ("train","baseline"):

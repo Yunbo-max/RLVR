@@ -95,17 +95,21 @@ def edited_completion_mask(
     # surviving token after the deletion is the decision that skips the
     # removed span. Give that boundary a credit position (never EOS);
     # if deletion is at the end, use the last surviving program token.
+    has_eos = bool(
+        eos and after_ids and
+        after_ids[-1] == getattr(tokenizer, "eos_token_id", None)
+    )
+    last_program_position = len(after_ids) - (2 if has_eos else 1)
     for tag, i1, i2, j1, j2 in SequenceMatcher(
         a=before_ids, b=after_ids, autojunk=False
     ).get_opcodes():
-        if tag == "delete" and len(after_ids) > 1:
-            boundary = min(j1, len(after_ids)-2)
+        if tag == "delete" and last_program_position >= 0:
+            boundary = min(j1, last_program_position)
             changed[boundary] = True
     changed = changed[: len(target)].astype(bool)
     # EOS is a policy-termination token, not an edit.
-    if eos and len(after_ids) > 0 and after_ids[-1] == getattr(tokenizer, "eos_token_id", None):
-        if len(target) == len(after_ids):
-            changed[-1] = False
+    if has_eos and len(target) == len(after_ids):
+        changed[-1] = False
     return changed
 
 

@@ -36,6 +36,7 @@ from eesd.distillation import TRAIN_RULES,validate_scored_record
 from eesd.training_outcomes import tree_sha
 import prepare_submitted_dirichlet_rebuttal_weights as weightlib
 import audit_eesd_token_aware_inputs as input_audit
+import check_eesd_rebuttal_coverage as cell_coverage
 
 REGISTRY=ROOT/"configs/rebuttal/eesd_case_registry.json"
 TRAINER=ROOT/"scripts/run_eesd_weighted_sft.py"
@@ -301,6 +302,8 @@ def prepare_case(args,case:dict,folder:Path)->dict:
     manifest={
         "schema":"eesd-iclr2027-independent-case-v1",
         "case":case,"study":args.study,"seed":args.seed,
+        "original_paper_cell":getattr(args,"cell",None),
+        "cell_identity_audit":getattr(args,"cell_identity",None),
         "created_at":time_now(),"status":"prepared",
         "setup":setup,"frozen_case_input_hashes":file_inputs,
         "data_provenance_sha256":file_sha(folder/"data_provenance.json"),
@@ -385,11 +388,17 @@ def run_case(folder:Path)->dict:
     return manifest
 
 
-def main():
+def main(*, selected_case:str|None=None):
+    """One fixed CASE per entrypoint; no CLI override can change its identity."""
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--list",action="store_true",help="list all registered case IDs and reviewer mapping")
-    p.add_argument("--case",choices=sorted(load_cases()))
+    p.add_argument("--case",choices=sorted(load_cases()),
+                   help="Case registry ID; omitted for scripts/rebuttal_cases/cXX_*.py")
     p.add_argument("--study",type=str,default="codearc_deepseek")
+    p.add_argument("--cell",choices=sorted(cell_coverage.load_matrix()),
+                   help="Strongly recommended: auto-name study and bind model+dataset to one of the 12 original paper cells.")
+    p.add_argument("--strict-record-identity",action="store_true",
+                   help="Require every correction record to state the chosen model revision and dataset.")
     p.add_argument("--seed",type=int,default=1701)
     p.add_argument("--out-root",type=Path,default=Path("runs/eesd-iclr2027-rebuttal"))
     p.add_argument("--action",choices=("prepare","run","both"),default="prepare")
@@ -408,7 +417,29 @@ def main():
                            "reviewers":c["reviewers"],"goal":c["goal"]}
                           for c in cases.values()],indent=2,ensure_ascii=False))
         return
+    if selected_case is not None:
+        if selected_case not in cases:
+            p.error("wrapper case is not registered")
+        if args.case is not None and args.case!=selected_case:
+            p.error("independent case entrypoint cannot run another --case")
+        args.case=selected_case
     if args.case is None:p.error("--case is required except for --list")
+    if args.cell:
+        profile=cell_coverage.load_matrix()[args.cell]
+        if args.model_config is not None:
+            cfg=yaml.safe_load(args.model_config.read_text())
+            if (cfg.get("model_id")!=profile["model_id"] or
+                cfg.get("revision")!=profile["model_revision"]):
+                p.error("model YAML identity differs from selected --cell")
+        if args.action in ("prepare","both") and args.corrections is not None:
+            args.cell_identity=cell_coverage.audit_correction_identity(
+                args.cell,args.corrections,strict=args.strict_record_identity
+            )
+        else:
+            args.cell_identity=None
+        args.study=args.cell
+    else:
+        args.cell_identity=None
     folder=safe_path(args.out_root,args.study,args.case,args.seed)
     case=cases[args.case]
     if args.action in ("prepare","both"):

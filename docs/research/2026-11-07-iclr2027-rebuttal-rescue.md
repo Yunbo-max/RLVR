@@ -91,11 +91,11 @@ Each arm is then trained under the same pinned model config, seed, token budget,
     python scripts/run_eesd_weighted_sft.py \
       --input runs/rebuttal-matched-arm-data/adaptive_eed/scored-corrections.jsonl \
       --rule eesd_full --include-zero-weight-kl \
-      --model-config configs/models/deepseek_6p7b.yaml \
+      --model-config configs/rebuttal/deepseek_coder_6p7b.yaml \
       --seed 1701 --response-token-budget 524288 \
       --anchor-beta 0.03 --output runs/rebuttal-deepseek-codearc-eed
 
-The model-config path is an EXAMPLE and must be replaced with the exact pinned original model config file available in the environment. Run the other arms with the identical arguments except --input/--output. Anonymized source-disjoint eval and the original correction corpus are prerequisites; the GitHub repository contains neither a completed matched H100 rebuttal matrix nor verified reproducibility of the old 500-source training/eval population. Inspect the per-arm training-report.json optimizer_steps/response_tokens/anchor_beta and independently compare initial LoRA checkpoint bytes before claiming a fair training comparison.
+Pinned original model configs for DeepSeek, Qwen and Gemma are included under configs/rebuttal, derived from configs/experiments/eesd_final.yaml. Weights must be in the local Hugging Face cache before launching. Run the other arms with the identical arguments except --input/--output. Anonymized source-disjoint eval and the original correction corpus are prerequisites; the GitHub repository contains neither a completed matched H100 rebuttal matrix nor verified reproducibility of the old 500-source training/eval population. Inspect the per-arm training-report.json optimizer_steps/response_tokens/anchor_beta and independently compare initial LoRA checkpoint bytes before claiming a fair training comparison.
 
 Never use the new three-state EESD score_trajectory to generate the original four-state weights. This rebuttal branch has CPU unit tests, not scientific outcome results.
 

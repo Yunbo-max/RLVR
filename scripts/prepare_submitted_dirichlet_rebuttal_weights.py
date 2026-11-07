@@ -33,7 +33,8 @@ from eesd.registry import OUTCOMES
 
 UTIL=(1.0,-1.0,0.0,0.0)
 WEIGHTS=("equal_weight","fixed_mass","adaptive_eed","eed_no_uncertainty",
-         "constant_mass_matched","shuffled_eed","eed_terminal_quality")
+         "constant_mass_matched","shuffled_eed","eed_terminal_quality",
+         "final_correctness","scalar_confidence")
 TEMPERATURE_SCALE=(0.5,1.0,2.0)
 
 
@@ -91,6 +92,8 @@ def weights_for_record(before:list[int],after:list[int],relevance:list[float],*,
        "adaptive_eed":eed["positive_weight"],
        "eed_no_uncertainty":unpenalized["positive_weight"],
        "eed_terminal_quality":eed["positive_weight"]*q,
+       "final_correctness":float(q==1.0),
+       "scalar_confidence":float(q),
        "absolute_final_public_pass_fraction":q,
        "effective_mass":effective_mass(relevance),
        "fixed_mass_value":len(relevance),
@@ -139,16 +142,26 @@ def validate_raw(rows:list[dict])->list[dict]:
 
 
 def add_weights(rows:list[dict],*,alpha:float=.1,lam:float=.5,
-                seed:int=1701,include_kappa_sweep:bool=True)->tuple[list[dict],dict]:
+                seed:int=1701,include_kappa_sweep:bool=True,
+                kappa:float=16.)->tuple[list[dict],dict]:
+    if not math.isfinite(kappa) or kappa<=0:
+        raise ValueError("kappa must be finite and positive")
     normalized=validate_raw(rows)
     annotated=[]
     for row in normalized:
+        # Power-transform only the ORIGINAL s_i=exp(16*cos) kernel scores.
+        # Scaling `log(s_i)` by kappa/16 retains the exact relevance model;
+        # it is NOT an ablation of the temperature without source provenance.
+        relevance=(row["relevance"] if kappa==16. else
+                   pow_relevance(row["relevance"],kappa/16.))
         exact=weights_for_record(row["before_outcomes"],row["after_outcomes"],
-            row["relevance"],alpha=alpha,lam=lam)
+            relevance,alpha=alpha,lam=lam)
         w={k:float(exact[k]) for k in
            ("equal_weight","fixed_mass","adaptive_eed","eed_no_uncertainty",
-            "eed_terminal_quality")}
+            "eed_terminal_quality","final_correctness","scalar_confidence")}
         detail={k:v for k,v in exact.items() if k not in w}
+        detail["kappa_used_for_current_weights"]=kappa
+        detail["source_relevance_kernel_kappa"]=16.0
         if include_kappa_sweep:
             detail["kappa_relative_sweep"]={}
             for factor in TEMPERATURE_SCALE:
@@ -156,7 +169,7 @@ def add_weights(rows:list[dict],*,alpha:float=.1,lam:float=.5,
                     pow_relevance(row["relevance"],factor),alpha=alpha,lam=lam)
                 detail["kappa_relative_sweep"][str(16*factor)]={
                     "effective_mass":varied["effective_mass"],
-                    "eadptive_weight":varied["adaptive_eed"],
+                    "adaptive_weight":varied["adaptive_eed"],
                     "zero_weight":varied["adaptive_eed"]==0.0}
         annotated.append({**row,"rebuttal_weights":w,
                           "rebuttal_diagnostics":detail})
@@ -182,6 +195,7 @@ def add_weights(rows:list[dict],*,alpha:float=.1,lam:float=.5,
         "schema":"eesd-submitted-four-state-rebuttal-weights-v1",
         "method":"ICLR2027 original Dirichlet EESD, not new 3-state axiomatic EESD",
         "utility":list(UTIL),"alpha":alpha,"uncertainty_penalty":lam,
+        "kappa":kappa,"source_kernel_kappa":16.,
         "seed":seed,"row_counts":dict(Counter(r["split"] for r in annotated)),
         "source_counts":{split:len({r["source_component_id"] for r in annotated
                                   if r["split"]==split}) for split in ("train","development")},
@@ -207,12 +221,14 @@ def main():
     p.add_argument("--alpha",type=float,default=.1)
     p.add_argument("--lambda-penalty",type=float,default=.5)
     p.add_argument("--seed",type=int,default=1701)
+    p.add_argument("--kappa",type=float,choices=(8.,16.,32.),default=16.)
     p.add_argument("--skip-kappa-sweep",action="store_true")
     a=p.parse_args()
     if a.output.exists():raise FileExistsError("output already exists")
     original=[json.loads(s) for s in a.input.read_text().split("\n") if s.strip()]
     scored,manifest=add_weights(original,alpha=a.alpha,lam=a.lambda_penalty,
-                                seed=a.seed,include_kappa_sweep=not a.skip_kappa_sweep)
+                                seed=a.seed,include_kappa_sweep=not a.skip_kappa_sweep,
+                                kappa=a.kappa)
     a.output.mkdir(parents=True,exist_ok=False)
     with (a.output/"weights.jsonl").open("x") as file:
         for row in scored:file.write(json.dumps(row,sort_keys=True,ensure_ascii=False)+"\n")

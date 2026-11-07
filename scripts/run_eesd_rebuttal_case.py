@@ -424,6 +424,8 @@ def main(*, selected_case:str|None=None):
             p.error("independent case entrypoint cannot run another --case")
         args.case=selected_case
     if args.case is None:p.error("--case is required except for --list")
+    if selected_case is not None and args.cell is None:
+        p.error("standalone C00-C16/D01-D04 Python files require --cell to bind the original model and dataset")
     if args.cell:
         profile=cell_coverage.load_matrix()[args.cell]
         if args.model_config is not None:

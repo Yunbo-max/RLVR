@@ -99,6 +99,22 @@ def test_zero_ce_weight_remains_zero_under_any_token_multiplier():
     assert .6*(ce*weights).mean()!=pytest.approx(.6*ce.mean())
 
 
+
+
+def test_deletion_only_repair_emphasizes_next_surviving_decision_not_eos():
+    t=CharacterTokenizer()
+    target=t("abef"+t.eos_token,add_special_tokens=False)["input_ids"]
+    mask=edited_completion_mask(
+        t,original="abcdef",correction="abef",target_ids=target
+    )
+    assert mask.tolist()==[False,False,True,False,False]
+    # Deletion at the end points to the last surviving *code* token.
+    tail=t("ab"+t.eos_token,add_special_tokens=False)["input_ids"]
+    mask_tail=edited_completion_mask(
+        t,original="abZZ",correction="ab",target_ids=tail
+    )
+    assert mask_tail.tolist()==[False,True,False]
+
 def test_bad_options_rejected():
     with pytest.raises(ValueError):
         token_multipliers([False,True],boost=float("nan"))

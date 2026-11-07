@@ -12,6 +12,7 @@ This is a **diagnostic extension**, not the original submitted method.
 from __future__ import annotations
 
 import hashlib
+from difflib import SequenceMatcher
 import json
 import math
 import random
@@ -90,6 +91,16 @@ def edited_completion_mask(
     if not before_ids:
         raise ValueError("original code has empty tokens")
     _, changed = edited_token_masks(before_ids, after_ids)
+    # A pure deletion has no replaced/inserted TARGET token. The first
+    # surviving token after the deletion is the decision that skips the
+    # removed span. Give that boundary a credit position (never EOS);
+    # if deletion is at the end, use the last surviving program token.
+    for tag, i1, i2, j1, j2 in SequenceMatcher(
+        a=before_ids, b=after_ids, autojunk=False
+    ).get_opcodes():
+        if tag == "delete" and len(after_ids) > 1:
+            boundary = min(j1, len(after_ids)-2)
+            changed[boundary] = True
     changed = changed[: len(target)].astype(bool)
     # EOS is a policy-termination token, not an edit.
     if eos and len(after_ids) > 0 and after_ids[-1] == getattr(tokenizer, "eos_token_id", None):

@@ -20,7 +20,9 @@ that token granularity explains the model-dependent outcomes.
 For each original/corrected program pair $(a^0,a^1)$, tokenize both
 with the same pinned tokenizer used for student training.
 Align these token sequences and let $m_{h,t}\in\{0,1\}$ mark
-target tokens belonging to inserted or replaced spans;
+target tokens belonging to inserted or replaced spans, or the
+surviving boundary token following a deletion (the preceding surviving
+code token when deletion is at the end);
 copied spans are unmarked and the end-of-sequence token is not an edit.
 For edit intensity $\eta\ge 0$, define
 \begin{equation}

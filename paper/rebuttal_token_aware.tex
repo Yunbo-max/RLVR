@@ -1,0 +1,125 @@
+% Reviewer-motivated rebuttal extension.
+% WORKING DRAFT: mathematical protocol only, NO new performance observations.
+% Do not claim positive results or submit a results table without H100 receipts.
+\section{Token-Granularity Diagnostic for Dirichlet-EESD}
+\label{app:token-granularity}
+
+\paragraph{Motivation and scope.}
+In the original method, the Dirichlet posterior assigns one supervised
+coefficient $w(h)$ to the entire correction $a^1$.
+This is a limitation when a corrected program contains many unchanged
+tokens as well as a few substantive edits: a useful correction need not
+make every copied token equally informative to imitate.
+We introduce \emph{edit-aware correction supervision} as an
+additional, reviewer-motivated diagnostic rather than a replacement
+for the submitted four-transition evidence construction.
+It does not alter the recorded experimental results or establish
+that token granularity explains the model-dependent outcomes.
+
+\paragraph{Edit-aware weighting.}
+For each original/corrected program pair $(a^0,a^1)$, tokenize both
+with the same pinned tokenizer used for student training.
+Align these token sequences and let $m_{h,t}\in\{0,1\}$ mark
+target tokens belonging to inserted or replaced spans;
+copied spans are unmarked and the end-of-sequence token is not an edit.
+For edit intensity $\eta\ge 0$, define
+\begin{equation}
+g_{h,t}^{\mathrm{edit}}
+=\frac{1+\eta\,m_{h,t}}{1+\eta\,L_h^{-1}\sum_{u=1}^{L_h}m_{h,u}}.
+\label{eq:token-aware-gain}
+\end{equation}
+The denominator guarantees $L_h^{-1}\sum_t g_{h,t}^{\mathrm{edit}}=1$.
+This equality is enforced on the \emph{actual response-token prefix}
+used in each optimizer micro-step, including when the exact
+token budget cuts off the final completion.
+When no target token is changed, the weighting reduces to
+the original uniform token supervision.
+The reference-policy KL remains evaluated on all response positions.
+
+We retain the \emph{original} Dirichlet evidence weight
+$w(h)=[\bar u(h)-\lambda\sigma_u(h)]_+$
+with $v=(1,-1,0,0)$, $\alpha=0.1$, and $\lambda=0.5$:
+\begin{equation}
+\mathcal L_{\mathrm{EED+edit}}(h)
+=\frac{w(h)}{L_h}\sum_{t=1}^{L_h}
+g_{h,t}^{\mathrm{edit}}\bigl[-\log\pi_{t+1}
+(a^1_t\mid c_{h,t})\bigr]
++\beta D_{\mathrm{KL}}^{(h)}(\pi_t\Vert\pi_{t+1}),
+\label{eq:token-aware-objective}
+\end{equation}
+where $\beta=0.03$ matches the submitted configuration.
+No execution labels are introduced at the token level:
+edit membership measures source-code change, not correctness.
+Neither the lexical evidence estimator nor the Dirichlet
+posterior is replaced by Shapley attribution in this diagnostic.
+
+\paragraph{Matched experimental contrasts.}
+Table~\ref{tab:token-aware-protocol} specifies a six-arm design,
+chosen to distinguish the evidence-mass construction, token
+granularity, and the possibility that concentrating token supervision
+is sufficient without knowing the edited positions.
+For the random-position control, the number of emphasized target
+tokens is matched to the edit mask, and its gain is normalized in
+the same way as Equation~\ref{eq:token-aware-gain}.
+The edit intensity is fixed to $\eta=2$ before viewing
+held-out outcomes. Each arm uses the same original correction
+bank, initial LoRA checkpoint, training-source order, learning
+rate, response-token budget, KL coefficient, and held-out
+evaluation protocol; zero-CE-weight corrections remain in the
+schedule for their KL contribution.
+
+\begin{table}[t]
+\centering
+\small
+\caption{\textbf{Proposed reviewer-motivated factorial controls.}
+The table defines experimental conditions, not measured scores.
+Numerical outcomes must come from new matched GPU runs.}
+\label{tab:token-aware-protocol}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lll}
+\toprule
+Control & Correction CE weight & Token allocation\\
+\midrule
+Equal-weight + KL & $1$ & uniform\\
+Fixed Dirichlet + KL & $w_n(h)$ & uniform\\
+Original EED + KL & $w_{E(p)}(h)$ & uniform\\
+Fixed + edit & $w_n(h)$ & $g^{\mathrm{edit}}$\\
+EED + edit & $w_{E(p)}(h)$ & $g^{\mathrm{edit}}$\\
+EED + random & $w_{E(p)}(h)$ & same-count random $g$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The evidence-mass contrast is
+$\Delta_{\mathrm{mass}}=P(\mathrm{EED,uniform})
+-P(\mathrm{Fixed,uniform})$;
+the token contrast is
+$\Delta_{\mathrm{edit}}=P(\mathrm{EED,edit})
+-P(\mathrm{EED,uniform})$;
+and the interaction is
+$[P(\mathrm{EED,edit})-P(\mathrm{Fixed,edit})]
+-[P(\mathrm{EED,uniform})-P(\mathrm{Fixed,uniform})]$,
+where $P$ is independent test-problem all-tests Pass@1.
+Reporting a positive token contrast without a positive mass
+contrast does not establish that adaptive Dirichlet evidence
+improves learning. The random-position control tests whether
+specifically emphasizing changed tokens matters beyond
+non-uniform supervision.
+
+\paragraph{Data eligibility and limitations.}
+This experiment requires a genuine original program $a^0$ and its
+paired correction $a^1$ for each training instance.
+A pure program-synthesis example with no original program does
+not define a source-code edit mask and is excluded from the
+\emph{eligible experimental domain}, not selectively removed
+after inspecting evaluation performance.
+Eligibility, missing source pairs, token-edit fractions,
+and source/problem-level train--evaluation separation must be
+audited and reported before running or interpreting this study.
+In particular, token-diff weighting does \emph{not} itself
+correct the submitted utility's equal treatment of
+PRESERVE and UNRESOLVED outcomes.
+A separate correction-final-quality ablation is needed
+to address that concern.
+% *** INSERT ONLY OBSERVED, SOURCE-SEALED NUMERICAL RESULTS HERE AFTER
+% THE SIX-ARM MATCHED GPU TRAINING AND INDEPENDENT EVALUATION. ***

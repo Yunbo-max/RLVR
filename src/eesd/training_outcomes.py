@@ -32,7 +32,10 @@ def tree_sha(directory):
 def read_training_rows(path,rule):
     if rule not in TRAIN_RULES or rule=='no_update':raise ValueError('valid update rule required')
     rows=[];ids=set();sources={}
-    for line in Path(path).read_text().splitlines():
+    # JSONL is delimited ONLY by literal LF. Python splitlines() also
+    # treats Unicode NEL (U+0085) inside legitimate task text as a separator,
+    # silently splitting one JSON record into invalid fragments.
+    for line in Path(path).read_text().split("\n"):
         if not line.strip():continue
         row=json.loads(line)
         if not isinstance(row,dict):raise ValueError('scored record must be an object')

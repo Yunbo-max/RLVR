@@ -109,3 +109,58 @@ def test_standalone_launcher_requires_cell_and_fixes_case_id(tmp_path):
         text=True,capture_output=True,timeout=15)
     assert mismatch.returncode!=0
     assert "cannot run another --case" in mismatch.stderr
+
+
+
+def test_two_real_python_launchers_prepare_distinct_cases_without_gpu(tmp_path):
+    cell="codearc__qwen25_7b"
+    cfg=ROOT/"configs/rebuttal/qwen25_coder_7b.yaml"
+    revision=coverage.load_matrix()[cell]["model_revision"]
+    raw=[]
+    for i,split in enumerate(("train","development")):
+        raw.append({
+            "trajectory_id":f"traj{i}","source_component_id":f"src{i}",
+            "split":split,"problem_id":f"prob{i}","domain":"codearc",
+            "model_id":"Qwen/Qwen2.5-Coder-7B-Instruct",
+            "model_revision":revision,
+            "prompt":"Repair source\n"+json.dumps({"program":"print(0)"}),
+            "original":"print(0)","correction":"print(1)",
+            "before_outcomes":[1,1,1,1],"after_outcomes":[0,0,1,0],
+            "relevance":[.25,.25,.25,.25],
+        })
+    data=tmp_path/"input.jsonl"
+    data.write_text("".join(json.dumps(x)+"\n" for x in raw))
+    initial=tmp_path/"init"
+    initial.mkdir()
+    (initial/"adapter_config.json").write_text('{"r":16}')
+    out=tmp_path/"runs"
+
+    def invoke(file):
+        return subprocess.run([
+            sys.executable,str(CASES/file),
+            "--cell",cell,
+            "--model-config",str(cfg),
+            "--corrections",str(data),
+            "--init-adapter",str(initial),
+            "--seed","1701","--budget","128",
+            "--out-root",str(out),
+            "--strict-record-identity",
+            "--action","prepare"
+        ],cwd=ROOT,text=True,capture_output=True,timeout=20)
+
+    first=invoke("c02_fixed.py")
+    second=invoke("c03_eed.py")
+    assert first.returncode==0,first.stderr
+    assert second.returncode==0,second.stderr
+    a=out/cell/"C02_FIXED"/"seed1701"
+    b=out/cell/"C03_EED"/"seed1701"
+    assert (a/"scored-corrections.jsonl").is_file()
+    assert (b/"scored-corrections.jsonl").is_file()
+    assert json.loads((a/"case.json").read_text())["original_paper_cell"]==cell
+    assert json.loads((b/"case.json").read_text())["cell_identity_audit"]["status"]=="verified_model_and_dataset_identity"
+    assert json.loads((a/"case.json").read_text())["case"]["id"]=="C02_FIXED"
+    assert json.loads((b/"case.json").read_text())["case"]["id"]=="C03_EED"
+    assert (a/"scored-corrections.jsonl").read_bytes()!=(b/"scored-corrections.jsonl").read_bytes()
+    repeated=invoke("c02_fixed.py")
+    assert repeated.returncode!=0
+    assert "already exists" in repeated.stderr

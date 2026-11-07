@@ -1,0 +1,252 @@
+{
+  "schema": "eesd-iclr2027-reviewer-case-registry-v1",
+  "date": "2026-11-07",
+  "contribution": "Only original submitted four-state EED and a clearly labeled token-aware extension",
+  "common": {
+    "model": "pinned",
+    "alpha": 0.1,
+    "lambda_penalty": 0.5,
+    "kl_beta": 0.03,
+    "token_edit_boost": 2,
+    "correction_order": "identical",
+    "response_token_budget": "explicit user-set",
+    "init_adapter": "common immutable original LoRA",
+    "eval": "source and problem id locked; all-tests pass@1"
+  },
+  "cases": [
+    {
+      "id": "C00_FROZEN",
+      "kind": "baseline",
+      "priority": 0,
+      "weight": null,
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Frozen no-update reference; external evaluator must verify identical test population"
+    },
+    {
+      "id": "C01_EQUAL",
+      "kind": "train",
+      "priority": 0,
+      "weight": "equal_weight",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX",
+        "kZZR"
+      ],
+      "goal": "Equal-weight correction SFT with IDENTICAL forward-KL anchor"
+    },
+    {
+      "id": "C02_FIXED",
+      "kind": "train",
+      "priority": 0,
+      "weight": "fixed_mass",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Original 4-state Dirichlet, fixed mass n; isolate E(p)"
+    },
+    {
+      "id": "C03_EED",
+      "kind": "train",
+      "priority": 0,
+      "weight": "adaptive_eed",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Submitted original adaptive EED + KL; correction-level supervision"
+    },
+    {
+      "id": "C04_CONSTANT",
+      "kind": "train",
+      "priority": 1,
+      "weight": "constant_mass_matched",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz"
+      ],
+      "goal": "Equal mean CE coefficient without per-correction adaptation"
+    },
+    {
+      "id": "C05_SHUFFLED",
+      "kind": "train",
+      "priority": 1,
+      "weight": "shuffled_eed",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Same training weights, randomly reassigned to corrections"
+    },
+    {
+      "id": "C06_NO_UNCERTAINTY",
+      "kind": "train",
+      "priority": 1,
+      "weight": "eed_no_uncertainty",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "JToX",
+        "GRLz"
+      ],
+      "goal": "Remove lambda*SD while keeping adaptive mass and KL"
+    },
+    {
+      "id": "C07_FINAL_FILTER",
+      "kind": "train",
+      "priority": 1,
+      "weight": "final_correctness",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "JToX"
+      ],
+      "goal": "Only fully passing post-correction public programs get CE weight"
+    },
+    {
+      "id": "C08_CONFIDENCE",
+      "kind": "train",
+      "priority": 1,
+      "weight": "scalar_confidence",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "JToX",
+        "kZZR"
+      ],
+      "goal": "Weight by final public pass fraction; tests simple outcome confidence"
+    },
+    {
+      "id": "C09_TERMINAL_EED",
+      "kind": "train",
+      "priority": 1,
+      "weight": "eed_terminal_quality",
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "JToX"
+      ],
+      "goal": "Reviewer-motivated terminal quality gate w_EED*post-pass fraction"
+    },
+    {
+      "id": "C10_FIXED_EDIT",
+      "kind": "train",
+      "priority": 1,
+      "weight": "fixed_mass",
+      "token": "edit",
+      "kappa": 16,
+      "reviewers": [
+        "JToX",
+        "GRLz"
+      ],
+      "goal": "Fixed Dirichlet with changed-token credit; independent granularity main effect"
+    },
+    {
+      "id": "C11_EED_EDIT",
+      "kind": "train",
+      "priority": 1,
+      "weight": "adaptive_eed",
+      "token": "edit",
+      "kappa": 16,
+      "reviewers": [
+        "JToX",
+        "GRLz",
+        "kZZR"
+      ],
+      "goal": "Token-aware Dirichlet extension (NOT the submitted original method)"
+    },
+    {
+      "id": "C12_EED_RANDOM_TOKEN",
+      "kind": "train",
+      "priority": 1,
+      "weight": "adaptive_eed",
+      "token": "random",
+      "kappa": 16,
+      "reviewers": [
+        "JToX",
+        "GRLz"
+      ],
+      "goal": "Random positions with same count & normalized weight as C11"
+    },
+    {
+      "id": "C13_KAPPA8",
+      "kind": "train",
+      "priority": 2,
+      "weight": "adaptive_eed",
+      "token": "uniform",
+      "kappa": 8,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Frozen lexical kernel temperature kappa=8, full downstream optional"
+    },
+    {
+      "id": "C14_KAPPA32",
+      "kind": "train",
+      "priority": 2,
+      "weight": "adaptive_eed",
+      "token": "uniform",
+      "kappa": 32,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Frozen lexical kernel temperature kappa=32, full downstream optional"
+    },
+    {
+      "id": "D01_SOURCE_AUDIT",
+      "kind": "audit",
+      "priority": 0,
+      "weight": null,
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Train/development/eval provenance and availability of before-repair program"
+    },
+    {
+      "id": "D02_RELEVANCE_DIAGNOSTIC",
+      "kind": "diagnostic",
+      "priority": 0,
+      "weight": null,
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX",
+        "kZZR"
+      ],
+      "goal": "No-GPU kappa 8/16/32 weight and zero fraction report"
+    },
+    {
+      "id": "D03_PREDICTION_PROTOCOL",
+      "kind": "prediction",
+      "priority": 0,
+      "weight": null,
+      "token": "uniform",
+      "kappa": 16,
+      "reviewers": [
+        "GRLz",
+        "JToX"
+      ],
+      "goal": "Require per-example future-outcome evidence, visible/heldout disjointness, matched NLL and repetition metadata"
+    }
+  ]
+}

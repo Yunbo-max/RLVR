@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import math
+import random
 from pathlib import Path
 import re
 import subprocess
@@ -148,9 +149,35 @@ def input_provenance(args,case:dict)->dict:
 def make_weighted_training_input(rows:list[dict],case:dict,seed:int):
     """Return original 4-state score receipt and common KL execution-slot rows."""
     kappa=float(case["kappa"])
+    mode=case.get("relevance_mode","original")
+    if mode not in ("original","uniform","permuted"):
+        raise ValueError("unknown relevance intervention")
+    if mode!="original" and kappa!=16.:
+        raise ValueError("relevance interventions and temperature changes are separate experiments")
+    prepared=[]
+    changed=0
+    for row in rows:
+        current=dict(row)
+        if mode=="uniform":
+            current["relevance"]=[1.0]*len(row["relevance"])
+        elif mode=="permuted":
+            original=list(row["relevance"])
+            if len(original)<2:raise ValueError("cannot test relevance alignment with <2 tests")
+            h=hashlib.sha256(f'{seed}:{row["trajectory_id"]}:relevance-permutation'.encode()).digest()
+            rng=random.Random(int.from_bytes(h[:8],"big"))
+            indices=list(range(len(original)))
+            rng.shuffle(indices)
+            if indices==list(range(len(original))):
+                indices=indices[1:]+indices[:1]
+            current["relevance"]=[original[i] for i in indices]
+            changed+=int(current["relevance"]!=original)
+        prepared.append(current)
     scored,summary=weightlib.add_weights(
-        rows,alpha=.1,lam=.5,seed=seed,include_kappa_sweep=False,kappa=kappa
+        prepared,alpha=.1,lam=.5,seed=seed,include_kappa_sweep=False,kappa=kappa
     )
+    summary["relevance_mode"]=mode
+    summary["permuted_rows_with_changed_values"]=changed
+    summary["original_relevance_preserved_in_source_sha256"]=True
     result=[]
     for original in scored:
         value=original["rebuttal_weights"][case["weight"]]
@@ -249,6 +276,10 @@ def prepare_case(args,case:dict,folder:Path)->dict:
     elif kind=="diagnostic":
         rows=[json.loads(x) for x in args.corrections.read_text().split("\n") if x.strip()]
         _save(folder/"relevance_diagnostic.json",_diag_stats(rows))
+    elif kind=="descriptor":
+        import audit_eesd_original_descriptor as descriptor
+        report=descriptor.audit(args.corrections)
+        _save(folder/"original_descriptor_audit.json",report)
     elif kind=="prediction":
         # Prediction raw pairs require a separate explicit future-label audit.
         # This preflight never synthesizes labels or quietly copies train labels.

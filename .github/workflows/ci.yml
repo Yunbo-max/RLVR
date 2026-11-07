@@ -9,6 +9,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --extra test
-      - run: uv run pytest -q
+      - run: uv run --with pyarrow pytest -q
       - run: uv run python -m compileall -q src scripts
       - run: uv run python scripts/run_stage.py --config configs/experiments/eesd_final.yaml --stage signal --seed 1701 --dry-run

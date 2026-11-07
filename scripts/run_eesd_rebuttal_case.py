@@ -138,7 +138,7 @@ def input_provenance(args,case:dict)->dict:
             any(audit["missing_problem_id_counts"].values())):
             raise ValueError("strict source-independent evaluation requires problem IDs for EVERY correction and evaluator")
     audit["provenance_status"]=(
-        "problem_ids_disjoint_checked" if audit.get("evaluation",{}).get(
+        "problem_ids_disjoint_checked" if (audit.get("evaluation") or {}).get(
             "problem_level_overlap_checked",False) else
         "unverified_problem_id_disjointness"
     )

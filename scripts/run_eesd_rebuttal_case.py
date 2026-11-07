@@ -239,6 +239,12 @@ def prepare_case(args,case:dict,folder:Path)->dict:
     provenance=input_provenance(args,case) if args.corrections is not None else {
         "status":"no_corrections_supplied"}
     if kind=="baseline":
+        if args.model_config is None or not args.model_config.is_file():
+            raise ValueError("frozen baseline requires the same pinned model config used by trained arms")
+        cfg=yaml.safe_load(args.model_config.read_text())
+        if (not isinstance(cfg.get("model_id"),str) or
+            not isinstance(cfg.get("revision"),str) or len(cfg["revision"])!=40):
+            raise ValueError("frozen baseline requires pinned model identity and revision")
         if not (args.init_adapter/"adapter_config.json").is_file():
             raise ValueError("frozen baseline requires real initial adapter")
         setup={

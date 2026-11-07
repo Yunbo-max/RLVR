@@ -37,6 +37,15 @@ def load_rows(path: Path, rule: str):
     return read_training_rows(path, rule)[0]
 
 
+def scheduled_training_indices(rows, *, include_zero_weight_kl=False):
+    """Rebuttal: all arms see identical correction identities, even if CE weight is zero."""
+    return [
+        i for i, row in enumerate(rows)
+        if row["split"] == "train"
+        and (include_zero_weight_kl or row["_weight"] > 0)
+    ]
+
+
 def training_schedule(
     lengths, *, seed, max_steps, gradient_accumulation, response_token_budget=None
 ):
@@ -256,12 +265,9 @@ def main() -> None:
         )
         for row in rows
     ]
-    positive_indices = [
-        i
-        for i, row in enumerate(rows)
-        if row["split"] == "train"
-        and (args.include_zero_weight_kl or row["_weight"] > 0)
-    ]
+    positive_indices = scheduled_training_indices(
+        rows, include_zero_weight_kl=args.include_zero_weight_kl
+    )
     positive = [rows[i] for i in positive_indices]
     positive_encoded = [encoded_rows[i] for i in positive_indices]
     development = [row for row in rows if row["split"] == "development"]

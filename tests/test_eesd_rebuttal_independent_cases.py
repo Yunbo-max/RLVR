@@ -160,6 +160,6 @@ def test_diagnostic_is_per_case_and_never_performs_gpu_update(tmp_path):
     assert (out/"relevance_diagnostic.json").is_file()
     assert data["command"] is None
     result=m.run_case(out)
-    assert result["status"]=="completed_without_gpu"
+    assert result["status"]=="completed_diagnostic_without_gpu"
     with pytest.raises(ValueError,match="not in prepared state"):
         m.run_case(out)

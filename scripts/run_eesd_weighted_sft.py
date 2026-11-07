@@ -166,6 +166,15 @@ def main() -> None:
         "--include-zero-weight-kl", action="store_true",
         help="Rebuttal exact match: schedule ALL train corrections; zero-weight CE still contributes KL."
     )
+    p.add_argument(
+        "--token-weighting", choices=("uniform", "edit", "random"),
+        default="uniform",
+        help="Original EED ablation: uniform CE, changed-token highlight, or same-size random token highlight.",
+    )
+    p.add_argument(
+        "--token-edit-boost", type=float, default=2.0,
+        help="Edit vs copied token intensity; all multipliers retain exactly unit mean per scheduled response.",
+    )
     p.add_argument("--lora-r", type=int, default=16)
     p.add_argument("--lora-alpha", type=int, default=32)
     args = p.parse_args()
@@ -178,6 +187,12 @@ def main() -> None:
         )
     if args.include_zero_weight_kl and args.rule not in ANCHORED_RULES:
         raise ValueError("include-zero-weight-kl requires an anchored training rule")
+    if args.token_weighting != "uniform" and (
+        not args.include_zero_weight_kl or args.rule not in ANCHORED_RULES
+    ):
+        raise ValueError("rebuttal token weights require identical anchored all-row scheduling")
+    if not math.isfinite(args.token_edit_boost) or args.token_edit_boost < 0:
+        raise ValueError("token-edit-boost must be finite and nonnegative")
     if (
         args.max_steps < 1
         or (args.response_token_budget is not None and args.response_token_budget < 1)
@@ -271,6 +286,20 @@ def main() -> None:
     positive = [rows[i] for i in positive_indices]
     positive_encoded = [encoded_rows[i] for i in positive_indices]
     development = [row for row in rows if row["split"] == "development"]
+    if args.token_weighting != "uniform":
+        from eesd.token_aware import original_program, edited_completion_mask
+        for row, encoded in zip(positive, positive_encoded):
+            source, field = original_program(row)
+            encoded["edit_mask"] = edited_completion_mask(
+                tokenizer, original=source, correction=row["correction"],
+                target_ids=encoded["completion_ids"]
+            )
+            encoded["original_source_field"] = field
+            encoded["edit_eos_excluded"] = bool(
+                not encoded["response_truncated"]
+                and tokenizer.eos_token_id is not None
+                and encoded["completion_ids"][-1] == tokenizer.eos_token_id
+            )
     if not positive:
         raise ValueError("no positive-weight training rows")
     if not development:
@@ -283,6 +312,17 @@ def main() -> None:
         "response_truncated_rows": sum(r["response_truncated"] for r in encoded_rows),
         "max_length": args.max_length,
         "sealed_generation_message_rows": sum("messages" in row for row in rows),
+        "token_weighting": args.token_weighting,
+        "token_edit_boost": args.token_edit_boost,
+        "edit_mask_eligible_train_rows": sum("edit_mask" in r for r in positive_encoded),
+        "nontrivial_edit_train_rows": sum(
+            "edit_mask" in r and 0 < int(r["edit_mask"].sum()) < len(r["edit_mask"])
+            for r in positive_encoded
+        ),
+        "mean_changed_token_fraction_train": (
+            sum(float(r["edit_mask"].mean()) for r in positive_encoded)
+            / len(positive_encoded) if args.token_weighting != "uniform" else None
+        ),
     }
     (args.output / "tokenization-audit.json").write_text(
         json.dumps(token_audit, indent=2) + "\n"
@@ -403,7 +443,23 @@ def main() -> None:
             reduction="none",
             ignore_index=-100,
         ).reshape_as(shift_labels)
-        ce = ce_tokens[mask].mean()
+        if args.token_weighting == "uniform":
+            # Preserve the exact published whole-correction CE behavior.
+            ce = ce_tokens[mask].mean()
+        else:
+            from eesd.token_aware import prefix_multipliers
+            multipliers = prefix_multipliers(
+                encoded["edit_mask"], count=token_count,
+                boost=args.token_edit_boost, mode=args.token_weighting,
+                identity=row["trajectory_id"], seed=args.seed,
+                eos_excluded=encoded["edit_eos_excluded"],
+            )
+            # Mean multiplier is exactly one on THIS scheduled (possibly
+            # shortened) prefix; thus only token allocation differs.
+            factors = torch.as_tensor(
+                multipliers, device=ce_tokens.device, dtype=ce_tokens.dtype
+            )
+            ce = (ce_tokens[mask] * factors).mean()
 
         kl = torch.zeros((), device=ce.device, dtype=torch.float32)
         if reference is not None:
@@ -500,6 +556,8 @@ def main() -> None:
         "scheduled_training_trajectories": len(positive),
         "scheduled_zero_weight_trajectories": sum(row["_weight"] == 0 for row in positive),
         "include_zero_weight_kl": bool(args.include_zero_weight_kl),
+        "token_weighting": args.token_weighting,
+        "token_edit_boost": args.token_edit_boost,
         "development_trajectories": len(development),
         "all_trajectories": len(rows),
         "sources": len({row["source_component_id"] for row in positive}),

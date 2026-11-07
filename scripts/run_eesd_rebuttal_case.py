@@ -278,7 +278,7 @@ def prepare_case(args,case:dict,folder:Path)->dict:
         _save(folder/"relevance_diagnostic.json",_diag_stats(rows))
     elif kind=="descriptor":
         import audit_eesd_original_descriptor as descriptor
-        report=descriptor.audit(args.corrections)
+        report=descriptor.audit(args.corrections,pbpf_root=getattr(args,"pbpf_root",None))
         _save(folder/"original_descriptor_audit.json",report)
     elif kind=="prediction":
         # Prediction raw pairs require a separate explicit future-label audit.
@@ -396,6 +396,7 @@ def main():
     p.add_argument("--budget",type=int)
     p.add_argument("--eval-ids",type=Path)
     p.add_argument("--prediction-rows",type=Path)
+    p.add_argument("--pbpf-root",type=Path,help="Optional exact pinned legacy PBPF checkout for original lexical-kernel recomputation")
     p.add_argument("--require-problem-disjoint",action="store_true")
     args=p.parse_args()
     cases=load_cases()

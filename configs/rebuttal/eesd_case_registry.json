@@ -25,7 +25,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Frozen no-update reference; external evaluator must verify identical test population"
+      "goal": "Frozen no-update reference; external evaluator must verify identical test population",
+      "relevance_mode": "original"
     },
     {
       "id": "C01_EQUAL",
@@ -39,7 +40,8 @@
         "JToX",
         "kZZR"
       ],
-      "goal": "Equal-weight correction SFT with IDENTICAL forward-KL anchor"
+      "goal": "Equal-weight correction SFT with IDENTICAL forward-KL anchor",
+      "relevance_mode": "original"
     },
     {
       "id": "C02_FIXED",
@@ -52,7 +54,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Original 4-state Dirichlet, fixed mass n; isolate E(p)"
+      "goal": "Original 4-state Dirichlet, fixed mass n; isolate E(p)",
+      "relevance_mode": "original"
     },
     {
       "id": "C03_EED",
@@ -65,7 +68,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Submitted original adaptive EED + KL; correction-level supervision"
+      "goal": "Submitted original adaptive EED + KL; correction-level supervision",
+      "relevance_mode": "original"
     },
     {
       "id": "C04_CONSTANT",
@@ -77,7 +81,8 @@
       "reviewers": [
         "GRLz"
       ],
-      "goal": "Equal mean CE coefficient without per-correction adaptation"
+      "goal": "Equal mean CE coefficient without per-correction adaptation",
+      "relevance_mode": "original"
     },
     {
       "id": "C05_SHUFFLED",
@@ -90,7 +95,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Same training weights, randomly reassigned to corrections"
+      "goal": "Same training weights, randomly reassigned to corrections",
+      "relevance_mode": "original"
     },
     {
       "id": "C06_NO_UNCERTAINTY",
@@ -103,7 +109,8 @@
         "JToX",
         "GRLz"
       ],
-      "goal": "Remove lambda*SD while keeping adaptive mass and KL"
+      "goal": "Remove lambda*SD while keeping adaptive mass and KL",
+      "relevance_mode": "original"
     },
     {
       "id": "C07_FINAL_FILTER",
@@ -115,7 +122,8 @@
       "reviewers": [
         "JToX"
       ],
-      "goal": "Only fully passing post-correction public programs get CE weight"
+      "goal": "Only fully passing post-correction public programs get CE weight",
+      "relevance_mode": "original"
     },
     {
       "id": "C08_CONFIDENCE",
@@ -128,7 +136,8 @@
         "JToX",
         "kZZR"
       ],
-      "goal": "Weight by final public pass fraction; tests simple outcome confidence"
+      "goal": "Weight by final public pass fraction; tests simple outcome confidence",
+      "relevance_mode": "original"
     },
     {
       "id": "C09_TERMINAL_EED",
@@ -140,7 +149,8 @@
       "reviewers": [
         "JToX"
       ],
-      "goal": "Reviewer-motivated terminal quality gate w_EED*post-pass fraction"
+      "goal": "Reviewer-motivated terminal quality gate w_EED*post-pass fraction",
+      "relevance_mode": "original"
     },
     {
       "id": "C10_FIXED_EDIT",
@@ -153,7 +163,8 @@
         "JToX",
         "GRLz"
       ],
-      "goal": "Fixed Dirichlet with changed-token credit; independent granularity main effect"
+      "goal": "Fixed Dirichlet with changed-token credit; independent granularity main effect",
+      "relevance_mode": "original"
     },
     {
       "id": "C11_EED_EDIT",
@@ -167,7 +178,8 @@
         "GRLz",
         "kZZR"
       ],
-      "goal": "Token-aware Dirichlet extension (NOT the submitted original method)"
+      "goal": "Token-aware Dirichlet extension (NOT the submitted original method)",
+      "relevance_mode": "original"
     },
     {
       "id": "C12_EED_RANDOM_TOKEN",
@@ -180,7 +192,8 @@
         "JToX",
         "GRLz"
       ],
-      "goal": "Random positions with same count & normalized weight as C11"
+      "goal": "Random positions with same count & normalized weight as C11",
+      "relevance_mode": "original"
     },
     {
       "id": "C13_KAPPA8",
@@ -193,7 +206,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Frozen lexical kernel temperature kappa=8, full downstream optional"
+      "goal": "Frozen lexical kernel temperature kappa=8, full downstream optional",
+      "relevance_mode": "original"
     },
     {
       "id": "C14_KAPPA32",
@@ -206,7 +220,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Frozen lexical kernel temperature kappa=32, full downstream optional"
+      "goal": "Frozen lexical kernel temperature kappa=32, full downstream optional",
+      "relevance_mode": "original"
     },
     {
       "id": "D01_SOURCE_AUDIT",
@@ -219,7 +234,8 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Train/development/eval provenance and availability of before-repair program"
+      "goal": "Train/development/eval provenance and availability of before-repair program",
+      "relevance_mode": "original"
     },
     {
       "id": "D02_RELEVANCE_DIAGNOSTIC",
@@ -233,7 +249,8 @@
         "JToX",
         "kZZR"
       ],
-      "goal": "No-GPU kappa 8/16/32 weight and zero fraction report"
+      "goal": "No-GPU kappa 8/16/32 weight and zero fraction report",
+      "relevance_mode": "original"
     },
     {
       "id": "D03_PREDICTION_PROTOCOL",
@@ -246,7 +263,51 @@
         "GRLz",
         "JToX"
       ],
-      "goal": "Require per-example future-outcome evidence, visible/heldout disjointness, matched NLL and repetition metadata"
+      "goal": "Require per-example future-outcome evidence, visible/heldout disjointness, matched NLL and repetition metadata",
+      "relevance_mode": "original"
+    },
+    {
+      "id": "C15_UNIFORM_RELEVANCE",
+      "kind": "train",
+      "priority": 1,
+      "weight": "adaptive_eed",
+      "token": "uniform",
+      "kappa": 16,
+      "relevance_mode": "uniform",
+      "reviewers": [
+        "JToX",
+        "kZZR"
+      ],
+      "goal": "Ablate lexical relevance entirely with uniform public-test relevance while keeping four-state Dirichlet and KL"
+    },
+    {
+      "id": "C16_PERMUTED_RELEVANCE",
+      "kind": "train",
+      "priority": 1,
+      "weight": "adaptive_eed",
+      "token": "uniform",
+      "kappa": 16,
+      "relevance_mode": "permuted",
+      "reviewers": [
+        "JToX",
+        "GRLz",
+        "kZZR"
+      ],
+      "goal": "Preserve relevance concentration and its value distribution, shuffle relevance-to-public-test alignment deterministically"
+    },
+    {
+      "id": "D04_DESCRIPTOR_AND_REPAIR_AUDIT",
+      "kind": "descriptor",
+      "priority": 0,
+      "weight": null,
+      "token": "uniform",
+      "kappa": 16,
+      "relevance_mode": "original",
+      "reviewers": [
+        "JToX",
+        "GRLz"
+      ],
+      "goal": "Reconstruct lexical-kernel 256dim hashed descriptor provenance, post-correction partial failures and unchanged/failed transition counterexample"
     }
   ]
 }

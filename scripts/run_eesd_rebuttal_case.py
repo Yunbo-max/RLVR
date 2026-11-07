@@ -323,7 +323,10 @@ def run_case(folder:Path)->dict:
         raise ValueError("case is not in prepared state (no overwrite/retry)")
     kind=manifest["case"]["kind"]
     if kind!="train":
-        manifest["status"]="completed_without_gpu"
+        if kind=="prediction" and (folder/"prediction_status.json").is_file():
+            manifest["status"]="blocked_missing_original_future_outcome_records"
+        else:
+            manifest["status"]="completed_diagnostic_without_gpu"
         manifest["finished_at"]=time_now()
         _save(record,manifest,overwrite=True)
         return manifest

@@ -1,5 +1,20 @@
 # EESD: Effective-Evidence Self-Distillation
 
+## Current Rich64 experiments
+
+The current study is **EESD-Rich64** on Qwen2.5-Coder-7B / RunBugRun.
+The old simplified `sdpo` training option has been removed from the Rich64
+runner and default matrix. Its replacement is **`sdpo_official_verl_rich64`**,
+using the pinned authors' SDPO trainer. At T64, `scripts/run_t64_group_matrix.sh`
+preflights and runs this baseline in the separate `SDPO_PYTHON` environment,
+sharing frozen rows, initial adapter, seed and stage rollout count.
+
+Read [the official baseline setup and commands](docs/research/2026-11-07-official-sdpo-reproduction.md).
+Official results use `scripts/summarize_sdpo_official.py`; internal controls use
+`scripts/summarize_t64_group_five_round.py`. BF16/NF4 and online/frozen-round
+differences remain explicit. Historical `sdpo` scores must not be attributed to
+the official replacement. The sections below describe the earlier EESD formulation.
+
 EESD is a testable method for deciding **how strongly a coding agent should learn from its own execution-guided correction**. A correction can look successful on visible tests yet carry weak, concentrated, or misleading evidence. EESD separates the direction of feedback from its effective amount before using it for self-distillation.
 
 ## Final method

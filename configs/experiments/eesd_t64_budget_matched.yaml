@@ -1,5 +1,5 @@
 schema: eesd-rich64-budget-matched-v1
-status: prospective_not_h100_run
+status: official_sdpo_integrated_scientific_rerun_pending
 model: Qwen/Qwen2.5-Coder-7B-Instruct
 revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
 benchmark: RunBugRun_Python_official_SQLite
@@ -10,7 +10,7 @@ data:
   max_bug_instances_per_problem: 16
   min_distinct_training_problem_ids_to_reach_8000: 500
   independent_meta_problem_ids_target: 64
-  independent_final_problem_ids_target: 256
+  independent_final_problem_ids_target: 199
   sample_conditional_on_real_eligibility_audit: true
   runbugrun_python_problem_count_not_assumed: true
   required_unique_test_inputs_per_eligible_problem: 80
@@ -20,8 +20,8 @@ data:
   same_frozen_problem_and_test_bank_across_T_and_arms: true
   disjoint_problem_ids_for_train_meta_final: true
   no_gold_fixed_code: true
-  actual_max_eval_test_cases: 80
-  paper_metric: fixed_80_case_all_tests_pass_not_full_official_tests
+  actual_max_eval_test_cases: null  # variable complete bank per evaluation problem
+  paper_metric: full_official_unique_input_bank_all_tests_pass
   clustered_problem_id_inference: true
 evidence:
   public_tests_executed_per_scored_candidate: 64
@@ -61,15 +61,17 @@ staged_protocol:
     repeat_same_bugs_each_round: true
     T: 64
     K: 4
-    all_7_arms: true
+    internal_arms: [shapley,direct_max,audit_gate,random_subset,matched_random_updates,no_update]
+    external_baselines: [sdpo_official_verl_rich64]
   stage3_mechanism:
     train_bug_instances: 512
-    eval_problem_ids: 256
+    eval_problem_ids: 199
     rollouts: 8
     repeat_same_bugs_each_round: true
     feedback_levels_T: [4,8,16,32,64]
     exact_group_shapley_vs_exact_group_direct_max: true
-    T64_all_7_arms: true
+    T64_internal_arms: [shapley,direct_max,audit_gate,random_subset,matched_random_updates,no_update]
+    T64_external_baselines: [sdpo_official_verl_rich64]
     seeds: [1701,1702,1703]
   stage4_scale:
     train_bug_instances: 8000
@@ -77,6 +79,7 @@ staged_protocol:
     max_public_execution_test_calls_per_arm: 4096000
     max_group_coalition_teacher_scoring_calls_per_arm: 1024000
     main_arms: [shapley,direct_max,audit_gate,no_update]
+    T64_external_baselines: [sdpo_official_verl_rich64]
     seed_first: 1701
     confirmation_seeds_conditional_on_result_and_compute: [1702,1703]
     frozen_problem_id_clusters: true
@@ -101,7 +104,7 @@ analysis:
   extra_controls:
     - random_group_subset_same_cardinality
     - random_source_updates_same_actual_step_count
-    - group_all_feedback
+    - sdpo_official_verl_rich64_external_baseline
     - frozen_Qwen
   test_and_compute_ablations:
     - T4_T8_T16_T32_T64_same_64_executions
@@ -121,7 +124,24 @@ analysis:
     - teacher_scoring_calls
     - full_end_to_end_GPU_hours_and_execution_CPU_time
   label_budget_note: each_train_candidate_executes_F64_and_C8; A8_reserved
-  official_full_SDPO_reproduction: still_required_for_external_performance_claim
+  official_SDPO_algorithm: pinned_upstream_integrated_runtime_qualified_full_study_pending
+external_baselines:
+  sdpo_official_verl_rich64:
+    replaces: removed_simplified_sdpo_arm
+    repository: https://github.com/lasgroup/SDPO
+    commit: 7c457fc1b1f636ae794eb0362ba37d4743b06fbc
+    runner: scripts/run_sdpo_official.py
+    summary: scripts/summarize_sdpo_official.py
+    exposed_feedback: 64
+    share_frozen_rows_seed_initial_adapter_and_stage_rollouts: true
+    policy_loss: official_sdpo
+    teacher: EMA_0.01
+    distillation: reverse_KL_student_top20_plus_tail
+    separate_reference_KL: false
+    base_precision: BF16
+    same_compute_or_precision_as_internal_arms: false
+    paper_original_LCB_scores_reproduced: false
+    scale_data_exposure: five_epochs_over_all_8000_unlike_internal_rotated_panels
 stop_rules:
   - no_eligible_80_input_cohort_do_not_fabricate_64_tests
   - if_8K_eligible_bug_cap_missing_report_true_max_and_revise_protocol

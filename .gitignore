@@ -22,3 +22,9 @@ logs/qz/rich64-pilot-*_job_id.txt
 
 bin/
 logs/qz/behavioral-*.log
+
+# Locally frozen official SDPO datasets and shared initialization.
+/data/rich64-wsl-*/
+/data/sdpo-rich64-*/
+/artifacts/shared-init-*/
+/artifacts/shared-init-*.receipt.json

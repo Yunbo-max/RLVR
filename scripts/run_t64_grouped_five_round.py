@@ -33,7 +33,9 @@ from eesd.learning_credit_selection import (
     selection_from_arm,sample_matched_update_sources)
 from eesd.strict_execution import run_test,audit_vector,run_tests_batched
 
-ARMS=('no_update','sdpo','audit_gate','direct_max','shapley',
+# Official SDPO uses scripts/run_sdpo_official.py and its upstream trainer.
+# The former simplified `sdpo` arm has been removed from this runner.
+ARMS=('no_update','audit_gate','direct_max','shapley',
       'random_subset','matched_random_updates')
 K_GROUPS=4
 
@@ -163,7 +165,7 @@ def _train_one(teacher,student,optimizer,tokenizer,row,calibration_tests,
             uncertainty=args.audit_uncertainty,subset_cost=args.subset_cost,
             min_gain=args.min_gain)
     mask=choice.mask
-    if args.arm in ('sdpo','matched_random_updates'):
+    if args.arm == 'matched_random_updates':
         weights=[np.ones(len(tok),dtype=np.float32) for tok,_ in clean]
     else:
         weights=previous.directional_token_weights(scores,cal,mask,

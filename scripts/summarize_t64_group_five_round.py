@@ -15,7 +15,8 @@ from pathlib import Path
 
 import numpy as np
 
-ARMS=('no_update','sdpo','audit_gate','direct_max','shapley',
+# Official SDPO has a separate upstream result schema and summary entry point.
+ARMS=('no_update','audit_gate','direct_max','shapley',
       'random_subset','matched_random_updates')
 
 

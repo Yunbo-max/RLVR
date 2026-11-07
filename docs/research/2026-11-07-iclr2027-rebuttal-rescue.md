@@ -20,7 +20,7 @@ The actual 2026-09 paper paper/main.tex specifies:
 - zero-weight rows should STILL incur the KL anchor.
 
 Current src/eesd/distillation.py uses **three** states and posterior mean benefit with NO uncertainty penalty; its scorer ignores the old uncertainty argument.
-Current scripts/run_eesd_weighted_sft.py drops zero-weight correction rows and sets beta=0 for equal_weight. Therefore it cannot be run unmodified to produce a submission-faithful exact matching of the old method and its requested baselines. This mismatch must be rectified BEFORE reporting any training comparison to GRLz/JToX.
+The default scripts/run_eesd_weighted_sft.py used to drop zero-weight correction rows and its native equal_weight rule sets beta=0. THIS REBUTTAL BRANCH now adds the opt-in --include-zero-weight-kl flag and scripts/materialize_submitted_dirichlet_training_inputs.py, which puts each requested manuscript weight into the same ANCHORED eesd_full training slot. All arms therefore receive identical correction rows, scheduler seed, response-token budget, and beta=0.03. The scientific arm identity is the per-arm input file and manifest, NOT the common trainer slot label. Full GPU parity remains to be validated.
 
 New scripts/prepare_submitted_dirichlet_rebuttal_weights.py reconstructs the submitted **four-state** posterior and correct weight, using already existing numerical evidence helpers. It provides CPU-only weight receipts, including reviewer-specific sensitivity diagnostics. This is NOT a trained model or a downstream result.
 
@@ -79,7 +79,25 @@ The submission ALREADY contains three backbones and four domains (12 model/domai
       --output runs/rebuttal-submitted-four-state \
       --alpha 0.1 --lambda-penalty 0.5 --seed 1701
 
-Only after implementing a dedicated faithful CE+KL trainer and validating identical schedules, run H100 correction-learning P0. The weight generator outputs weights.jsonl and manifest.json with file hashes. Never reuse new three-state EESD as if it were the old submitted four-state method.
+The first command outputs weights.jsonl and manifest.json with file hashes. The second command prepares per-arm training inputs:
+
+    python scripts/materialize_submitted_dirichlet_training_inputs.py \
+      --weights runs/rebuttal-submitted-four-state/weights.jsonl \
+      --output runs/rebuttal-matched-arm-data \
+      --arms equal_weight fixed_mass adaptive_eed
+
+Each arm is then trained under the same pinned model config, seed, token budget, beta and ORIGINAL input ordering (example for the adaptive arm):
+
+    python scripts/run_eesd_weighted_sft.py \
+      --input runs/rebuttal-matched-arm-data/adaptive_eed/scored-corrections.jsonl \
+      --rule eesd_full --include-zero-weight-kl \
+      --model-config configs/models/deepseek_6p7b.yaml \
+      --seed 1701 --response-token-budget 524288 \
+      --anchor-beta 0.03 --output runs/rebuttal-deepseek-codearc-eed
+
+The model-config path is an EXAMPLE and must be replaced with the exact pinned original model config file available in the environment. Run the other arms with the identical arguments except --input/--output. Anonymized source-disjoint eval and the original correction corpus are prerequisites; the GitHub repository contains neither a completed matched H100 rebuttal matrix nor verified reproducibility of the old 500-source training/eval population. Inspect the per-arm training-report.json optimizer_steps/response_tokens/anchor_beta and independently compare initial LoRA checkpoint bytes before claiming a fair training comparison.
+
+Never use the new three-state EESD score_trajectory to generate the original four-state weights. This rebuttal branch has CPU unit tests, not scientific outcome results.
 
 ## 10. Exact communication principles
 

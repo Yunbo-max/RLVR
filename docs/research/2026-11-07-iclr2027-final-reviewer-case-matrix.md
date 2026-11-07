@@ -154,6 +154,7 @@ replay of historical optimizer steps.
       --pbpf-root /checked-out/PBPF \
       --public-root /sealed/codearc-public \
       --evaluator-root /sealed/codearc-evaluator \
+      --eval-ids /sealed/evaluation-source-problem-ids.jsonl \
       --domain codearc --action prepare
 
     python scripts/run_eesd_rebuttal_case_evaluation.py \

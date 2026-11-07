@@ -1,0 +1,317 @@
+{
+  "schema": "eesd-iclr2027-model-dataset-coverage-v1",
+  "interpretation": "Twelve original cells are registered for case TRAINING but no new H100 cases are run. Original PBPF evaluator bridge is directly implemented only for Qwen/DeepSeek on RunBugRun/CodeARC; all other evaluations must not be advertised as complete.",
+  "model_keys": [
+    "qwen25_7b",
+    "deepseek_6p7b",
+    "gemma3_4b"
+  ],
+  "dataset_keys": [
+    "runbugrun",
+    "codearc",
+    "apps_replay",
+    "codecontests_replay"
+  ],
+  "cells": [
+    {
+      "cell": "runbugrun__qwen25_7b",
+      "dataset": "runbugrun",
+      "domain": "rbr",
+      "kind": "repair",
+      "model": "qwen25_7b",
+      "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_config": "configs/rebuttal/qwen25_coder_7b.yaml",
+      "primary_evaluator": "pinned_pbpf_sandbox",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "implementation_ready_data_and_model_unverified",
+      "original_paper": {
+        "no_update_solved": 228,
+        "original_eed_solved": 240,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "runbugrun__deepseek_6p7b",
+      "dataset": "runbugrun",
+      "domain": "rbr",
+      "kind": "repair",
+      "model": "deepseek_6p7b",
+      "model_id": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "model_config": "configs/rebuttal/deepseek_coder_6p7b.yaml",
+      "primary_evaluator": "pinned_pbpf_sandbox",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "implementation_ready_data_and_model_unverified",
+      "original_paper": {
+        "no_update_solved": 184,
+        "original_eed_solved": 198,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "runbugrun__gemma3_4b",
+      "dataset": "runbugrun",
+      "domain": "rbr",
+      "kind": "repair",
+      "model": "gemma3_4b",
+      "model_id": "google/gemma-3-4b-it",
+      "model_config": "configs/rebuttal/gemma3_4b.yaml",
+      "primary_evaluator": "blocked_gemma_legacy_absolute_paths",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 142,
+        "original_eed_solved": 132,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codearc__qwen25_7b",
+      "dataset": "codearc",
+      "domain": "codearc",
+      "kind": "repair",
+      "model": "qwen25_7b",
+      "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_config": "configs/rebuttal/qwen25_coder_7b.yaml",
+      "primary_evaluator": "pinned_pbpf_sandbox",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "implementation_ready_data_and_model_unverified",
+      "original_paper": {
+        "no_update_solved": 85,
+        "original_eed_solved": 83,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codearc__deepseek_6p7b",
+      "dataset": "codearc",
+      "domain": "codearc",
+      "kind": "repair",
+      "model": "deepseek_6p7b",
+      "model_id": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "model_config": "configs/rebuttal/deepseek_coder_6p7b.yaml",
+      "primary_evaluator": "pinned_pbpf_sandbox",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "implementation_ready_data_and_model_unverified",
+      "original_paper": {
+        "no_update_solved": 75,
+        "original_eed_solved": 102,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codearc__gemma3_4b",
+      "dataset": "codearc",
+      "domain": "codearc",
+      "kind": "repair",
+      "model": "gemma3_4b",
+      "model_id": "google/gemma-3-4b-it",
+      "model_config": "configs/rebuttal/gemma3_4b.yaml",
+      "primary_evaluator": "blocked_gemma_legacy_absolute_paths",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 59,
+        "original_eed_solved": 56,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "apps_replay__qwen25_7b",
+      "dataset": "apps_replay",
+      "domain": "apps_replay",
+      "kind": "replay_synthesis",
+      "model": "qwen25_7b",
+      "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_config": "configs/rebuttal/qwen25_coder_7b.yaml",
+      "primary_evaluator": "blocked_replay_original_direct_execution",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 57,
+        "original_eed_solved": 57,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "apps_replay__deepseek_6p7b",
+      "dataset": "apps_replay",
+      "domain": "apps_replay",
+      "kind": "replay_synthesis",
+      "model": "deepseek_6p7b",
+      "model_id": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "model_config": "configs/rebuttal/deepseek_coder_6p7b.yaml",
+      "primary_evaluator": "blocked_replay_original_direct_execution",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 23,
+        "original_eed_solved": 17,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "apps_replay__gemma3_4b",
+      "dataset": "apps_replay",
+      "domain": "apps_replay",
+      "kind": "replay_synthesis",
+      "model": "gemma3_4b",
+      "model_id": "google/gemma-3-4b-it",
+      "model_config": "configs/rebuttal/gemma3_4b.yaml",
+      "primary_evaluator": "blocked_gemma_and_replay_legacy",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 36,
+        "original_eed_solved": 2,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codecontests_replay__qwen25_7b",
+      "dataset": "codecontests_replay",
+      "domain": "codecontests_replay",
+      "kind": "replay_synthesis",
+      "model": "qwen25_7b",
+      "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_config": "configs/rebuttal/qwen25_coder_7b.yaml",
+      "primary_evaluator": "blocked_replay_original_direct_execution",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 47,
+        "original_eed_solved": 39,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codecontests_replay__deepseek_6p7b",
+      "dataset": "codecontests_replay",
+      "domain": "codecontests_replay",
+      "kind": "replay_synthesis",
+      "model": "deepseek_6p7b",
+      "model_id": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "model_config": "configs/rebuttal/deepseek_coder_6p7b.yaml",
+      "primary_evaluator": "blocked_replay_original_direct_execution",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 18,
+        "original_eed_solved": 24,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    },
+    {
+      "cell": "codecontests_replay__gemma3_4b",
+      "dataset": "codecontests_replay",
+      "domain": "codecontests_replay",
+      "kind": "replay_synthesis",
+      "model": "gemma3_4b",
+      "model_id": "google/gemma-3-4b-it",
+      "model_config": "configs/rebuttal/gemma3_4b.yaml",
+      "primary_evaluator": "blocked_gemma_and_replay_legacy",
+      "training_status": "implemented_requires_sealed_original_corrections_and_shared_init",
+      "evaluation_status": "blocked_not_paper_ready",
+      "original_paper": {
+        "no_update_solved": 31,
+        "original_eed_solved": 4,
+        "N": 500,
+        "interpretation": "historical one-seed, full method vs frozen; not a new ablation or direct method attribution"
+      },
+      "required_local_inputs": [
+        "original train+development corrections with source/model IDs",
+        "original dataset test source/problem ID map",
+        "same model revision cached",
+        "shared initial LoRA adapter",
+        "numerical original matched token budget"
+      ]
+    }
+  ]
+}

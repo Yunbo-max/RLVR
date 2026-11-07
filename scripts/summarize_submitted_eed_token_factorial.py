@@ -55,6 +55,10 @@ def _read(path:Path)->tuple[dict,dict]:
         pid=r.get("problem_id",r.get("task_id"))
         rows[sid]={"success":int(v),"problem_id":str(pid) if pid is not None else None}
     for key in IDENTITY_FIELDS:
+        if key=="execution_lock_sha256" and report.get("execution_profile")=="sandbox":
+            if report.get(key) is not None:
+                raise ValueError("sandbox eval must not pretend to have a direct-execution lock")
+            continue
         if not isinstance(report.get(key),str) or not report[key]:
             raise ValueError(f"missing required frozen evaluation identity {key}")
     return report,rows

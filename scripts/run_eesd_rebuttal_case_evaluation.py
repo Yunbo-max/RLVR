@@ -102,7 +102,8 @@ def inventory_ids(public:Path,evaluator:Path)->dict:
     }
 
 
-def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:int)->dict:
+def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:int,
+            eval_ids:Path|None=None)->dict:
     case_record=case/"case.json"
     if not case_record.is_file():raise FileNotFoundError("prepare/train independent case first")
     receipt=json.loads(case_record.read_text())
@@ -136,6 +137,15 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
         revision=yaml.safe_load(Path(setup["model_config_path"]).read_text())["revision"]
     pin=validate_checkout(pbpf,domain)
     inv=inventory_ids(public,evaluator)
+    sealed_eval_sha=receipt.get("frozen_case_input_hashes",{}).get("eval_ids_sha256")
+    if sealed_eval_sha is not None:
+        if eval_ids is None or not eval_ids.is_file() or file_sha(eval_ids)!=sealed_eval_sha:
+            raise ValueError("evaluation source-ID file must match the original prepared CASE hash")
+    if eval_ids is not None:
+        rows=[json.loads(z) for z in eval_ids.read_text().split("\n") if z.strip()]
+        source_ids=[str(z["source_component_id"]) for z in rows]
+        if len(set(source_ids))!=len(source_ids) or sorted(source_ids)!=inv["evaluation_source_ids"]:
+            raise ValueError("frozen evaluation source IDs do not match actual PBPF evaluator population")
     output=case/"evaluation"
     if output.exists():raise FileExistsError("case evaluator already prepared")
     output.mkdir(parents=True,exist_ok=False)
@@ -171,6 +181,11 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
         "pbpf_root":str(pbpf.resolve()),
         "public_root":str(public.resolve()),
         "evaluator_root":str(evaluator.resolve()),
+        "eval_source_id_file_path":str(eval_ids.resolve()) if eval_ids else None,
+        "eval_source_id_file_sha256":file_sha(eval_ids) if eval_ids else None,
+        "source_disjointness_status":json.loads((case/"data_provenance.json").read_text()).get(
+            "provenance_status","not_certified"
+        ),
         **pin,
         **inv,
         "generated_program_count_policy":"one greedy candidate per independent public PRIMARY source",
@@ -196,6 +211,11 @@ def _check_frozen(plan,case):
     inv=inventory_ids(Path(plan["public_root"]),Path(plan["evaluator_root"]))
     if any(inv[k]!=plan[k] for k in inv):
         raise ValueError("heldout source bank changed after evaluator prepared")
+    if plan.get("eval_source_id_file_sha256") and (
+        not Path(plan["eval_source_id_file_path"]).is_file()
+        or file_sha(Path(plan["eval_source_id_file_path"]))!=plan["eval_source_id_file_sha256"]
+    ):
+        raise ValueError("frozen source ID map changed since evaluator preparation")
 
 
 def run(case:Path)->dict:
@@ -266,6 +286,7 @@ def main():
     p.add_argument("--evaluator-root",type=Path)
     p.add_argument("--domain",choices=("rbr","codearc"))
     p.add_argument("--workers",type=int,default=12)
+    p.add_argument("--eval-ids",type=Path,help="Required when the model case sealed an evaluation ID file; checks population equality")
     p.add_argument("--action",choices=("prepare","run","both"),default="prepare")
     a=p.parse_args()
     case=a.case_dir.resolve()
@@ -273,7 +294,8 @@ def main():
         if any(v is None for v in (a.pbpf_root,a.public_root,a.evaluator_root,a.domain)):
             p.error("evaluator preparation requires PBPF checkout, public/evaluator source roots and domain")
         plan=prepare(case,a.pbpf_root.resolve(),a.public_root.resolve(),
-                     a.evaluator_root.resolve(),a.domain,a.workers)
+                     a.evaluator_root.resolve(),a.domain,a.workers,
+                     a.eval_ids.resolve() if a.eval_ids else None)
         print(json.dumps({"status":plan["status"],"case":plan["case_id"],
                           "evaluation_sources":plan["evaluation_sources"]}))
     if a.action in ("run","both"):

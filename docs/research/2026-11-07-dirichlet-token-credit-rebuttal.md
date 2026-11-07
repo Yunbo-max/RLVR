@@ -19,7 +19,8 @@ lambda=0.5 and beta=0.03):
 
 Define edit mask m_t=1 if a target token is inserted or replaced when
 matching original program a0 to correction a1 using the pinned tokenizer's
-SequenceMatcher edit alignment; copied tokens m_t=0, EOS m_t=0.
+SequenceMatcher edit alignment; replaced/inserted targets and surviving
+deletion boundaries are edits; copied tokens m_t=0, EOS m_t=0.
 For a fixed nonnegative edit intensity eta=2,
 
     g_edit,t = (1 + eta*m_t) / (1 + eta*mean_t m_t)

@@ -9,6 +9,8 @@ import sys
 
 import pytest
 
+from rebuttal_test_utils import write_lora_adapter
+
 ROOT=Path(__file__).resolve().parents[1]
 SCRIPTS=ROOT/"scripts"
 sys.path.insert(0,str(SCRIPTS))
@@ -53,9 +55,8 @@ def fixture_paths(tmp_path,original=True):
             r["prompt"]="Solve programming task with no source code."
     input_file.write_text("".join(json.dumps(r)+"\n" for r in rows))
     adapter=tmp_path/"shared_init"
-    adapter.mkdir()
-    (adapter/"adapter_config.json").write_text('{"base_model_name_or_path":"synthetic"}')
     config=ROOT/"configs/rebuttal/qwen25_coder_7b.yaml"
+    write_lora_adapter(adapter, config)
     evaluation=tmp_path/"evaluation_ids.jsonl"
     evaluation.write_text(json.dumps({
         "source_component_id":"test1","problem_id":"P4"
@@ -106,6 +107,17 @@ def test_edit_cases_reject_synthesis_records_even_when_uniform_allowed(tmp_path)
     m.prepare_case(a,m.load_cases()["C03_EED"],baseline)
     with pytest.raises(ValueError,match="ineligible"):
         m.prepare_case(a,m.load_cases()["C11_EED_EDIT"],tmp_path/"edit")
+
+
+def test_frozen_case_retains_correction_provenance_for_independent_evaluation(tmp_path):
+    a=fixture_paths(tmp_path)
+    folder=tmp_path/"C00"
+    receipt=m.prepare_case(a,m.load_cases()["C00_FROZEN"],folder)
+    assert Path(receipt["setup"]["corrections_path"])==a.corrections.resolve()
+    provenance=json.loads((folder/"data_provenance.json").read_text())
+    assert receipt["setup"]["corrections_sha256"]==provenance["correction_file_sha256"]
+    assert m.run_case(folder)["status"]=="completed_diagnostic_without_gpu"
+    assert not (folder/"model").exists()
 
 
 def test_kappa_cases_are_distinct_and_weight_diagnostics_are_saved(tmp_path):

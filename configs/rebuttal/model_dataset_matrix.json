@@ -1,6 +1,6 @@
 {
   "schema": "eesd-iclr2027-model-dataset-coverage-v1",
-  "interpretation": "Twelve original cells are registered for case TRAINING but no new H100 cases are run. Original PBPF evaluator bridge is directly implemented only for Qwen/DeepSeek on RunBugRun/CodeARC; all other evaluations must not be advertised as complete.",
+  "interpretation": "All twelve original cells have separate-case training and a new prospective matched greedy NF4/BF16 sandbox evaluator. No new GPU training or downstream results are claimed. The exact-source historical PBPF bridge remains directly implemented for only four cells; historical Gemma and Replay protocol limitations remain unchanged.",
   "model_keys": [
     "qwen25_7b",
     "deepseek_6p7b",
@@ -36,7 +36,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "runbugrun__deepseek_6p7b",
@@ -61,7 +65,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "runbugrun__gemma3_4b",
@@ -86,7 +94,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codearc__qwen25_7b",
@@ -111,7 +123,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codearc__deepseek_6p7b",
@@ -136,7 +152,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codearc__gemma3_4b",
@@ -161,7 +181,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "apps_replay__qwen25_7b",
@@ -186,7 +210,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "apps_replay__deepseek_6p7b",
@@ -211,7 +239,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "apps_replay__gemma3_4b",
@@ -236,7 +268,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codecontests_replay__qwen25_7b",
@@ -261,7 +297,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codecontests_replay__deepseek_6p7b",
@@ -286,7 +326,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     },
     {
       "cell": "codecontests_replay__gemma3_4b",
@@ -311,7 +355,11 @@
         "same model revision cached",
         "shared initial LoRA adapter",
         "numerical original matched token budget"
-      ]
+      ],
+      "matched_evaluator": "prospective_matched_greedy_sandbox",
+      "matched_evaluator_entrypoint": "scripts/run_eesd_rebuttal_matched_evaluation.py",
+      "matched_execution_status": "not_verified_requires_frozen_inputs_cached_models_gpu_and_working_sandbox",
+      "matched_protocol_interpretation": "New common greedy NF4/BF16 evaluation; not an exact replication of historical mixed decoding and execution protocols."
     }
   ]
 }

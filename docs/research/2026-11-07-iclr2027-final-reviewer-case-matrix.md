@@ -1,5 +1,5 @@
 # ICLR 2027 #46512 — Final Reviewer-by-Reviewer Rebuttal Case Matrix
-**Frozen plan date: 2026-11-07. Results below are NOT measured outcomes.**
+**Plan updated: 2026-11-07. The C00–C16 table describes experiments, not completed GPU outcomes.**
 Primary manuscript remains the submitted **four-transition lexical Dirichlet EED**
 with \(\alpha=0.1,\lambda=0.5,\kappa=16,\beta=0.03\) and common
 forward KL. Token-aware correction credit is explicitly a NEW
@@ -15,9 +15,13 @@ component efficacy before independently verifying matched training baselines.
 Each case is separately launched, logged and hashed. Registry of case IDs:
 configs/rebuttal/eesd_case_registry.json. Independent Case runner:
 scripts/run_eesd_rebuttal_case.py. Evaluator bridge:
-scripts/run_eesd_rebuttal_case_evaluation.py (original PBPF code).
-No new real H100 results or reconstructed raw 3,000-label outcomes have been
-created by these scripts in this repository. Archive all negative runs.
+scripts/run_eesd_rebuttal_case_evaluation.py (original PBPF code), or
+scripts/run_eesd_rebuttal_matched_evaluation.py (explicit new common protocol).
+No new GPU training results are claimed. Historical predictor caches and
+arrays have now been recovered and recomputed: 36,000 observations across
+four cells and three candidate-generation seeds. See the
+[D03 archive audit](2026-11-07-eesd2-archived-prediction-audit.md) for signed
+effects, source hashes and remaining provenance limits. Archive all negative runs.
 
 ## Core priority case table
 
@@ -28,7 +32,7 @@ created by these scripts in this repository. Archive all negative runs.
 | C02_FIXED | Four-state Dirichlet with mass n + KL | Does adaptive mass E(p) matter? | P0 |
 | C03_EED | Exact submitted EED + KL, uniform response-token weight | Submitted original method | P0 |
 | D01_SOURCE_AUDIT | Raw source/problem-ID overlap, editable-pair coverage | Leakage/split provenance | P0 |
-| D03_PREDICTION_PROTOCOL | Raw future labels, public/future test IDs, NLL/Brier/argmax over seeds | Predictor/protocol soundness | P0 *if raw labels exist* |
+| D03_PREDICTION_PROTOCOL | Raw future labels, public/future test IDs, NLL/Brier/argmax over seeds | Predictor/protocol soundness | P0; historical four-cell archives recovered |
 | D04_DESCRIPTOR_AND_REPAIR_AUDIT | Original descriptor/kernel definition, partial repairs, JToX counterexample | Relevance features and outcome semantics | P0 |
 | C04_CONSTANT | Mean-train-weight constant + KL | Is EED only smaller CE strength? | P1 |
 | C05_SHUFFLED | Permuted per-correction EED weights + KL | Is EED aligned to useful corrections? | P1 |
@@ -45,7 +49,7 @@ created by these scripts in this repository. Archive all negative runs.
 | C13_KAPPA8 / C14_KAPPA32 | Recompute original-kernel relevance with kappa 8 or 32 | Downstream temperature robustness | P2 |
 
 **Do NOT run all 21 IDs immediately.** P0 is C00/C01/C02/C03 + D01/D02/D04,
-plus D03 if the original predictor traces can be recovered. P1 is C04/C05,
+plus the recovered D03 archive audit. P1 is C04/C05,
 C09, and C10/C11/C12, plus C15/C16 if the lexical kernel is still an
 independent claim after P0. C06/C07/C08 are cheap important controls but
 can be prioritized after the principal matrix. P2 temperature GPU runs only
@@ -66,7 +70,7 @@ if D02 shows meaningful change or reviewers request downstream sensitivity.
 |---|---|---|
 | No equal-weight correction training; no fixed-mass training (both with matched KL) | **C01/C02/C03 + C00** | Identical correction records, entering adapter, actual response tokens, optimizer schedule, beta=0.03 and evaluator. The EED-specific effect is C03-C02, not C03-C00. |
 | The original full matrix has more negative than positive cells incl. Gemma | C00-C03 on DeepSeek/CodeARC and a negative Gemma cell; optional C09/C11 | Report ALL 12 historical cells, every new cell run, all regressions, and fit-seed variance. Do not selectively report a rescue cell. |
-| Table 10 mechanism changes sign across seeds | **D03** | Read the genuine raw predictor labels+probabilities for seeds 1701/1702/1703, report per-seed NLL, Brier, argmax, CI clustered by problem ID. If raw traces missing, disclose the historical three signed NLL differences and DO NOT claim stable benefit. |
+| Table 10 mechanism changes sign across seeds | **D03** | Recovered cache/NPZ records confirm DeepSeek/RunBugRun gains +0.0060921, -0.0036655, +0.0006687 for seeds 1701/1702/1703, respectively. All matched argmax decisions agree. Report each seed and problem-cluster CI; do not claim stable benefit. |
 | Unknown training/selection/evaluation source overlap | **D01 + frozen evaluation Case bridge** | Explicit source and problem IDs, train/dev/test separated at problem level; if identities are absent, report "unverified" rather than asserting independent transfer. |
 | "Future outcome" label space/construction ambiguous, "matched effective-arm" not defined | **D03** + protocol text | Record future test IDs NOT visible, class order/definitions, probability vectors, same predictor lock within a seed. Historical raw source documents must establish HOW these labels were obtained, not just model predictions. |
 | Missing numeric training budget | All Cxx training logs and immutable case.json | Exact response tokens and optimizer steps per arm, shared initial adapter hash, trainable LoRA layers and KL. Historical budget cannot be recovered from the paper CSV. |
@@ -78,7 +82,7 @@ if D02 shows meaningful change or reviewers request downstream sensitivity.
 | Explicit concern/question | Cases | Required result/clarification |
 |---|---|---|
 | SFT/fixed-mass/uncertainty penalty baseline absent | **C01/C02/C03/C06**, C04/C05 | Same CE response targets, beta, tokens, init; isolate each component. |
-| RQ1 most of NLL decrease comes from more history; same for fixed | **D03**, existing paper/data/history.csv | Separate n=1 to 8 history effect from fixed-vs-EED within a given n; do not attribute entire 55–59% drop to effective mass. |
+| RQ1 most of NLL decrease comes from more history; same for fixed | **D03**, existing paper/data/history.csv | Separate fixed-vs-EED within a given n. The archived sweep changes both history and remaining target tests; its entire NLL decrease is not an isolated evidence-mass or fixed-target history effect. |
 | Relevance-weighted mass not shown to predict correction reliability | **D02, D03, C05/C15/C16**, C09 | Show raw alignment/sensitivity and heldout learning. If signal does not help beyond uniform/shuffled relevance, reduce novelty claim. |
 | Unclear a1 generation and whether unsuccessful corrections are included | **D04**, original PBPF code receipt | Original author code generates 1 new correction from the model using PUBLIC feedback, extracts Python, re-executes it, and stores before/after outputs. Failed/partially failed revisions are not excluded by EED automatically; quantify how often they have positive weight. |
 | 1 FIX+3 UNRESOLVED vs 1 FIX+3 PRESERVE both get same weight | **D04, C07/C08/C09** | Verify the actual numerical counterexample. Token-aware C11 does **not** fix this semantic defect; C09 tests a transparent final-correctness extension. |
@@ -93,24 +97,28 @@ from yuhanlydia/PBPF research/eesd-seed1701-resume-20260922.
 Original frozen source commit:
 0200283849274b49e303638b91f142acd8bba984.
 The repository's paper/data/downstream.csv is NOT sufficient to regenerate
-training corrections or per-source predictions. User must supply actual raw
-data and base adapter/initialization. Generated tests are not created to
-fill missing records.
+training corrections or per-source downstream predictions. The historical
+mechanism cache/NPZ is sufficient for the separate D03 reanalysis; it is not
+a correction-training bank or a fresh downstream candidate bank. Use actual
+raw corrections and the model-specific shared initialization command in the
+case README. Generated tests are not created to fill missing records.
 2. Freeze training/development identities, and keep every row including
 w_EED=0 (KL remains). Use PINNED model YAML in configs/rebuttal.
 3. For each CASE and seed choose a NEW immutable output directory.
 Preparing a case does not launch a GPU. Running a prepared case
 updates its status from "prepared" to "trained_awaiting_independent_evaluation".
 A failed case writes its own log/receipt and cannot silently overwrite.
-4. Fresh evaluation is a separate, single-CASE job invoking the original
-PBPF one-greedy-candidate RunBugRun/CodeARC generator + evaluator inside the
-original sandbox. Case evaluation never returns an in-sample training metric.
-Gemma/APPS Replay uses a different original replay evaluator and is NOT
-claimed supported by this direct bridge.
-5. Six core scientific arm reports are collected only after REAL heldout
-evaluation, with a user-supplied, source-originating independent problem-ID
-map. Historical PBPF task IDs MUST NOT be silently promoted to problem IDs
-for cluster confidence intervals.
+4. Fresh evaluation is a separate, single-CASE job. Choose either the original
+PBPF bridge (four cells), or the explicitly new matched greedy NF4/BF16 sandbox
+protocol (all twelve cells in code). All compared arms must use the same
+protocol. Historical Gemma sampling/FP4 and direct Replay execution are not
+silently relabeled as the new protocol. Case evaluation never returns an
+in-sample training metric; Replay remains a replay stress test.
+5. Collect P0 C00/C01/C02/C03 immediately after their REAL heldout evaluation;
+there is no need to wait for C10–C12. The collector also supports the original
+six-arm token suite and individually selected cases. Require a source-originating
+independent problem-ID map. Historical task IDs MUST NOT be silently promoted
+to problem IDs for cluster confidence intervals.
 
 ### List the cases
 
@@ -138,9 +146,12 @@ model, seed, initial adapter and budget. Run C00_FROZEN separately for
 the no-update comparison. For a diagnostic case use e.g.
 --case D04_DESCRIPTOR_AND_REPAIR_AUDIT --action both with --corrections,
 optionally --pbpf-root /checked-out/PBPF for kernel recomputation.
-D03_PREDICTION_PROTOCOL requires --prediction-rows pointing to RAW 3,000
-observation-level records; missing records produce a "blocked" receipt,
-NOT an invented result.
+D03_PREDICTION_PROTOCOL accepts --prediction-rows pointing to raw
+observation-level records. `restore_eesd_archived_predictions.py` now recovers
+9,000 records per supported cell (3,000 per candidate seed) from the original
+cache and saved arrays, verifies development selection and matched predictions,
+and computes the full audit without a correction-training bank. It does not
+certify the unavailable external execution banks.
 
 **524288 is the existing prospective configuration budget, not proof
 of the original 2026-09 paper's consumed token count.** If missing,
@@ -166,7 +177,22 @@ with local HF weights and a working strict execution sandbox.
 Evaluate C01,C02,C03,C10,C11,C12 and C00 in distinct directories.
 No result may be selected by inspecting hidden test success.
 
-### Collect and summarize 6 independently evaluated cases
+### Collect and summarize P0 independently
+
+    python scripts/collect_eesd_rebuttal_case_evals.py \
+      --cases-root runs/rebuttal2027 --study deepseek_codearc \
+      --seed 1701 --suite p0 \
+      --problem-map /sealed/evaluation-source-problem-ids.jsonl \
+      --output runs/rebuttal2027/p0-deepseek-s1701
+
+    python scripts/summarize_eesd_rebuttal_cases.py \
+      --eval-dir runs/rebuttal2027/p0-deepseek-s1701 \
+      --output runs/rebuttal2027/p0-deepseek-s1701/paired_summary.json
+
+The primary contrasts are C03-C02 and C03-C01. C03-C00 describes the complete
+update versus frozen. Use `--study <cell>` when launching with `--cell`.
+
+### Collect and summarize 6 independently evaluated token cases
 
     python scripts/collect_eesd_rebuttal_case_evals.py \
       --cases-root runs/rebuttal2027 --study deepseek_codearc \
@@ -206,9 +232,11 @@ bootstrap a training-seed interval.
 - Actual correction train/dev JSONL, with unmodified prompt and original a0.
 - Independent official source/problem mapping and private evaluator roots.
 - Model weights, shared LoRA initialization, GPU training, sandbox.
-- Actual raw predictor history rows for D03 and old fitting metadata.
+- Original external execution banks/materializations if fully revalidating
+  D03 label provenance; the four-cell cache/NPZ and selection audit is complete.
 - Exact old numerical optimizer/token budget, if claiming replication.
-- Original Replay evaluator for Gemma/APPS cell if using that cell.
-- 3 fit seeds and completed six-arm heldout evaluations.
+- A working sandbox and frozen materializations for the new common evaluator;
+  the historical Gemma/Replay environment is required only for exact old-protocol replication.
+- Independent fit seeds and completed P0 or selected-case heldout evaluations.
 
 These are **input requirements**, not completed scientific measurements.

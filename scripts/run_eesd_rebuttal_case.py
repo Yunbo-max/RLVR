@@ -30,17 +30,31 @@ import yaml
 
 ROOT=Path(__file__).resolve().parents[1]
 SCRIPTS=ROOT/"scripts"
+sys.path.insert(0,str(ROOT/"src"))
 sys.path.insert(0,str(SCRIPTS))
 
 from eesd.distillation import TRAIN_RULES,validate_scored_record
-from eesd.training_outcomes import tree_sha
+from eesd.training_outcomes import tree_sha, adapter_metadata
 import prepare_submitted_dirichlet_rebuttal_weights as weightlib
 import audit_eesd_token_aware_inputs as input_audit
 import check_eesd_rebuttal_coverage as cell_coverage
+from run_eesd_weighted_sft import OPTIMIZER_SPEC, SCHEDULE_SCHEMA, lora_parameters
 
 REGISTRY=ROOT/"configs/rebuttal/eesd_case_registry.json"
 TRAINER=ROOT/"scripts/run_eesd_weighted_sft.py"
 TOKEN_CODE=ROOT/"src/eesd/token_aware.py"
+SOURCE_INPUTS = (
+    "scripts/run_eesd_rebuttal_case.py", "scripts/run_eesd_weighted_sft.py",
+    "scripts/prepare_submitted_dirichlet_rebuttal_weights.py",
+    "scripts/audit_eesd_token_aware_inputs.py", "scripts/check_eesd_rebuttal_coverage.py",
+    "src/eesd/evidence.py", "src/eesd/distillation.py", "src/eesd/token_aware.py",
+    "src/eesd/training_outcomes.py", "src/eesd/registry.py",
+    "src/eesd/shapley_relevance.py", "docs/EESD_ZERO_WEIGHT_ADOPTION_20260920.md",
+    "configs/rebuttal/eesd_case_registry.json",
+    "configs/rebuttal/model_dataset_matrix.json",
+)
+TRAINING_DEFAULTS = {"max_steps": 200, "gradient_accumulation": 16,
+                     "max_length": 4608, "learning_rate": 2e-4}
 SAFE=re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 
 
@@ -91,9 +105,16 @@ def training_setup(args,case:dict)->dict:
     # Include original EED's whole-policy KL beta and original alpha/lambda.
     cfg=yaml.safe_load(args.model_config.read_text())
     if not isinstance(cfg,dict) or not isinstance(cfg.get("model_id"),str) or (
-        not isinstance(cfg.get("revision"),str) or len(cfg["revision"])!=40):
+        not isinstance(cfg.get("revision"),str) or len(cfg["revision"])!=40
+        or any(c not in "0123456789abcdef" for c in cfg["revision"])):
         raise ValueError("pinned model_id and 40-char revision required")
+    adapter = adapter_metadata(args.init_adapter, args.model_config)
     return {
+        **TRAINING_DEFAULTS,
+        "python_executable": sys.executable,
+        "optimizer": {**OPTIMIZER_SPEC, "learning_rate": TRAINING_DEFAULTS["learning_rate"]},
+        "lora_config": lora_parameters(adapter),
+        "source_sha256": {name: file_sha(ROOT/name) for name in SOURCE_INPUTS},
         "corrections_path":str(args.corrections.resolve()),
         "corrections_sha256":file_sha(args.corrections),
         "model_config_path":str(args.model_config.resolve()),
@@ -123,9 +144,60 @@ def check_source_integrity(setup:dict)->None:
       (TOKEN_CODE,setup["token_source_sha256"],file_sha),
       (REGISTRY,setup["registry_sha256"],file_sha)
     ]
+    if set(setup.get("source_sha256", {})) != set(SOURCE_INPUTS):
+        raise ValueError("FROZEN source dependency receipt missing or incomplete; prepare a fresh case")
+    checks.extend((ROOT/name, setup["source_sha256"][name], file_sha) for name in SOURCE_INPUTS)
     for path,expected,fn in checks:
         if not path.exists() or fn(path)!=expected:
             raise ValueError(f"FROZEN input/code checksum changed: {path}")
+
+
+def trainer_command(setup: dict, case: dict, folder: Path) -> list[str]:
+    """Rebuild the sole authorized command from the prepared case specification."""
+    return [
+        setup["python_executable"], str(TRAINER),
+        "--input", str((folder/"scored-corrections.jsonl").resolve()),
+        "--model-config", setup["model_config_path"],
+        "--rule", "eesd_full", "--include-zero-weight-kl",
+        "--token-weighting", case["token"],
+        "--token-edit-boost", str(setup["token_edit_boost"]),
+        "--previous-adapter", setup["shared_init_adapter_path"],
+        "--seed", str(setup["seed"]),
+        "--response-token-budget", str(setup["response_token_budget"]),
+        "--anchor-beta", str(setup["beta"]),
+        "--max-steps", str(setup["max_steps"]),
+        "--gradient-accumulation", str(setup["gradient_accumulation"]),
+        "--max-length", str(setup["max_length"]),
+        "--learning-rate", str(setup["learning_rate"]),
+        "--lora-r", str(setup["lora_config"]["r"]),
+        "--lora-alpha", str(setup["lora_config"]["lora_alpha"]),
+        "--output", str((folder/"model").resolve()),
+    ]
+
+
+def verify_training_report(report: dict, setup: dict, case: dict, input_sha: str) -> None:
+    expected = {
+        "schema": "eesd-weighted-sft-v1", "input_sha256": input_sha,
+        "model_config_sha256": setup["model_config_sha256"],
+        "model_id": setup["model_id"], "revision": setup["revision"],
+        "seed": setup["seed"], "rule": "eesd_full",
+        "response_tokens": setup["response_token_budget"],
+        "response_token_budget": setup["response_token_budget"],
+        "anchor_beta": setup["beta"], "include_zero_weight_kl": True,
+        "token_weighting": case["token"], "token_edit_boost": setup["token_edit_boost"],
+        "trainer_source_sha256": setup["trainer_source_sha256"],
+        "previous_adapter_tree_sha256_before": setup["shared_init_adapter_tree_sha256"],
+        "previous_adapter_tree_sha256_after": setup["shared_init_adapter_tree_sha256"],
+        "optimizer": setup["optimizer"], "lora_config": setup["lora_config"],
+        "training_schedule_schema": SCHEDULE_SCHEMA,
+        **{key: setup[key] for key in TRAINING_DEFAULTS},
+    }
+    for key, value in expected.items():
+        if report.get(key) != value:
+            raise ValueError(f"TRAINING BINDING ERROR {key}: {report.get(key)} vs {value}")
+    schedule_sha = report.get("training_schedule_sha256")
+    if not isinstance(schedule_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", schedule_sha):
+        raise ValueError("TRAINING BINDING ERROR missing actual token schedule checksum")
 
 
 def input_provenance(args,case:dict)->dict:
@@ -242,12 +314,14 @@ def prepare_case(args,case:dict,folder:Path)->dict:
         if args.model_config is None or not args.model_config.is_file():
             raise ValueError("frozen baseline requires the same pinned model config used by trained arms")
         cfg=yaml.safe_load(args.model_config.read_text())
-        if (not isinstance(cfg.get("model_id"),str) or
+        if (not isinstance(cfg,dict) or not isinstance(cfg.get("model_id"),str) or
             not isinstance(cfg.get("revision"),str) or len(cfg["revision"])!=40):
             raise ValueError("frozen baseline requires pinned model identity and revision")
-        if not (args.init_adapter/"adapter_config.json").is_file():
-            raise ValueError("frozen baseline requires real initial adapter")
+        adapter_metadata(args.init_adapter, args.model_config)
         setup={
+            "model_id":cfg["model_id"], "revision":cfg["revision"],
+            "corrections_path":str(args.corrections.resolve()) if args.corrections else None,
+            "corrections_sha256":file_sha(args.corrections) if args.corrections else None,
             "shared_init_adapter_path":str(args.init_adapter.resolve()),
             "shared_init_adapter_tree_sha256":tree_sha(args.init_adapter),
             "model_config_path":str(args.model_config.resolve()) if args.model_config else None,
@@ -267,19 +341,7 @@ def prepare_case(args,case:dict,folder:Path)->dict:
                 file.write(json.dumps(r,ensure_ascii=False,sort_keys=True)+"\n")
         _save(folder/"weight_diagnostics.json",summary)
         file_inputs["scored-corrections.jsonl"]=file_sha(filename)
-        command=[
-            sys.executable,str(TRAINER),
-            "--input",str(filename.resolve()),
-            "--model-config",setup["model_config_path"],
-            "--rule","eesd_full","--include-zero-weight-kl",
-            "--token-weighting",case["token"],
-            "--token-edit-boost",str(setup["token_edit_boost"]),
-            "--previous-adapter",setup["shared_init_adapter_path"],
-            "--seed",str(args.seed),
-            "--response-token-budget",str(setup["response_token_budget"]),
-            "--anchor-beta",str(setup["beta"]),
-            "--output",str((folder/"model").resolve())
-        ]
+        command=trainer_command(setup,case,folder)
     elif kind=="diagnostic":
         rows=[json.loads(x) for x in args.corrections.read_text().split("\n") if x.strip()]
         _save(folder/"relevance_diagnostic.json",_diag_stats(rows))
@@ -330,7 +392,10 @@ def run_case(folder:Path)->dict:
         raise ValueError("invalid case receipt")
     if manifest.get("status")!="prepared":
         raise ValueError("case is not in prepared state (no overwrite/retry)")
-    kind=manifest["case"]["kind"]
+    case=manifest["case"]
+    if load_cases().get(case.get("id")) != case:
+        raise ValueError("prepared case does not match the frozen registry")
+    kind=case["kind"]
     if kind!="train":
         if kind=="prediction" and (folder/"prediction_status.json").is_file():
             manifest["status"]="blocked_missing_original_future_outcome_records"
@@ -345,8 +410,8 @@ def run_case(folder:Path)->dict:
     if file_sha(filename)!=manifest["frozen_case_input_hashes"]["scored-corrections.jsonl"]:
         raise ValueError("case training rows were modified after preparation")
     cmd=manifest["command"]
-    if not cmd or Path(cmd[-1])!= (folder/"model").resolve():
-        raise ValueError("malformed frozen trainer command")
+    if manifest["seed"] != setup["seed"] or cmd != trainer_command(setup,case,folder):
+        raise ValueError("frozen trainer command or seed differs from the prepared case")
     if (folder/"model").exists():
         raise FileExistsError("model output already exists; cannot silently resume/retrain")
     manifest.update(status="running",started_at=time_now())
@@ -363,22 +428,27 @@ def run_case(folder:Path)->dict:
             nonestimable=folder/"model"/"training-outcome.json"
             if training_report.is_file():
                 report=json.loads(training_report.read_text())
-                for key,expected in [
-                    ("input_sha256",file_sha(filename)),
-                    ("model_config_sha256",setup["model_config_sha256"]),
-                    ("seed",setup["seed"]),
-                    ("response_tokens",setup["response_token_budget"]),
-                    ("anchor_beta",setup["beta"]),
-                    ("token_weighting",manifest["case"]["token"]),
-                ]:
-                    if report.get(key)!=expected:
-                        raise ValueError(f"TRAINING BINDING ERROR {key}: {report.get(key)} vs {expected}")
-                if not (folder/"model"/"adapter"/"adapter_config.json").is_file():
-                    raise ValueError("trained LoRA adapter absent")
+                verify_training_report(report,setup,case,file_sha(filename))
+                check_source_integrity(setup)
+                adapter_metadata(folder/"model"/"adapter",Path(setup["model_config_path"]))
                 manifest["status"]="trained_awaiting_independent_evaluation"
                 manifest["training_report_sha256"]=file_sha(training_report)
                 manifest["trained_adapter_tree_sha256"]=tree_sha(folder/"model"/"adapter")
             elif nonestimable.is_file():
+                outcome=json.loads(nonestimable.read_text())
+                expected={"schema":"eesd-zero-training-outcome-v1",
+                    "status":"non_estimable_zero_positive_training_weight",
+                    "rule":"eesd_full", "seed":setup["seed"],
+                    "input_sha256":file_sha(filename),
+                    "model_config_sha256":setup["model_config_sha256"],
+                    "trainer_source_sha256":setup["trainer_source_sha256"],
+                    "previous_adapter_tree_sha256":setup["shared_init_adapter_tree_sha256"],
+                    "response_token_budget":setup["response_token_budget"],
+                    "anchor_beta":setup["beta"], "response_tokens":0,
+                    "optimizer_steps":0, "micro_steps":0}
+                if any(outcome.get(key)!=value for key,value in expected.items()):
+                    raise ValueError("non-estimable outcome does not match frozen training inputs")
+                check_source_integrity(setup)
                 manifest["status"]="non_estimable_zero_positive_training_weight"
                 manifest["training_outcome_sha256"]=file_sha(nonestimable)
             else:

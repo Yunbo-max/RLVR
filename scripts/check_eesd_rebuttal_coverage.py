@@ -3,10 +3,10 @@
 
 Treat registered training support as code coverage, NOT as evidence that raw
 corrections, H100 model weights, or a valid evaluator are available. All
-twelve cells have a model-specific LoRA trainer; only Qwen+DeepSeek on
-RunBugRun+CodeARC have a pinned PBPF sandbox generation+evaluation bridge.
-Gemma and Replay have historical, nonportable evaluators; no fictitious
-"compatible" protocol is substituted.
+twelve cells have a model-specific LoRA trainer and a separately declared
+prospective matched greedy NF4/BF16 sandbox evaluator. Only Qwen+DeepSeek on
+RunBugRun+CodeARC have an exact-source historical PBPF evaluation bridge.
+The new common protocol never constitutes historical Gemma/Replay replication.
 
 For each cell optional frozen inputs:
   <INPUTS_ROOT>/<cell>/corrections.jsonl
@@ -122,6 +122,8 @@ def audit_correction_identity(cell:str,rows_path:Path,*,strict:bool=False)->dict
                  "incomplete_record_identity_metadata",
         "training_support":"trainer source supports model-specific LoRA, raw GPU run not performed",
         "evaluation_support":profile["primary_evaluator"],
+        "matched_evaluation_support":profile["matched_evaluator"],
+        "matched_execution_status":profile["matched_execution_status"],
         "warning":"These checks cannot prove disjointness of training and evaluator problems. Run D01 with a real source-to-problem mapping."
     }
 
@@ -153,6 +155,8 @@ def coverage_rows(*,inputs_root:Path|None=None)->list[dict]:
             "initial_adapter":"supplied_not_validated" if adapter and adapter.exists() else "not_supplied",
             "eval_id_map":"supplied_not_validated" if eval_ids and eval_ids.exists() else "not_supplied",
             "evaluation_code":evaluation,
+            "matched_evaluation_code":profile["matched_evaluator"],
+            "matched_execution_status":profile["matched_execution_status"],
             "evaluation_claim_allowed":False,
             "historical_no_update_solved":profile["original_paper"]["no_update_solved"],
             "historical_eed_solved":profile["original_paper"]["original_eed_solved"],
@@ -184,6 +188,9 @@ def main():
                 r["evaluation_code"]=="pinned_pbpf_sandbox" for r in rows),
             "heldout_protocol_unsupported_or_unqualified_cells":sum(
                 r["evaluation_code"]!="pinned_pbpf_sandbox" for r in rows),
+            "prospective_matched_evaluation_implemented_cells":sum(
+                r["matched_evaluation_code"]=="prospective_matched_greedy_sandbox" for r in rows),
+            "protocol_interpretation":"The historical bridge counts and the new matched protocol count are separate; implementation is not measured scientific execution.",
             "new_scientific_gpu_results":0,
             "cells":rows,
         }

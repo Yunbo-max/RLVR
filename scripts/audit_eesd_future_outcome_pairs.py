@@ -189,11 +189,13 @@ def summarize(path:Path,*,bootstrap:int=2000,seed:int=314159)->dict:
     keys=list(populations)
     matched=all(populations[k]==populations[keys[0]] for k in keys[1:])
     return {
-        "schema":"eesd-four-state-raw-future-outcome-audit-v1",
+        "schema":"eesd-raw-future-outcome-audit-v2",
         "status":"computed_from_raw_future_labels",
         "input_sha256":digest(path),"outcome_classes":rows[0]["fixed_probs"].size,
         "outcome_class_names":next(json.loads(s)["outcome_classes"] for s in path.read_text().split("\n") if s.strip()),
-        "seeds":seeds,"predictor_initializations":len(seeds),
+        "seeds":seeds,"seed_count":len(seeds),
+        "seed_interpretation":"recorded seed IDs; whether they denote generation or fitting must be documented by the source archive",
+        "bootstrap_draws":bootstrap,"bootstrap_seed":seed,
         "identical_future_test_populations_across_seeds":matched,
         "results":by_seed,
         "critical_limitations":[

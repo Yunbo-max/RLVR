@@ -2,6 +2,7 @@
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from eesd.distillation import TRAIN_RULES,validate_scored_record
 
@@ -81,6 +82,95 @@ def classify(rows):
         all_rows=len(rows),positive_training_rows=positive,positive_development_rows=sum(r['_weight']>0 for r in dev),
         training_sources=len({r['source_component_id'] for r in train}),
         development_sources=len({r['source_component_id'] for r in dev}))
+
+
+
+_GEMMA_TEXT_TARGET = re.compile(
+    r"(?:model\.language_model|language_model\.model)\.layers\.[0-9]+\."
+    r"(?:self_attn\.(?:q_proj|k_proj|v_proj|o_proj)|mlp\.(?:gate_proj|up_proj|down_proj))"
+)
+
+
+def gemma_text_lora_targets(module_names):
+    """Select text decoder projections in Transformers 4.51 and 4.52+ layouts."""
+    targets = sorted({name for name in module_names
+                      if isinstance(name, str) and _GEMMA_TEXT_TARGET.fullmatch(name)})
+    if not targets:
+        raise ValueError(
+            'Gemma 3 text decoder LoRA targets not found; expected '
+            'language_model.model.layers.* (4.51) or model.language_model.layers.* (4.52+)'
+        )
+    return targets
+
+
+def adapter_metadata(directory, model_config):
+    """Check pinned adapter identity and safetensors structure without ML imports.
+
+    Native tensor decoding still happens in the trainer. This preflight also runs
+    on CPU-only hosts preparing cases and rejects missing/truncated checkpoints.
+    """
+    import yaml
+    directory = Path(directory)
+    try:
+        cfg = json.loads((directory / 'adapter_config.json').read_text())
+        model = yaml.safe_load(Path(model_config).read_text())
+        if (not isinstance(cfg, dict) or not isinstance(model, dict)
+                or cfg.get('peft_type') != 'LORA' or cfg.get('task_type') != 'CAUSAL_LM'
+                or cfg.get('base_model_name_or_path') != model.get('model_id')
+                or not isinstance(model.get('revision'), str)
+                or re.fullmatch(r'[0-9a-f]{40}', model['revision']) is None
+                or cfg.get('revision') != model['revision']
+                or type(cfg.get('r')) is not int or cfg['r'] < 1):
+            raise ValueError('adapter config/model identity mismatch')
+        for key, default in [('lora_alpha', None), ('lora_dropout', 0.0)]:
+            value = cfg.get(key, default)
+            if type(value) not in (int, float) or not math.isfinite(value):
+                raise ValueError(f'invalid adapter {key}')
+        if cfg['lora_alpha'] <= 0 or not 0 <= cfg.get('lora_dropout', 0.0) <= 1:
+            raise ValueError('invalid adapter LoRA hyperparameters')
+        targets = cfg.get('target_modules')
+        if not (isinstance(targets, str) and targets.strip()
+                or isinstance(targets, list) and targets
+                and all(isinstance(name, str) and name.strip() for name in targets)):
+            raise ValueError('adapter target_modules must be nonempty')
+        if model['model_id'] == 'google/gemma-3-4b-it':
+            if not isinstance(targets, list) or gemma_text_lora_targets(targets) != sorted(set(targets)):
+                raise ValueError('Gemma adapter targets must be fully qualified text decoder projections')
+        weights = directory / 'adapter_model.safetensors'
+        with weights.open('rb') as stream:
+            size = weights.stat().st_size
+            header_size = int.from_bytes(stream.read(8), 'little')
+            if not 2 <= header_size <= min(size - 8, 100_000_000):
+                raise ValueError('invalid safetensors header length')
+            header = json.loads(stream.read(header_size))
+        tensors = {k: v for k, v in header.items() if k != '__metadata__'}
+        if not tensors or not any('lora_A' in k for k in tensors) or not any('lora_B' in k for k in tensors):
+            raise ValueError('adapter contains no LoRA A/B tensors')
+        data_size = size - 8 - header_size
+        ranges = []
+        widths = {'F64': 8, 'F32': 4, 'F16': 2, 'BF16': 2, 'I64': 8,
+                  'I32': 4, 'I16': 2, 'I8': 1, 'U8': 1, 'BOOL': 1}
+        for tensor in tensors.values():
+            shape, offsets = tensor.get('shape'), tensor.get('data_offsets')
+            if (not isinstance(shape, list) or not shape
+                    or any(type(n) is not int or n < 1 for n in shape)
+                    or not isinstance(offsets, list) or len(offsets) != 2
+                    or any(type(n) is not int for n in offsets)
+                    or not 0 <= offsets[0] < offsets[1] <= data_size
+                    or tensor.get('dtype') not in widths
+                    or offsets[1] - offsets[0] != math.prod(shape) * widths[tensor['dtype']]):
+                raise ValueError('invalid or truncated adapter tensor')
+            ranges.append(offsets)
+        cursor = 0
+        for start, end in sorted(ranges):
+            if start != cursor:
+                raise ValueError('overlapping or incomplete adapter tensor storage')
+            cursor = end
+        if cursor != data_size:
+            raise ValueError('unexpected trailing adapter tensor bytes')
+        return cfg
+    except (OSError, ValueError, TypeError, AttributeError, KeyError) as exc:
+        raise ValueError(f'invalid parent adapter: {exc}') from exc
 
 
 def validate_parent_adapter(directory, model_config):

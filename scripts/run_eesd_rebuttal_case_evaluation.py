@@ -29,6 +29,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import yaml
+
 from eesd.training_outcomes import tree_sha
 
 PBPF_PIN="0200283849274b49e303638b91f142acd8bba984"
@@ -121,10 +123,25 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
     if kind not in ("train","baseline"):
         raise ValueError("diagnostic case has no model to evaluate")
     setup=receipt["setup"]
-    model_id=setup.get("model_id")
-    if model_id is None and setup.get("model_config_path"):
-        import yaml
-        model_id=yaml.safe_load(Path(setup["model_config_path"]).read_text()).get("model_id")
+    model_path=Path(setup["model_config_path"])
+    if not model_path.is_file() or file_sha(model_path)!=setup.get("model_config_sha256"):
+        raise ValueError("prepared model config changed before evaluation")
+    cfg=yaml.safe_load(model_path.read_text())
+    model_id=cfg.get("model_id")
+    revision=cfg.get("revision")
+    if setup.get("model_id",model_id)!=model_id or setup.get("revision",revision)!=revision:
+        raise ValueError("model config identity differs from trained case")
+    provenance_path=case/"data_provenance.json"
+    if (not provenance_path.is_file()
+        or file_sha(provenance_path)!=receipt.get("data_provenance_sha256")):
+        raise ValueError("prepared case provenance changed before evaluation")
+    cell=receipt.get("original_paper_cell")
+    if cell is not None:
+        profiles=json.loads((Path(__file__).resolve().parents[1]/
+                            "configs/rebuttal/model_dataset_matrix.json").read_text())["cells"]
+        profile=next((x for x in profiles if x["cell"]==cell),None)
+        if profile is None or profile["domain"]!=domain or profile["model_id"]!=model_id:
+            raise ValueError("prepared cell model/domain does not match requested evaluation")
     if model_id not in MODEL_FAMILIES:
         raise ValueError("Original PBPF evaluator supports Qwen/DeepSeek only; Gemma/Replay needs separate controlled evaluator")
     family=MODEL_FAMILIES[model_id]
@@ -132,13 +149,10 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
         adapter=case/"model"/"adapter"
         if tree_sha(adapter)!=receipt["trained_adapter_tree_sha256"]:
             raise ValueError("trained adapter differs from case outcome receipt")
-        revision=setup["revision"]
     else:
         adapter=Path(setup["shared_init_adapter_path"])
         if tree_sha(adapter)!=setup["shared_init_adapter_tree_sha256"]:
             raise ValueError("baseline initial adapter was changed")
-        import yaml
-        revision=yaml.safe_load(Path(setup["model_config_path"]).read_text())["revision"]
     pin=validate_checkout(pbpf,domain)
     inv=inventory_ids(public,evaluator)
     sealed_eval_sha=receipt.get("frozen_case_input_hashes",{}).get("eval_ids_sha256")
@@ -190,6 +204,11 @@ def prepare(case:Path,pbpf:Path,public:Path,evaluator:Path,domain:str,workers:in
         "source_disjointness_status":json.loads((case/"data_provenance.json").read_text()).get(
             "provenance_status","not_certified"
         ),
+        "data_provenance_sha256":file_sha(provenance_path),
+        "model_config_path":str(model_path.resolve()),
+        "model_config_sha256":file_sha(model_path),
+        "original_paper_cell":cell,
+        "evaluation_protocol":"original-pbpf-greedy-sandbox-v1",
         **pin,
         **inv,
         "generated_program_count_policy":"one greedy candidate per independent public PRIMARY source",
@@ -208,6 +227,9 @@ def _check_frozen(plan,case):
         raise ValueError("case receipt changed after evaluator prepared")
     if tree_sha(Path(plan["adapter_path"]))!=plan["adapter_tree_sha256"]:
         raise ValueError("model adapter changed after evaluator prepared")
+    if (file_sha(case/"data_provenance.json")!=plan["data_provenance_sha256"]
+        or file_sha(Path(plan["model_config_path"]))!=plan["model_config_sha256"]):
+        raise ValueError("model config/provenance changed after evaluator prepared")
     pbpf=Path(plan["pbpf_root"])
     pin=validate_checkout(pbpf,plan["domain"])
     if any(pin[k]!=plan[k] for k in pin):

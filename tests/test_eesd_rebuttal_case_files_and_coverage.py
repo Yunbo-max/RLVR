@@ -13,6 +13,8 @@ import sys
 
 import pytest
 
+from rebuttal_test_utils import write_lora_adapter
+
 ROOT=Path(__file__).resolve().parents[1]
 SCRIPTS=ROOT/"scripts"
 CASES=SCRIPTS/"rebuttal_cases"
@@ -28,6 +30,7 @@ def test_model_dataset_matrix_matches_exact_original_twelve_results():
                     for model in coverage.MODELS}
     assert sum(x["primary_evaluator"]=="pinned_pbpf_sandbox" for x in m.values())==4
     assert sum(x["primary_evaluator"]!="pinned_pbpf_sandbox" for x in m.values())==8
+    assert all(x["matched_evaluator"]=="prospective_matched_greedy_sandbox" for x in m.values())
     assert m["codearc__deepseek_6p7b"]["original_paper"]["original_eed_solved"]==102
     assert m["apps_replay__gemma3_4b"]["original_paper"]["original_eed_solved"]==2
 
@@ -92,6 +95,8 @@ def test_model_dataset_coverage_discloses_missing_inputs_and_unverified_eval():
     assert all(x["evaluation_claim_allowed"] is False for x in rows)
     assert all(x["training_code"] for x in rows)
     assert sum(x["evaluation_code"]=="pinned_pbpf_sandbox" for x in rows)==4
+    assert all(x["matched_evaluation_code"]=="prospective_matched_greedy_sandbox" for x in rows)
+    assert all("not_verified" in x["matched_execution_status"] for x in rows)
 
 
 def test_standalone_launcher_requires_cell_and_fixes_case_id(tmp_path):
@@ -131,8 +136,7 @@ def test_two_real_python_launchers_prepare_distinct_cases_without_gpu(tmp_path):
     data=tmp_path/"input.jsonl"
     data.write_text("".join(json.dumps(x)+"\n" for x in raw))
     initial=tmp_path/"init"
-    initial.mkdir()
-    (initial/"adapter_config.json").write_text('{"r":16}')
+    write_lora_adapter(initial, cfg)
     out=tmp_path/"runs"
 
     def invoke(file):

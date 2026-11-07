@@ -1,0 +1,1761 @@
+{
+  "analysis_versions": {
+    "PyYAML": "6.0.3",
+    "numpy": "2.3.5"
+  },
+  "audit_source_sha256": "d21d53072f0c84725be7cc76720da1789db8a51fa464f98b726596fb2efabbda",
+  "bootstrap_draws": 10000,
+  "bootstrap_seed": 314159,
+  "cells": {
+    "codearc__deepseek_6p7b": {
+      "audit": {
+        "bootstrap_draws": 10000,
+        "bootstrap_seed": 314159,
+        "critical_limitations": [
+          "Valid raw observation IDs and predictions do not alone establish train/eval source disjointness.",
+          "Label semantics still require a human documented definition and dataset release provenance.",
+          "NLL of an outcome predictor does not prove improved policy updates.",
+          "Source bootstrap is conditional on predictor models, not variance over training seeds."
+        ],
+        "identical_future_test_populations_across_seeds": true,
+        "input_sha256": "e23c43a38bce017057a05e4a3a964e4dedae2e4387dbfdea809e8f4ed16669c1",
+        "outcome_class_names": [
+          "PASS",
+          "WRONG_OUTPUT",
+          "RUNTIME_EXCEPTION",
+          "TIMEOUT",
+          "COMPILE_ERROR"
+        ],
+        "outcome_classes": 5,
+        "results": {
+          "1701": {
+            "all": {
+              "adaptive_Brier": 0.20044444444444437,
+              "adaptive_NLL": 0.4148563426429843,
+              "adaptive_accuracy": 0.8473333333333334,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.20044444444444437,
+              "fixed_NLL": 0.4148563426429843,
+              "fixed_accuracy": 0.8473333333333334,
+              "fixed_minus_adaptive_NLL": 0.0,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                0.0,
+                0.0
+              ],
+              "problem_mean_NLL_gain": 0.0
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.20044444444444437,
+                "adaptive_NLL": 0.4148563426429843,
+                "adaptive_accuracy": 0.8473333333333334,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.20044444444444437,
+                "fixed_NLL": 0.4148563426429843,
+                "fixed_accuracy": 0.8473333333333334,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "mass_concentration_bins": {
+              "[4,inf)": {
+                "adaptive_Brier": 0.20044444444444437,
+                "adaptive_NLL": 0.4148563426429843,
+                "adaptive_accuracy": 0.8473333333333334,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.20044444444444437,
+                "fixed_NLL": 0.4148563426429843,
+                "fixed_accuracy": 0.8473333333333334,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "dc3a21a3a61275b6d893ed534bb2eca477ec17d57fbd15f3b0dcace695339353"
+          },
+          "1702": {
+            "all": {
+              "adaptive_Brier": 0.22060025896612373,
+              "adaptive_NLL": 0.44668621237627404,
+              "adaptive_accuracy": 0.846,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.22059719681912793,
+              "fixed_NLL": 0.44667068614122324,
+              "fixed_accuracy": 0.846,
+              "fixed_minus_adaptive_NLL": -1.55262350508146e-05,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -3.321106962948139e-05,
+                2.770952755108862e-06
+              ],
+              "problem_mean_NLL_gain": -1.55262350508146e-05
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.22060025896612373,
+                "adaptive_NLL": 0.44668621237627404,
+                "adaptive_accuracy": 0.846,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.22059719681912793,
+                "fixed_NLL": 0.44667068614122324,
+                "fixed_accuracy": 0.846,
+                "fixed_minus_adaptive_NLL": -1.55262350508146e-05,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -3.321106962948139e-05,
+                  2.770952755108862e-06
+                ],
+                "problem_mean_NLL_gain": -1.55262350508146e-05
+              }
+            },
+            "mass_concentration_bins": {
+              "[3,4)": {
+                "adaptive_Brier": 0.22064233507889588,
+                "adaptive_NLL": 0.4471313283720528,
+                "adaptive_accuracy": 0.8464632919879316,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.22063925548084443,
+                "fixed_NLL": 0.4471157136535974,
+                "fixed_accuracy": 0.8464632919879316,
+                "fixed_minus_adaptive_NLL": -1.5614718455395176e-05,
+                "independent_problem_ids": 499,
+                "observations": 2983,
+                "problem_cluster_gain_ci95": [
+                  -3.393684923577088e-05,
+                  2.2947274296387836e-06
+                ],
+                "problem_mean_NLL_gain": -1.5564520217107742e-05
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.21321713870733477,
+                "adaptive_NLL": 0.36858144676402305,
+                "adaptive_accuracy": 0.7647058823529411,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.21321713870733477,
+                "fixed_NLL": 0.36858144676402305,
+                "fixed_accuracy": 0.7647058823529411,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 4,
+                "observations": 17,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "d2b3da771cd8029814785f0fbe6215eb1e3af43470d534279685e59b952a8960"
+          },
+          "1703": {
+            "all": {
+              "adaptive_Brier": 0.20656790123456784,
+              "adaptive_NLL": 0.4159524910547424,
+              "adaptive_accuracy": 0.8353333333333334,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.20656790123456784,
+              "fixed_NLL": 0.4159524910547424,
+              "fixed_accuracy": 0.8353333333333334,
+              "fixed_minus_adaptive_NLL": 0.0,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                0.0,
+                0.0
+              ],
+              "problem_mean_NLL_gain": 0.0
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.20656790123456784,
+                "adaptive_NLL": 0.4159524910547424,
+                "adaptive_accuracy": 0.8353333333333334,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.20656790123456784,
+                "fixed_NLL": 0.4159524910547424,
+                "fixed_accuracy": 0.8353333333333334,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "mass_concentration_bins": {
+              "[4,inf)": {
+                "adaptive_Brier": 0.20656790123456784,
+                "adaptive_NLL": 0.4159524910547424,
+                "adaptive_accuracy": 0.8353333333333334,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.20656790123456784,
+                "fixed_NLL": 0.4159524910547424,
+                "fixed_accuracy": 0.8353333333333334,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "55a1099b748f23351c1e16b63eb983c8581de86b9a5c79b94307db8cc98bdacb"
+          }
+        },
+        "schema": "eesd-raw-future-outcome-audit-v2",
+        "seed_count": 3,
+        "seed_interpretation": "recorded seed IDs; whether they denote generation or fitting must be documented by the source archive",
+        "seeds": [
+          1701,
+          1702,
+          1703
+        ],
+        "status": "computed_from_raw_future_labels"
+      },
+      "raw_rows_file": "codearc__deepseek_6p7b.jsonl",
+      "raw_rows_sha256": "e23c43a38bce017057a05e4a3a964e4dedae2e4387dbfdea809e8f4ed16669c1",
+      "restoration_receipts": [
+        {
+          "cache_sha256": "34cc6a9e75804ef1dfbfc187dadf118293276d63198c18253d27d2cff2a2c17f",
+          "completion_sha256": "fd571c838bf6c83876ec4af18889f50c4a8c7353cbca944f22762b896f35e116",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.8566666666666667,
+            "alpha": 0.1,
+            "brier": 0.2064197530864197,
+            "ece": 0.0386666666666665,
+            "mass": null,
+            "nll": 0.4331414529289818,
+            "strength": 0.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "1e14ea309add4a1c2bbc21c6601a456fec070586a59c77f1407d195102e21677",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1701
+            ],
+            "lexical_strength": 0.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "dc3a21a3a61275b6d893ed534bb2eca477ec17d57fbd15f3b0dcace695339353",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "8edd3e0af8d099971babf8b7d107c54d85ae55301d9ecf8612fa2d5d269768df",
+          "seed": 1701,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/deepseek_6p7b/seed1701"
+        },
+        {
+          "cache_sha256": "ac95d8cdc3a873fb7946bd4e45286d7dd08c0992cd8a8955a48369e4e5114b86",
+          "completion_sha256": "e1360c3f3f2fccaafc8cf1a534cac1e36a0db33286f1950c305b84054ecb8368",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.8691666666666666,
+            "alpha": 0.1,
+            "brier": 0.18823192456006405,
+            "ece": 0.04998699537352625,
+            "mass": null,
+            "nll": 0.399838353206126,
+            "strength": 1.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "0b11ad020c1262278f72ad5db58160fcdfa3f3a3c01a1be6041aa2c5429bc442",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1702
+            ],
+            "lexical_strength": 1.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "d2b3da771cd8029814785f0fbe6215eb1e3af43470d534279685e59b952a8960",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "358e2320506244f9138c9ff93071e34f3106c5f3edc579d9094e1317952f8ebb",
+          "seed": 1702,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/deepseek_6p7b/seed1702"
+        },
+        {
+          "cache_sha256": "e2cabf321fb143d8a53def7fcff1c2d516365dc2f038c3ecc5f9273348fd51fd",
+          "completion_sha256": "5ca1d131a82003140c5cd44c86c3f01b980e564dd6ffb18afe3a11df93632a5f",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.8716666666666667,
+            "alpha": 0.1,
+            "brier": 0.172716049382716,
+            "ece": 0.053333333333333025,
+            "mass": null,
+            "nll": 0.37227138074147104,
+            "strength": 0.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "d2117fe602fe0c081f280b5041954eb4b4ff1cd821d179edb2562b8dac9c0316",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1703
+            ],
+            "lexical_strength": 0.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "55a1099b748f23351c1e16b63eb983c8581de86b9a5c79b94307db8cc98bdacb",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "37d54bb3dc86af6b7d6bac9b5a74290845eb5074cc332ef6d5c6c1c63508d638",
+          "seed": 1703,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/deepseek_6p7b/seed1703"
+        }
+      ]
+    },
+    "codearc__qwen25_7b": {
+      "audit": {
+        "bootstrap_draws": 10000,
+        "bootstrap_seed": 314159,
+        "critical_limitations": [
+          "Valid raw observation IDs and predictions do not alone establish train/eval source disjointness.",
+          "Label semantics still require a human documented definition and dataset release provenance.",
+          "NLL of an outcome predictor does not prove improved policy updates.",
+          "Source bootstrap is conditional on predictor models, not variance over training seeds."
+        ],
+        "identical_future_test_populations_across_seeds": true,
+        "input_sha256": "4ed63e99428a928917d7060cb6868df1348687631a9008b2ddc2be5a77a2978b",
+        "outcome_class_names": [
+          "PASS",
+          "WRONG_OUTPUT",
+          "RUNTIME_EXCEPTION",
+          "TIMEOUT",
+          "COMPILE_ERROR"
+        ],
+        "outcome_classes": 5,
+        "results": {
+          "1701": {
+            "all": {
+              "adaptive_Brier": 0.2354245603681408,
+              "adaptive_NLL": 0.4727168149058819,
+              "adaptive_accuracy": 0.8366666666666667,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.2353719835343533,
+              "fixed_NLL": 0.4724754043565979,
+              "fixed_accuracy": 0.8366666666666667,
+              "fixed_minus_adaptive_NLL": -0.0002414105492840431,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -0.000422512870225867,
+                -4.437464972873858e-05
+              ],
+              "problem_mean_NLL_gain": -0.00024141054928404304
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.2354245603681408,
+                "adaptive_NLL": 0.4727168149058819,
+                "adaptive_accuracy": 0.8366666666666667,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.2353719835343533,
+                "fixed_NLL": 0.4724754043565979,
+                "fixed_accuracy": 0.8366666666666667,
+                "fixed_minus_adaptive_NLL": -0.0002414105492840431,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -0.000422512870225867,
+                  -4.437464972873858e-05
+                ],
+                "problem_mean_NLL_gain": -0.00024141054928404304
+              }
+            },
+            "mass_concentration_bins": {
+              "[3,4)": {
+                "adaptive_Brier": 0.23586565918583172,
+                "adaptive_NLL": 0.4735019718771123,
+                "adaptive_accuracy": 0.8360710693932283,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.23581278271873068,
+                "fixed_NLL": 0.47325918553857654,
+                "fixed_accuracy": 0.8360710693932283,
+                "fixed_minus_adaptive_NLL": -0.0002427863385357456,
+                "independent_problem_ids": 499,
+                "observations": 2983,
+                "problem_cluster_gain_ci95": [
+                  -0.00042335888323123195,
+                  -4.738208417358361e-05
+                ],
+                "problem_mean_NLL_gain": -0.0002417591102049756
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.15802469135802463,
+                "adaptive_NLL": 0.33494485930704426,
+                "adaptive_accuracy": 0.9411764705882353,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.15802469135802463,
+                "fixed_NLL": 0.33494485930704426,
+                "fixed_accuracy": 0.9411764705882353,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 4,
+                "observations": 17,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "69a9bfe69fae5b972022d5820431c4791c0a65fb872062fb9b7697dc6b1efc2f"
+          },
+          "1702": {
+            "all": {
+              "adaptive_Brier": 0.2413382042014494,
+              "adaptive_NLL": 0.48393194367664366,
+              "adaptive_accuracy": 0.8373333333333334,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.24130376664114375,
+              "fixed_NLL": 0.4837102864310637,
+              "fixed_accuracy": 0.8373333333333334,
+              "fixed_minus_adaptive_NLL": -0.00022165724558007754,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -0.00040804155516295325,
+                -1.4376691507119115e-05
+              ],
+              "problem_mean_NLL_gain": -0.00022165724558007754
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.2413382042014494,
+                "adaptive_NLL": 0.48393194367664366,
+                "adaptive_accuracy": 0.8373333333333334,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.24130376664114375,
+                "fixed_NLL": 0.4837102864310637,
+                "fixed_accuracy": 0.8373333333333334,
+                "fixed_minus_adaptive_NLL": -0.00022165724558007754,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -0.00040804155516295325,
+                  -1.4376691507119115e-05
+                ],
+                "problem_mean_NLL_gain": -0.00022165724558007754
+              }
+            },
+            "mass_concentration_bins": {
+              "[3,4)": {
+                "adaptive_Brier": 0.24151501976613235,
+                "adaptive_NLL": 0.48443368303386675,
+                "adaptive_accuracy": 0.837076768354006,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.24148038594752122,
+                "fixed_NLL": 0.484210762572338,
+                "fixed_accuracy": 0.837076768354006,
+                "fixed_minus_adaptive_NLL": -0.0002229204615287404,
+                "independent_problem_ids": 499,
+                "observations": 2983,
+                "problem_cluster_gain_ci95": [
+                  -0.00040630185601579137,
+                  -1.7122424672281898e-05
+                ],
+                "problem_mean_NLL_gain": -0.00022196622072204422
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.21031227305737105,
+                "adaptive_NLL": 0.3958914435239134,
+                "adaptive_accuracy": 0.8823529411764706,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.21031227305737105,
+                "fixed_NLL": 0.3958914435239134,
+                "fixed_accuracy": 0.8823529411764706,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 4,
+                "observations": 17,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "efb7f2c76a037926c959ab3fae08b1f84f8507dc19e063de092bdc4042e69928"
+          },
+          "1703": {
+            "all": {
+              "adaptive_Brier": 0.25987096138978255,
+              "adaptive_NLL": 0.5125726716028292,
+              "adaptive_accuracy": 0.826,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.25985561044721106,
+              "fixed_NLL": 0.5124444048828408,
+              "fixed_accuracy": 0.826,
+              "fixed_minus_adaptive_NLL": -0.00012826671998836361,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -0.00032679623415390196,
+                0.00010122818067679492
+              ],
+              "problem_mean_NLL_gain": -0.00012826671998836361
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.25987096138978255,
+                "adaptive_NLL": 0.5125726716028292,
+                "adaptive_accuracy": 0.826,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.25985561044721106,
+                "fixed_NLL": 0.5124444048828408,
+                "fixed_accuracy": 0.826,
+                "fixed_minus_adaptive_NLL": -0.00012826671998836361,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -0.00032679623415390196,
+                  0.00010122818067679492
+                ],
+                "problem_mean_NLL_gain": -0.00012826671998836361
+              }
+            },
+            "mass_concentration_bins": {
+              "[3,4)": {
+                "adaptive_Brier": 0.25985540953351777,
+                "adaptive_NLL": 0.5131053253699371,
+                "adaptive_accuracy": 0.8263493127723768,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.2598399711065266,
+                "fixed_NLL": 0.5129763276629423,
+                "fixed_accuracy": 0.8263493127723768,
+                "fixed_minus_adaptive_NLL": -0.00012899770699466675,
+                "independent_problem_ids": 499,
+                "observations": 2983,
+                "problem_cluster_gain_ci95": [
+                  -0.0003280816651198487,
+                  0.00010242617812281606
+                ],
+                "problem_mean_NLL_gain": -0.00012835881451675943
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.2625998547567174,
+                "adaptive_NLL": 0.4191076017626535,
+                "adaptive_accuracy": 0.7647058823529411,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.2625998547567174,
+                "fixed_NLL": 0.4191076017626535,
+                "fixed_accuracy": 0.7647058823529411,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 4,
+                "observations": 17,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "1f0bb3d362d262d4083aa0efcb975b6b4c912020dd3923ba2d8bd6a73dccb648"
+          }
+        },
+        "schema": "eesd-raw-future-outcome-audit-v2",
+        "seed_count": 3,
+        "seed_interpretation": "recorded seed IDs; whether they denote generation or fitting must be documented by the source archive",
+        "seeds": [
+          1701,
+          1702,
+          1703
+        ],
+        "status": "computed_from_raw_future_labels"
+      },
+      "raw_rows_file": "codearc__qwen25_7b.jsonl",
+      "raw_rows_sha256": "4ed63e99428a928917d7060cb6868df1348687631a9008b2ddc2be5a77a2978b",
+      "restoration_receipts": [
+        {
+          "cache_sha256": "dd15bc7c2548846fd08a6641c15b25e2c8a65fd586b5ee2737363509b836e2ac",
+          "completion_sha256": "c98689ea7f8fd03bfb468886b5623c6b73d81a237120f887dd093e69585997fa",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.8541666666666666,
+            "alpha": 0.1,
+            "brier": 0.23157295882859177,
+            "ece": 0.020339779742883157,
+            "mass": null,
+            "nll": 0.48480583315205783,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "b605c877dfbabb174ac3726122bd0f40e1542d10665d09e7a6e9e62206cc3de1",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1701
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "69a9bfe69fae5b972022d5820431c4791c0a65fb872062fb9b7697dc6b1efc2f",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "c7411d0788cf64958e918b57b1eca3dcaab3c5b74bc0b47dc5a47cfe91f035dc",
+          "seed": 1701,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/qwen25_7b/seed1701"
+        },
+        {
+          "cache_sha256": "650aeec0a83ad82040080833f707fd28f302916b5bca844c249abc1f29c7f8e5",
+          "completion_sha256": "3ecdf629f54a84afbc02b725c95ce79c489b9f436740b653cc242334cb5141df",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.86,
+            "alpha": 0.1,
+            "brier": 0.21514703730568346,
+            "ece": 0.03809842961128303,
+            "mass": null,
+            "nll": 0.4516595147072339,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "689f6ae0270b5d4a467ef85f5797556af735d4e18e9752935909b85a1ff069da",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1702
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "efb7f2c76a037926c959ab3fae08b1f84f8507dc19e063de092bdc4042e69928",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "0a717ddbe940650b3799288db4356f72a0668de9715f02bf149b09f39330836c",
+          "seed": 1702,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/qwen25_7b/seed1702"
+        },
+        {
+          "cache_sha256": "7755d238694291b4fe641bde96623c457647d4ede8397a87160be5cc154f182f",
+          "completion_sha256": "2d1a4b62683a486815ac741fa3d69da2b25bf22558209d8a69effa96f271ff6e",
+          "dataset": "codearc",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.8425,
+            "alpha": 0.1,
+            "brier": 0.24805359871161556,
+            "ece": 0.034248099643767196,
+            "mass": null,
+            "nll": 0.5211788473268831,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "149d0ba0d7ba064ef3b8f5fc26fd62e39c4cb9e73a574f1040aa00acc6870249",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1703
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "1f0bb3d362d262d4083aa0efcb975b6b4c912020dd3923ba2d8bd6a73dccb648",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "76a177dc81b4be87928da3c4cc1d268096123cab5f8adbe6720d2f21cec259c5",
+          "seed": 1703,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/codearc/qwen25_7b/seed1703"
+        }
+      ]
+    },
+    "runbugrun__deepseek_6p7b": {
+      "audit": {
+        "bootstrap_draws": 10000,
+        "bootstrap_seed": 314159,
+        "critical_limitations": [
+          "Valid raw observation IDs and predictions do not alone establish train/eval source disjointness.",
+          "Label semantics still require a human documented definition and dataset release provenance.",
+          "NLL of an outcome predictor does not prove improved policy updates.",
+          "Source bootstrap is conditional on predictor models, not variance over training seeds."
+        ],
+        "identical_future_test_populations_across_seeds": true,
+        "input_sha256": "4ba144a6aa1e362885242584e3cf0926d5711b35ec981e8f23a52d46fef9fc17",
+        "outcome_class_names": [
+          "PASS",
+          "WRONG_OUTPUT",
+          "RUNTIME_EXCEPTION",
+          "TIMEOUT",
+          "COMPILE_ERROR"
+        ],
+        "outcome_classes": 5,
+        "results": {
+          "1701": {
+            "all": {
+              "adaptive_Brier": 0.12192836657317903,
+              "adaptive_NLL": 0.26933873101520583,
+              "adaptive_accuracy": 0.922,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.12227655103862901,
+              "fixed_NLL": 0.27543083559823817,
+              "fixed_accuracy": 0.922,
+              "fixed_minus_adaptive_NLL": 0.006092104583032307,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                0.0021145806667406423,
+                0.010746734655158973
+              ],
+              "problem_mean_NLL_gain": 0.006092104583032308
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.12192836657317903,
+                "adaptive_NLL": 0.26933873101520583,
+                "adaptive_accuracy": 0.922,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.12227655103862901,
+                "fixed_NLL": 0.27543083559823817,
+                "fixed_accuracy": 0.922,
+                "fixed_minus_adaptive_NLL": 0.006092104583032307,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.0021145806667406423,
+                  0.010746734655158973
+                ],
+                "problem_mean_NLL_gain": 0.006092104583032308
+              }
+            },
+            "mass_concentration_bins": {
+              "[1,2)": {
+                "adaptive_Brier": 0.10475662074707598,
+                "adaptive_NLL": 0.25058509222082737,
+                "adaptive_accuracy": 0.9419014084507042,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.10597501344839078,
+                "fixed_NLL": 0.26650396278692495,
+                "fixed_accuracy": 0.9419014084507042,
+                "fixed_minus_adaptive_NLL": 0.0159188705660976,
+                "independent_problem_ids": 274,
+                "observations": 568,
+                "problem_cluster_gain_ci95": [
+                  -0.003225894561023601,
+                  0.03055449963922137
+                ],
+                "problem_mean_NLL_gain": 0.012325060362392734
+              },
+              "[2,3)": {
+                "adaptive_Brier": 0.12990038743858134,
+                "adaptive_NLL": 0.28972593803419683,
+                "adaptive_accuracy": 0.9177914110429448,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.13019731319221692,
+                "fixed_NLL": 0.29740969914204646,
+                "fixed_accuracy": 0.9177914110429448,
+                "fixed_minus_adaptive_NLL": 0.007683761107849672,
+                "independent_problem_ids": 332,
+                "observations": 815,
+                "problem_cluster_gain_ci95": [
+                  0.0012150306689720067,
+                  0.01319538576885732
+                ],
+                "problem_mean_NLL_gain": 0.0067826392843594666
+              },
+              "[3,4)": {
+                "adaptive_Brier": 0.12010515954435011,
+                "adaptive_NLL": 0.2562752450352218,
+                "adaptive_accuracy": 0.9177807486631016,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.12017903110370184,
+                "fixed_NLL": 0.25826196292603465,
+                "fixed_accuracy": 0.9177807486631016,
+                "fixed_minus_adaptive_NLL": 0.0019867178908128365,
+                "independent_problem_ids": 423,
+                "observations": 1496,
+                "problem_cluster_gain_ci95": [
+                  0.0007015313569857931,
+                  0.004845972626339477
+                ],
+                "problem_mean_NLL_gain": 0.002583632840097674
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.17138185697856484,
+                "adaptive_NLL": 0.3815657404431838,
+                "adaptive_accuracy": 0.9090909090909091,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.17138185697856484,
+                "fixed_NLL": 0.3815657404431838,
+                "fixed_accuracy": 0.9090909090909091,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "5f6c400912d4cc70c7a071fa10f5197271c23ad4068eed1d56cd80b50df19e9b"
+          },
+          "1702": {
+            "all": {
+              "adaptive_Brier": 0.14178969678435913,
+              "adaptive_NLL": 0.32202495055696234,
+              "adaptive_accuracy": 0.9053333333333333,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.1409818545164587,
+              "fixed_NLL": 0.3183594037513875,
+              "fixed_accuracy": 0.9053333333333333,
+              "fixed_minus_adaptive_NLL": -0.003665546805574892,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -0.004467681057696797,
+                -0.0028700745441544414
+              ],
+              "problem_mean_NLL_gain": -0.003665546805574892
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.14178969678435913,
+                "adaptive_NLL": 0.32202495055696234,
+                "adaptive_accuracy": 0.9053333333333333,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1409818545164587,
+                "fixed_NLL": 0.3183594037513875,
+                "fixed_accuracy": 0.9053333333333333,
+                "fixed_minus_adaptive_NLL": -0.003665546805574892,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -0.004467681057696797,
+                  -0.0028700745441544414
+                ],
+                "problem_mean_NLL_gain": -0.003665546805574892
+              }
+            },
+            "mass_concentration_bins": {
+              "[1,2)": {
+                "adaptive_Brier": 0.043699602123360465,
+                "adaptive_NLL": 0.20579260299826863,
+                "adaptive_accuracy": 1.0,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.009876543209876487,
+                "fixed_NLL": 0.0930904230660116,
+                "fixed_accuracy": 1.0,
+                "fixed_minus_adaptive_NLL": -0.11270217993225704,
+                "independent_problem_ids": 5,
+                "observations": 8,
+                "problem_cluster_gain_ci95": [
+                  -0.14523338976170969,
+                  -0.09087408950441449
+                ],
+                "problem_mean_NLL_gain": -0.11207574075316455
+              },
+              "[2,3)": {
+                "adaptive_Brier": 0.12915424266330686,
+                "adaptive_NLL": 0.3102576928786902,
+                "adaptive_accuracy": 0.9016393442622951,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1212516024154095,
+                "fixed_NLL": 0.2761791294129804,
+                "fixed_accuracy": 0.9016393442622951,
+                "fixed_minus_adaptive_NLL": -0.03407856346570982,
+                "independent_problem_ids": 44,
+                "observations": 61,
+                "problem_cluster_gain_ci95": [
+                  -0.04181363263163952,
+                  -0.013846592855376335
+                ],
+                "problem_mean_NLL_gain": -0.031215495810947035
+              },
+              "[3,4)": {
+                "adaptive_Brier": 0.1373209782673166,
+                "adaptive_NLL": 0.31386232981448137,
+                "adaptive_accuracy": 0.9085409252669039,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.13672635859568968,
+                "fixed_NLL": 0.3110095787091937,
+                "fixed_accuracy": 0.9085409252669039,
+                "fixed_minus_adaptive_NLL": -0.0028527511052876585,
+                "independent_problem_ids": 483,
+                "observations": 2810,
+                "problem_cluster_gain_ci95": [
+                  -0.0034872647994883136,
+                  -0.002333135884934327
+                ],
+                "problem_mean_NLL_gain": -0.0029334462843408995
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.2584226099377614,
+                "adaptive_NLL": 0.5252036760546133,
+                "adaptive_accuracy": 0.8264462809917356,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.2584226099377614,
+                "fixed_NLL": 0.5252036760546133,
+                "fixed_accuracy": 0.8264462809917356,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "f891f43f4499160b112591842a91e6113f807c0802a101abf336057c32d28538"
+          },
+          "1703": {
+            "all": {
+              "adaptive_Brier": 0.13670610810027212,
+              "adaptive_NLL": 0.3069149481515963,
+              "adaptive_accuracy": 0.9116666666666666,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.13672842237997324,
+              "fixed_NLL": 0.3075836798861449,
+              "fixed_accuracy": 0.9116666666666666,
+              "fixed_minus_adaptive_NLL": 0.0006687317345486205,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                0.00022701863272167863,
+                0.0011801272435144556
+              ],
+              "problem_mean_NLL_gain": 0.0006687317345486207
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.13670610810027212,
+                "adaptive_NLL": 0.3069149481515963,
+                "adaptive_accuracy": 0.9116666666666666,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.13672842237997324,
+                "fixed_NLL": 0.3075836798861449,
+                "fixed_accuracy": 0.9116666666666666,
+                "fixed_minus_adaptive_NLL": 0.0006687317345486205,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.00022701863272167863,
+                  0.0011801272435144556
+                ],
+                "problem_mean_NLL_gain": 0.0006687317345486207
+              }
+            },
+            "mass_concentration_bins": {
+              "[1,2)": {
+                "adaptive_Brier": 0.0007119220692717951,
+                "adaptive_NLL": 0.023876132097770633,
+                "adaptive_accuracy": 1.0,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.00012193263222069325,
+                "fixed_NLL": 0.009925639799969707,
+                "fixed_accuracy": 1.0,
+                "fixed_minus_adaptive_NLL": -0.013950492297800926,
+                "independent_problem_ids": 5,
+                "observations": 8,
+                "problem_cluster_gain_ci95": [
+                  -0.0184526066602343,
+                  -0.011012481078040079
+                ],
+                "problem_mean_NLL_gain": -0.013899710598368618
+              },
+              "[2,3)": {
+                "adaptive_Brier": 0.18277410191886342,
+                "adaptive_NLL": 0.2785482424081653,
+                "adaptive_accuracy": 0.819672131147541,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1830726171877365,
+                "fixed_NLL": 0.27437720812729305,
+                "fixed_accuracy": 0.819672131147541,
+                "fixed_minus_adaptive_NLL": -0.00417103428087232,
+                "independent_problem_ids": 44,
+                "observations": 61,
+                "problem_cluster_gain_ci95": [
+                  -0.004646792435751876,
+                  -0.003175086045016813
+                ],
+                "problem_mean_NLL_gain": -0.003936567590329423
+              },
+              "[3,4)": {
+                "adaptive_Brier": 0.13486259659706065,
+                "adaptive_NLL": 0.3053253267667506,
+                "adaptive_accuracy": 0.9138790035587189,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.13488161913200675,
+                "fixed_NLL": 0.30616953752588283,
+                "fixed_accuracy": 0.9138790035587189,
+                "fixed_minus_adaptive_NLL": 0.0008442107591321996,
+                "independent_problem_ids": 483,
+                "observations": 2810,
+                "problem_cluster_gain_ci95": [
+                  0.0003373284857829954,
+                  0.001313493776694983
+                ],
+                "problem_mean_NLL_gain": 0.0007988778424080321
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.1652852253675299,
+                "adaptive_NLL": 0.37684482972346717,
+                "adaptive_accuracy": 0.9008264462809917,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1652852253675299,
+                "fixed_NLL": 0.37684482972346717,
+                "fixed_accuracy": 0.9008264462809917,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "e3f0029c19625c9e16c56594bd21a1533cb06aa10971b46ada6ac50529d8eb46"
+          }
+        },
+        "schema": "eesd-raw-future-outcome-audit-v2",
+        "seed_count": 3,
+        "seed_interpretation": "recorded seed IDs; whether they denote generation or fitting must be documented by the source archive",
+        "seeds": [
+          1701,
+          1702,
+          1703
+        ],
+        "status": "computed_from_raw_future_labels"
+      },
+      "raw_rows_file": "runbugrun__deepseek_6p7b.jsonl",
+      "raw_rows_sha256": "4ba144a6aa1e362885242584e3cf0926d5711b35ec981e8f23a52d46fef9fc17",
+      "restoration_receipts": [
+        {
+          "cache_sha256": "d633e30b0f29a7c5770fbe38e4532d47534f33047d67bf8e883062cbb6265009",
+          "completion_sha256": "47a75c8dcf8de6fc771dd461393c3eb5ee5cba8dd627e04384228d3f2525895a",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.9125,
+            "alpha": 0.01,
+            "brier": 0.13759062020107943,
+            "ece": 0.030927189849447995,
+            "mass": null,
+            "nll": 0.3141014525588658,
+            "strength": 16.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "ebdad28243f0bb3373749b731b5bb5ea61f9ff39ac4d32a4016707b0dc29d063",
+          "predictor_lock": {
+            "alpha": 0.01,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1701
+            ],
+            "lexical_strength": 16.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "5f6c400912d4cc70c7a071fa10f5197271c23ad4068eed1d56cd80b50df19e9b",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "8054fa3bfe4879e681038f8dde7e45953701fc897feebf8b882a0ca55bd4a585",
+          "seed": 1701,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/deepseek_6p7b/seed1701"
+        },
+        {
+          "cache_sha256": "05a77c0f230a92ae21cc95bc2383c488c925f2cb616db65c5a9ae5557b9cc3e2",
+          "completion_sha256": "5d19f21c27652addb302812c5c74da51604d54ee8a944973d5e5b6418fedb2c2",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.905,
+            "alpha": 0.1,
+            "brier": 0.15563655327680218,
+            "ece": 0.044560062686131066,
+            "mass": null,
+            "nll": 0.35829385442627887,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "8198e19ec7b336edbb32742162a58b1c6cf492aaab2cd00c94f611c0d7f66e5c",
+          "predictor_lock": {
+            "alpha": 0.1,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1702
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "f891f43f4499160b112591842a91e6113f807c0802a101abf336057c32d28538",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "908cf801ec49fffd4358dd01f56ff021ebf063763d46f08b5b265d2e9dd45eda",
+          "seed": 1702,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/deepseek_6p7b/seed1702"
+        },
+        {
+          "cache_sha256": "8c66ee6fe75bb9bfa37e75406a2631e6e3d2dff98536981fde3672df50f34b53",
+          "completion_sha256": "964be67ced2924bdc6c4365d99fc84ae0475aae1c5a5d6aa8db985e5a4067e40",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.915,
+            "alpha": 0.01,
+            "brier": 0.14486920788667287,
+            "ece": 0.0394828226946671,
+            "mass": null,
+            "nll": 0.3328431251412427,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "deepseek_6p7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "88e6bd3e9adb5a1d2d11fee55616074652e4031674cbadd591dc7631be777187",
+          "predictor_lock": {
+            "alpha": 0.01,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "deepseek-ai/deepseek-coder-6.7b-instruct",
+              "e5d64addd26a6a1db0f9b863abf6ee3141936807",
+              null,
+              1703
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "e3f0029c19625c9e16c56594bd21a1533cb06aa10971b46ada6ac50529d8eb46",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "ab051a47d1ac50378c307e21ca971fe71948923f6047ec6b1d07b6d428c2bc99",
+          "seed": 1703,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/deepseek_6p7b/seed1703"
+        }
+      ]
+    },
+    "runbugrun__qwen25_7b": {
+      "audit": {
+        "bootstrap_draws": 10000,
+        "bootstrap_seed": 314159,
+        "critical_limitations": [
+          "Valid raw observation IDs and predictions do not alone establish train/eval source disjointness.",
+          "Label semantics still require a human documented definition and dataset release provenance.",
+          "NLL of an outcome predictor does not prove improved policy updates.",
+          "Source bootstrap is conditional on predictor models, not variance over training seeds."
+        ],
+        "identical_future_test_populations_across_seeds": true,
+        "input_sha256": "3c10e20da8eaece8c2c39acc5b783223a89e97153c2544c71e256a0307bcb7c1",
+        "outcome_class_names": [
+          "PASS",
+          "WRONG_OUTPUT",
+          "RUNTIME_EXCEPTION",
+          "TIMEOUT",
+          "COMPILE_ERROR"
+        ],
+        "outcome_classes": 5,
+        "results": {
+          "1701": {
+            "all": {
+              "adaptive_Brier": 0.12727139262271045,
+              "adaptive_NLL": 0.2703577586577628,
+              "adaptive_accuracy": 0.915,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.1272716504392749,
+              "fixed_NLL": 0.27037219823335346,
+              "fixed_accuracy": 0.915,
+              "fixed_minus_adaptive_NLL": 1.4439575590689086e-05,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -7.548076658522806e-06,
+                3.9475445367068566e-05
+              ],
+              "problem_mean_NLL_gain": 1.4439575590689088e-05
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.12727139262271045,
+                "adaptive_NLL": 0.2703577586577628,
+                "adaptive_accuracy": 0.915,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1272716504392749,
+                "fixed_NLL": 0.27037219823335346,
+                "fixed_accuracy": 0.915,
+                "fixed_minus_adaptive_NLL": 1.4439575590689086e-05,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -7.548076658522806e-06,
+                  3.9475445367068566e-05
+                ],
+                "problem_mean_NLL_gain": 1.4439575590689088e-05
+              }
+            },
+            "mass_concentration_bins": {
+              "[3,4)": {
+                "adaptive_Brier": 0.12400927862187802,
+                "adaptive_NLL": 0.25914901167136917,
+                "adaptive_accuracy": 0.9169850642584231,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.12400954727408131,
+                "fixed_NLL": 0.25916405812040433,
+                "fixed_accuracy": 0.9169850642584231,
+                "fixed_minus_adaptive_NLL": 1.5046449035104987e-05,
+                "independent_problem_ids": 487,
+                "observations": 2879,
+                "problem_cluster_gain_ci95": [
+                  -1.0253761399366848e-05,
+                  3.844888825832897e-05
+                ],
+                "problem_mean_NLL_gain": 1.2780874678142696e-05
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.2048881381466492,
+                "adaptive_NLL": 0.537051829515837,
+                "adaptive_accuracy": 0.8677685950413223,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.2048881381466492,
+                "fixed_NLL": 0.537051829515837,
+                "fixed_accuracy": 0.8677685950413223,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "db3620cde0a9fa66ad746c9d8a036802d5ef44df3a1f4bb3246bbed2867c4f16"
+          },
+          "1702": {
+            "all": {
+              "adaptive_Brier": 0.12055492627749893,
+              "adaptive_NLL": 0.24875573680015806,
+              "adaptive_accuracy": 0.9156666666666666,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.12056120386390534,
+              "fixed_NLL": 0.24897531178457208,
+              "fixed_accuracy": 0.9156666666666666,
+              "fixed_minus_adaptive_NLL": 0.00021957498441401194,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                -9.145155418186621e-05,
+                0.0005681217305867826
+              ],
+              "problem_mean_NLL_gain": 0.00021957498441401197
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.12055492627749893,
+                "adaptive_NLL": 0.24875573680015806,
+                "adaptive_accuracy": 0.9156666666666666,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.12056120386390534,
+                "fixed_NLL": 0.24897531178457208,
+                "fixed_accuracy": 0.9156666666666666,
+                "fixed_minus_adaptive_NLL": 0.00021957498441401194,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  -9.145155418186621e-05,
+                  0.0005681217305867826
+                ],
+                "problem_mean_NLL_gain": 0.00021957498441401197
+              }
+            },
+            "mass_concentration_bins": {
+              "[1,2)": {
+                "adaptive_Brier": 0.0007119220692717951,
+                "adaptive_NLL": 0.023876132097770633,
+                "adaptive_accuracy": 1.0,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.00012193263222069325,
+                "fixed_NLL": 0.009925639799969707,
+                "fixed_accuracy": 1.0,
+                "fixed_minus_adaptive_NLL": -0.013950492297800926,
+                "independent_problem_ids": 5,
+                "observations": 8,
+                "problem_cluster_gain_ci95": [
+                  -0.0184526066602343,
+                  -0.011012481078040079
+                ],
+                "problem_mean_NLL_gain": -0.013899710598368618
+              },
+              "[2,3)": {
+                "adaptive_Brier": 0.1369803095859189,
+                "adaptive_NLL": 0.21429290759513545,
+                "adaptive_accuracy": 0.8688524590163934,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.13711792472290657,
+                "fixed_NLL": 0.20993669503644669,
+                "fixed_accuracy": 0.8688524590163934,
+                "fixed_minus_adaptive_NLL": -0.004356212558688847,
+                "independent_problem_ids": 44,
+                "observations": 61,
+                "problem_cluster_gain_ci95": [
+                  -0.004787364457517819,
+                  -0.0034942018531280684
+                ],
+                "problem_mean_NLL_gain": -0.004161682019309489
+              },
+              "[3,4)": {
+                "adaptive_Brier": 0.12140357315071931,
+                "adaptive_NLL": 0.2498284180309104,
+                "adaptive_accuracy": 0.9156583629893238,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.12140896751063371,
+                "fixed_NLL": 0.2501971218948622,
+                "fixed_accuracy": 0.9156583629893238,
+                "fixed_minus_adaptive_NLL": 0.0003687038639517662,
+                "independent_problem_ids": 483,
+                "observations": 2810,
+                "problem_cluster_gain_ci95": [
+                  1.9466319575017453e-05,
+                  0.0006793803601524833
+                ],
+                "problem_mean_NLL_gain": 0.0003355526485936471
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.10048961998082837,
+                "adaptive_NLL": 0.25608660589694693,
+                "adaptive_accuracy": 0.9338842975206612,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.10048961998082837,
+                "fixed_NLL": 0.25608660589694693,
+                "fixed_accuracy": 0.9338842975206612,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "27090f46ca0c95d4b820b9b15accac6a6859d255209feb90e1768d4cbb231951"
+          },
+          "1703": {
+            "all": {
+              "adaptive_Brier": 0.11435581541540427,
+              "adaptive_NLL": 0.25606088485335826,
+              "adaptive_accuracy": 0.9256666666666666,
+              "argmax_agreement": 1.0,
+              "fixed_Brier": 0.11437142177983657,
+              "fixed_NLL": 0.25677290208456705,
+              "fixed_accuracy": 0.9256666666666666,
+              "fixed_minus_adaptive_NLL": 0.0007120172312087946,
+              "independent_problem_ids": 500,
+              "observations": 3000,
+              "problem_cluster_gain_ci95": [
+                0.00010802014292196899,
+                0.0014153128002209767
+              ],
+              "problem_mean_NLL_gain": 0.0007120172312087946
+            },
+            "by_visible_count": {
+              "4": {
+                "adaptive_Brier": 0.11435581541540427,
+                "adaptive_NLL": 0.25606088485335826,
+                "adaptive_accuracy": 0.9256666666666666,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.11437142177983657,
+                "fixed_NLL": 0.25677290208456705,
+                "fixed_accuracy": 0.9256666666666666,
+                "fixed_minus_adaptive_NLL": 0.0007120172312087946,
+                "independent_problem_ids": 500,
+                "observations": 3000,
+                "problem_cluster_gain_ci95": [
+                  0.00010802014292196899,
+                  0.0014153128002209767
+                ],
+                "problem_mean_NLL_gain": 0.0007120172312087946
+              }
+            },
+            "mass_concentration_bins": {
+              "[1,2)": {
+                "adaptive_Brier": 0.0007119220692717951,
+                "adaptive_NLL": 0.023876132097770633,
+                "adaptive_accuracy": 1.0,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.00012193263222069325,
+                "fixed_NLL": 0.009925639799969707,
+                "fixed_accuracy": 1.0,
+                "fixed_minus_adaptive_NLL": -0.013950492297800926,
+                "independent_problem_ids": 5,
+                "observations": 8,
+                "problem_cluster_gain_ci95": [
+                  -0.0184526066602343,
+                  -0.011012481078040079
+                ],
+                "problem_mean_NLL_gain": -0.013899710598368618
+              },
+              "[2,3)": {
+                "adaptive_Brier": 0.0773278015780926,
+                "adaptive_NLL": 0.1770073640138434,
+                "adaptive_accuracy": 0.9508196721311475,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.07741862995428829,
+                "fixed_NLL": 0.18059874400674297,
+                "fixed_accuracy": 0.9508196721311475,
+                "fixed_minus_adaptive_NLL": 0.0035913799928995152,
+                "independent_problem_ids": 44,
+                "observations": 61,
+                "problem_cluster_gain_ci95": [
+                  -0.004793977136024391,
+                  0.03025844957464858
+                ],
+                "problem_mean_NLL_gain": 0.007067460717377216
+              },
+              "[3,4)": {
+                "adaptive_Brier": 0.1166009617588481,
+                "adaptive_NLL": 0.2601616632604959,
+                "adaptive_accuracy": 0.9252669039145908,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.1166173313239176,
+                "fixed_NLL": 0.2608835783681264,
+                "fixed_accuracy": 0.9252669039145908,
+                "fixed_minus_adaptive_NLL": 0.0007219151076305766,
+                "independent_problem_ids": 483,
+                "observations": 2810,
+                "problem_cluster_gain_ci95": [
+                  0.00014329381786862258,
+                  0.001325679877695677
+                ],
+                "problem_mean_NLL_gain": 0.0006782140455629068
+              },
+              "[4,inf)": {
+                "adaptive_Brier": 0.0883971275291889,
+                "adaptive_NLL": 0.21603241765665102,
+                "adaptive_accuracy": 0.9173553719008265,
+                "argmax_agreement": 1.0,
+                "fixed_Brier": 0.0883971275291889,
+                "fixed_NLL": 0.21603241765665102,
+                "fixed_accuracy": 0.9173553719008265,
+                "fixed_minus_adaptive_NLL": 0.0,
+                "independent_problem_ids": 27,
+                "observations": 121,
+                "problem_cluster_gain_ci95": [
+                  0.0,
+                  0.0
+                ],
+                "problem_mean_NLL_gain": 0.0
+              }
+            },
+            "predictor_lock_sha256": "7e5dcefd7584165547a497a9968c6c025fe79175ae911a3ae26a2e79d0836c79"
+          }
+        },
+        "schema": "eesd-raw-future-outcome-audit-v2",
+        "seed_count": 3,
+        "seed_interpretation": "recorded seed IDs; whether they denote generation or fitting must be documented by the source archive",
+        "seeds": [
+          1701,
+          1702,
+          1703
+        ],
+        "status": "computed_from_raw_future_labels"
+      },
+      "raw_rows_file": "runbugrun__qwen25_7b.jsonl",
+      "raw_rows_sha256": "3c10e20da8eaece8c2c39acc5b783223a89e97153c2544c71e256a0307bcb7c1",
+      "restoration_receipts": [
+        {
+          "cache_sha256": "5c707703b2e0d90bde4daa85b7201c4c2da45c7088ec0379bafd81f6e7dde7cf",
+          "completion_sha256": "e73b0199d12918982a96a6c867e78367cf1889f4047d3f35f8419215b8e16e83",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.9183333333333333,
+            "alpha": 0.01,
+            "brier": 0.10496149546315299,
+            "ece": 0.02301139988539451,
+            "mass": null,
+            "nll": 0.18249605282512438,
+            "strength": 1.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "4d414c890a918953b922bdcd1055dad69b5a1f63e341c6dfd86f6006df39c3fc",
+          "predictor_lock": {
+            "alpha": 0.01,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1701
+            ],
+            "lexical_strength": 1.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "db3620cde0a9fa66ad746c9d8a036802d5ef44df3a1f4bb3246bbed2867c4f16",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "f58f62584208f90be6ca4b925d08ddab9bf3c0f60fbb399afa6a8bb2d370ba43",
+          "seed": 1701,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/qwen25_7b/seed1701"
+        },
+        {
+          "cache_sha256": "66fb5db301a7006c96f8e23b102c46130f6428228d8d0ddc18cfd66d631d0922",
+          "completion_sha256": "88ac75fce70ad130c27a3b2aaa8d78e946774c1057efcd7730e371229ca61a52",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.9066666666666666,
+            "alpha": 0.01,
+            "brier": 0.14015866192879475,
+            "ece": 0.020688755552919165,
+            "mass": null,
+            "nll": 0.28001099481147707,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "1ff0c95a0f9a7552a076b5553394a03bc1da925436bab553da3a2e51be11fd51",
+          "predictor_lock": {
+            "alpha": 0.01,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1702
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "27090f46ca0c95d4b820b9b15accac6a6859d255209feb90e1768d4cbb231951",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "c27027aee20ad15ec1ad960628b7c1b3cef7e706155c54c4933191ecaf86947c",
+          "seed": 1702,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/qwen25_7b/seed1702"
+        },
+        {
+          "cache_sha256": "0f83428e3ea711417563f7d96874042df632131514464129cf6c621450fb332d",
+          "completion_sha256": "4b048be668eb15f4f3374e4010b1632e14bc530febfdbf05612317b2a810c12a",
+          "dataset": "runbugrun",
+          "effective_arm_development_grid_revalidated": true,
+          "effective_arm_development_selection": {
+            "accuracy": 0.945,
+            "alpha": 0.01,
+            "brier": 0.09367906579454598,
+            "ece": 0.024627321272240286,
+            "mass": null,
+            "nll": 0.20890380377151047,
+            "strength": 4.0
+          },
+          "experiment_config_sha256": "ae3712ab7eee2fa10f6fd28b72cc29a1253dbc2d9e9dd2c4346bae373f5dd2ad",
+          "historical_execution_profile": "direct-no-sandbox",
+          "model": "qwen25_7b",
+          "observations": 3000,
+          "original_execution_bank_revalidated": false,
+          "predictions_sha256": "062340f2020b0bb8b3e6e3e06b1352d044403d0572747d77bccc1cacee43bdd5",
+          "predictor_lock": {
+            "alpha": 0.01,
+            "evidence_sha256": "f825e0a70a41d2c9e3a8b96aafc89ea54d70c6b36337b90697c906e93758d7be",
+            "generator_identity": [
+              "Qwen/Qwen2.5-Coder-7B-Instruct",
+              "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+              null,
+              1703
+            ],
+            "lexical_strength": 4.0,
+            "outcome_classes": [
+              "PASS",
+              "WRONG_OUTPUT",
+              "RUNTIME_EXCEPTION",
+              "TIMEOUT",
+              "COMPILE_ERROR"
+            ],
+            "runner_sha256": "09d016fb8b9caf6c8b7829a56550ce99f4d1fbefb83a1091a60396a6026aff85",
+            "visible": 4
+          },
+          "predictor_lock_sha256": "7e5dcefd7584165547a497a9968c6c025fe79175ae911a3ae26a2e79d0836c79",
+          "reconstruction": "matched fixed/effective probabilities, labels, masses and cache ordering verified",
+          "report_sha256": "c6cfb6454971cbed30dd9be94ac605fc455f33fdaec95fbceea933985583fc21",
+          "seed": 1703,
+          "source_directory": "artifacts/eesd-eval-20260921/mechanism/runbugrun/qwen25_7b/seed1703"
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "This is reanalysis of historical predictor outputs, not new GPU training or downstream policy evaluation.",
+    "The cache records source/problem/test IDs; original external execution banks and dataset materializations have not been independently revalidated.",
+    "Historical candidate generation saw four public tests; the probability predictor also received future test INPUT queries, never future outcomes as features.",
+    "The predictor has five execution-outcome classes; it is distinct from the four correction-transition states used to weight correction training.",
+    "The three archived seeds identify candidate banks, not three new downstream optimizer runs.",
+    "History-size sweeps change both visible history and the future target set; their full NLL reduction cannot be attributed only to evidence mass."
+  ],
+  "pbpf_commit": "0200283849274b49e303638b91f142acd8bba984",
+  "raw_observations": 36000,
+  "restoration_source_sha256": "7a6ca5add60cffb0a2f7ad5c5dbd050bb790aefe8fd35bc53db589f46f8540a6",
+  "schema": "eesd-archived-predictor-recovery-v1",
+  "seed_role": "frozen candidate-generation seeds; predictor parameters selected on each development cache; not downstream LoRA fitting seeds",
+  "status": "restored_and_recomputed_from_pinned_archived_cache"
+}

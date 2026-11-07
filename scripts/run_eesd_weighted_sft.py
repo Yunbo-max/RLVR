@@ -12,10 +12,15 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import math
 from pathlib import Path
 import random
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
 import yaml
 
@@ -29,6 +34,37 @@ ANCHORED_RULES = {
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+OPTIMIZER_SPEC = {
+    "name": "torch.optim.AdamW", "betas": [0.9, 0.999], "eps": 1e-8,
+    "weight_decay": 0.0, "max_grad_norm": 1.0, "lr_scheduler": "constant",
+}
+SCHEDULE_SCHEMA = "eesd-scheduled-response-tokens-v1"
+
+
+def lora_parameters(config: dict) -> dict:
+    """Report the loaded adapter's configuration, including non-default variants."""
+    defaults = {"lora_dropout": 0.0, "bias": "none", "use_rslora": False,
+                "use_dora": False, "rank_pattern": {}, "alpha_pattern": {},
+                "modules_to_save": None, "fan_in_fan_out": False}
+    result = {key: config.get(key, default) for key, default in defaults.items()}
+    result.update({key: config.get(key) for key in
+                   ("r", "lora_alpha", "target_modules", "peft_type", "task_type")})
+    if isinstance(result["target_modules"], (set, list, tuple)):
+        result["target_modules"] = sorted(result["target_modules"])
+    return result
+
+
+def schedule_step_bytes(row: dict, encoded: dict, token_count: int) -> bytes:
+    """Bind actual order and token prefixes without arm-specific CE weights."""
+    if type(token_count) is not int or not 0 < token_count <= len(encoded["completion_ids"]):
+        raise ValueError("invalid scheduled response prefix")
+    step = {"trajectory_id": row["trajectory_id"],
+            "source_component_id": row["source_component_id"],
+            "prompt_token_ids": encoded["prompt_ids"],
+            "response_token_ids": encoded["completion_ids"][:token_count]}
+    return (json.dumps(step, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n").encode()
 
 
 def load_rows(path: Path, rule: str):
@@ -176,7 +212,7 @@ def main() -> None:
         help="Edit vs copied token intensity; all multipliers retain exactly unit mean per scheduled response.",
     )
     p.add_argument("--lora-r", type=int, default=16)
-    p.add_argument("--lora-alpha", type=int, default=32)
+    p.add_argument("--lora-alpha", type=float, default=32.0)
     args = p.parse_args()
 
     from eesd.distillation import TRAIN_RULES
@@ -198,19 +234,25 @@ def main() -> None:
         or (args.response_token_budget is not None and args.response_token_budget < 1)
         or args.gradient_accumulation < 1
         or args.max_length < 64
+        or not math.isfinite(args.learning_rate)
         or args.learning_rate <= 0
+        or not math.isfinite(args.anchor_beta)
         or args.anchor_beta < 0
         or args.lora_r < 1
-        or args.lora_alpha < 1
+        or not math.isfinite(args.lora_alpha)
+        or args.lora_alpha <= 0
     ):
         raise ValueError("invalid training hyperparameters")
 
     model_cfg = yaml.safe_load(args.model_config.read_text())
+    if not isinstance(model_cfg, dict):
+        raise ValueError("model config must be an object")
     model_id, revision = model_cfg.get("model_id"), model_cfg.get("revision")
     if (
         not isinstance(model_id, str)
         or not isinstance(revision, str)
         or len(revision) != 40
+        or any(c not in "0123456789abcdef" for c in revision)
     ):
         raise ValueError(
             "model config requires pinned model_id and 40-character revision"
@@ -221,8 +263,13 @@ def main() -> None:
         zero_report,
         NON_ESTIMABLE,
         protocol_binding,
+        adapter_metadata,
+        gemma_text_lora_targets,
+        tree_sha,
     )
 
+    previous_metadata = adapter_metadata(args.previous_adapter, args.model_config) if args.previous_adapter else None
+    previous_sha_before = tree_sha(args.previous_adapter) if args.previous_adapter else None
     rows, eligibility = read_training_rows(args.input, args.rule)
     anchor_beta = args.anchor_beta if args.rule in ANCHORED_RULES else 0.0
     protocol = protocol_binding(Path(__file__).resolve().parents[1])
@@ -344,26 +391,10 @@ def main() -> None:
 
     student_base = prepare_model_for_kbit_training(load_base())
     student_base.gradient_checkpointing_enable()
-    if is_gemma3:
-        suffixes = (
-            "q_proj",
-            "k_proj",
-            "v_proj",
-            "o_proj",
-            "gate_proj",
-            "up_proj",
-            "down_proj",
-        )
-        lora_targets = [
-            name
-            for name, _ in student_base.named_modules()
-            if name.startswith("model.language_model.layers.")
-            and name.endswith(suffixes)
-        ]
-        if not lora_targets:
-            raise ValueError("Gemma 3 text decoder LoRA targets not found")
-    else:
-        lora_targets = "all-linear"
+    lora_targets = (
+        gemma_text_lora_targets(name for name, _ in student_base.named_modules())
+        if is_gemma3 else "all-linear"
+    )
     if args.previous_adapter:
         student = PeftModel.from_pretrained(
             student_base, str(args.previous_adapter), is_trainable=True
@@ -378,8 +409,12 @@ def main() -> None:
                 bias="none",
                 task_type="CAUSAL_LM",
                 target_modules=lora_targets,
+                revision=revision,
             ),
         )
+    actual_lora = lora_parameters(student.peft_config["default"].to_dict())
+    if previous_metadata is not None and actual_lora != lora_parameters(previous_metadata):
+        raise ValueError("loaded adapter LoRA parameters differ from the frozen checkpoint")
     student.train()
 
     reference = None
@@ -398,7 +433,10 @@ def main() -> None:
     trainable = [
         parameter for parameter in student.parameters() if parameter.requires_grad
     ]
-    optimizer = torch.optim.AdamW(trainable, lr=args.learning_rate, weight_decay=0.0)
+    optimizer = torch.optim.AdamW(
+        trainable, lr=args.learning_rate, weight_decay=OPTIMIZER_SPEC["weight_decay"],
+        betas=tuple(OPTIMIZER_SPEC["betas"]), eps=OPTIMIZER_SPEC["eps"],
+    )
 
     optimizer.zero_grad(set_to_none=True)
     optimizer_steps = 0
@@ -415,9 +453,11 @@ def main() -> None:
         gradient_accumulation=args.gradient_accumulation,
         response_token_budget=args.response_token_budget,
     )
+    schedule_digest = hashlib.sha256((SCHEDULE_SCHEMA + "\n").encode())
     for index, token_count in schedule:
         row = positive[index]
         encoded = positive_encoded[index]
+        schedule_digest.update(schedule_step_bytes(row, encoded, token_count))
         prompt_ids = encoded["prompt_ids"]
         completion_ids = encoded["completion_ids"][:token_count]
         input_ids = torch.tensor(
@@ -511,7 +551,7 @@ def main() -> None:
                     else group_examples
                 ),
             )
-            torch.nn.utils.clip_grad_norm_(trainable, 1.0)
+            torch.nn.utils.clip_grad_norm_(trainable, OPTIMIZER_SPEC["max_grad_norm"])
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)
             optimizer_steps += 1
@@ -538,6 +578,9 @@ def main() -> None:
         and response_tokens != args.response_token_budget
     ):
         raise RuntimeError("response token budget mismatch")
+    previous_sha_after = tree_sha(args.previous_adapter) if args.previous_adapter else None
+    if previous_sha_after != previous_sha_before:
+        raise RuntimeError("shared previous adapter changed during training")
     adapter_dir = args.output / "adapter"
     student.save_pretrained(adapter_dir)
     report = {
@@ -551,6 +594,16 @@ def main() -> None:
         "previous_adapter": str(args.previous_adapter)
         if args.previous_adapter
         else None,
+        "previous_adapter_tree_sha256_before": previous_sha_before,
+        "previous_adapter_tree_sha256_after": previous_sha_after,
+        "training_schedule_schema": SCHEDULE_SCHEMA,
+        "training_schedule_sha256": schedule_digest.hexdigest(),
+        "optimizer": {**OPTIMIZER_SPEC, "learning_rate": args.learning_rate},
+        "lora_config": actual_lora,
+        "dependency_versions": {
+            name: importlib.metadata.version(name)
+            for name in ("torch", "transformers", "peft", "bitsandbytes")
+        },
         "seed": args.seed,
         "positive_training_trajectories": sum(row["_weight"] > 0 for row in positive),
         "scheduled_training_trajectories": len(positive),
@@ -578,8 +631,9 @@ def main() -> None:
         "max_length": args.max_length,
         "learning_rate": args.learning_rate,
         "anchor_beta": anchor_beta,
-        "lora_r": args.lora_r,
-        "lora_alpha": args.lora_alpha,
+        "lora_r": actual_lora["r"],
+        "lora_alpha": actual_lora["lora_alpha"],
+        "lora_dropout": actual_lora["lora_dropout"],
         "token_mean_loss": token_totals["loss"] / response_tokens,
         "token_mean_ce": token_totals["ce"] / response_tokens,
         "token_mean_kl": token_totals["kl"] / response_tokens,

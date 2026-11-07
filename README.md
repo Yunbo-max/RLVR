@@ -1,8 +1,35 @@
 # EESD: Effective-Evidence Self-Distillation
 
-## Current Rich64 experiments
+## Current EESD2 rebuttal continuation
 
-The current study is **EESD-Rich64** on Qwen2.5-Coder-7B / RunBugRun.
+The `research/eesd-rebuttal-per-case-20261107` branch continues the submitted
+**four-transition lexical Dirichlet EED**. Its experiment entrypoints are
+**17 separate C00–C16 Python files**, plus four independent data/protocol audits.
+Token-aware correction credit is a new rebuttal extension, not a replacement
+for the submitted method or evidence that its original mechanism succeeds.
+
+- [Separate case commands, initialization and evaluation](scripts/rebuttal_cases/README.md)
+- [Completion report, verification and next run](docs/research/2026-11-07-eesd2-completion.md)
+- [Reviewer-to-case matrix and decision rules](docs/research/2026-11-07-iclr2027-final-reviewer-case-matrix.md)
+- [Recovered historical D03 prediction audit: 36,000 observations](docs/research/2026-11-07-eesd2-archived-prediction-audit.md)
+- [Original 3-model × 4-dataset registry](configs/rebuttal/model_dataset_matrix.json)
+
+The historical PBPF evaluator bridge covers four cells. A separately named
+prospective greedy NF4/BF16 sandbox protocol supports all twelve registered
+cells in code. It must be used consistently for a new matched comparison and
+must not be called exact historical Gemma/Replay replication. No new GPU
+training or C00–C16 heldout outcomes are claimed by the implementation.
+
+The first downstream comparison is C00/C01/C02/C03: frozen, equal correction
+SFT, fixed Dirichlet mass, and original EED, with the same data, initialization,
+optimizer schedule, response-token budget and KL. P0 can be collected without
+waiting for token-aware cases. The D03 archive reanalysis verifies mixed
+per-seed NLL effects and identical argmax predictions; it does not establish
+downstream improvement.
+
+## Separate Rich64 experiments
+
+The separate **EESD-Rich64** study uses Qwen2.5-Coder-7B / RunBugRun.
 The old simplified `sdpo` training option has been removed from the Rich64
 runner and default matrix. Its replacement is **`sdpo_official_verl_rich64`**,
 using the pinned authors' SDPO trainer. At T64, `scripts/run_t64_group_matrix.sh`
@@ -17,7 +44,7 @@ the official replacement. The sections below describe the earlier EESD formulati
 
 EESD is a testable method for deciding **how strongly a coding agent should learn from its own execution-guided correction**. A correction can look successful on visible tests yet carry weak, concentrated, or misleading evidence. EESD separates the direction of feedback from its effective amount before using it for self-distillation.
 
-## Final method
+## Earlier prospective Shapley method (separate study)
 
 For four public executions, EESD defines a coalition value from the corrected program's edited-token log-probability advantage over the original program. Exact Shapley values attribute that contrast to individual executions. Their absolute magnitudes define normalized relevance `p`; the Rényi-2 effective support
 
@@ -102,7 +129,11 @@ uv run python scripts/run_stage.py \
   --stage downstream --seed 1701 --dry-run > downstream-plan.json
 ```
 
-The research design and PASS/REVISE/KILL logic are in [`docs/research/2026-10-02-eesd-final-design.md`](docs/research/2026-10-02-eesd-final-design.md). The latest ICLR paper source is under [`paper/`](paper/); it still reports the recorded lexical-EED evidence and must be revised only after the prospective Shapley gates are run.
+The earlier prospective research design and PASS/REVISE/KILL logic are in
+[`docs/research/2026-10-02-eesd-final-design.md`](docs/research/2026-10-02-eesd-final-design.md).
+The ICLR paper source under [`paper/`](paper/) reports the submitted lexical-EED
+evidence. Its rebuttal follows the independent-case workflow above; the
+prospective Shapley study remains separate.
 
 ## Repository provenance
 

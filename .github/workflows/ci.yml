@@ -11,4 +11,5 @@ jobs:
       - run: uv sync --extra test
       - run: uv run --with pyarrow pytest -q
       - run: uv run python -m compileall -q src scripts
+      - run: bash -n scripts/run_submitted_eed_token_factorial.sh
       - run: uv run python scripts/run_stage.py --config configs/experiments/eesd_final.yaml --stage signal --seed 1701 --dry-run

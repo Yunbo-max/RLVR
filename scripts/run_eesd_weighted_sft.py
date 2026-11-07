@@ -153,6 +153,10 @@ def main() -> None:
     p.add_argument("--max-length", type=int, default=4608)
     p.add_argument("--learning-rate", type=float, default=2e-4)
     p.add_argument("--anchor-beta", type=float, default=0.03)
+    p.add_argument(
+        "--include-zero-weight-kl", action="store_true",
+        help="Rebuttal exact match: schedule ALL train corrections; zero-weight CE still contributes KL."
+    )
     p.add_argument("--lora-r", type=int, default=16)
     p.add_argument("--lora-alpha", type=int, default=32)
     args = p.parse_args()
@@ -163,6 +167,8 @@ def main() -> None:
         raise ValueError(
             "train one of the seven update rules; no_update evaluates the previous policy directly"
         )
+    if args.include_zero_weight_kl and args.rule not in ANCHORED_RULES:
+        raise ValueError("include-zero-weight-kl requires an anchored training rule")
     if (
         args.max_steps < 1
         or (args.response_token_budget is not None and args.response_token_budget < 1)
@@ -253,7 +259,8 @@ def main() -> None:
     positive_indices = [
         i
         for i, row in enumerate(rows)
-        if row["split"] == "train" and row["_weight"] > 0
+        if row["split"] == "train"
+        and (args.include_zero_weight_kl or row["_weight"] > 0)
     ]
     positive = [rows[i] for i in positive_indices]
     positive_encoded = [encoded_rows[i] for i in positive_indices]
@@ -483,7 +490,10 @@ def main() -> None:
         if args.previous_adapter
         else None,
         "seed": args.seed,
-        "positive_training_trajectories": len(positive),
+        "positive_training_trajectories": sum(row["_weight"] > 0 for row in positive),
+        "scheduled_training_trajectories": len(positive),
+        "scheduled_zero_weight_trajectories": sum(row["_weight"] == 0 for row in positive),
+        "include_zero_weight_kl": bool(args.include_zero_weight_kl),
         "development_trajectories": len(development),
         "all_trajectories": len(rows),
         "sources": len({row["source_component_id"] for row in positive}),

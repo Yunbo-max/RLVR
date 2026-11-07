@@ -65,8 +65,8 @@ def fixture_paths(tmp_path,original=True):
 
 def test_full_registered_case_count_and_mapping():
     cases=m.load_cases()
-    assert len(cases)==18
-    assert len([x for x in cases.values() if x["kind"]=="train"])==14
+    assert len(cases)==21
+    assert len([x for x in cases.values() if x["kind"]=="train"])==16
     assert all(x["reviewers"] for x in cases.values())
     assert cases["C03_EED"]["weight"]=="adaptive_eed"
     assert cases["C11_EED_EDIT"]["token"]=="edit"
@@ -128,6 +128,28 @@ def test_strict_source_disjointness_rejects_missing_problem_ids(tmp_path):
     a.require_problem_disjoint=True
     with pytest.raises(ValueError,match="strict source-independent"):
         m.prepare_case(a,m.load_cases()["C01_EQUAL"],tmp_path/"no_problem_ids")
+
+
+
+
+def test_lexical_relevance_uniform_and_permuted_keep_original_data_untouched(tmp_path):
+    a=fixture_paths(tmp_path)
+    cases=m.load_cases()
+    original_data=a.corrections.read_bytes()
+    base=m.prepare_case(a,cases["C03_EED"],tmp_path/"orig")
+    uni=m.prepare_case(a,cases["C15_UNIFORM_RELEVANCE"],tmp_path/"uniform")
+    perm=m.prepare_case(a,cases["C16_PERMUTED_RELEVANCE"],tmp_path/"permuted")
+    assert a.corrections.read_bytes()==original_data
+    def rows(folder):
+        return [json.loads(x) for x in
+            (tmp_path/folder/"scored-corrections.jsonl").read_text().split("\n") if x]
+    b,u,p=rows("orig"),rows("uniform"),rows("permuted")
+    assert b[1]["relevance"]!=u[1]["relevance"]
+    assert sorted(b[1]["relevance"])==sorted(p[1]["relevance"])
+    assert all(z["relevance"]==[1.,1.,1.,1.] for z in u)
+    diag=json.loads((tmp_path/"permuted"/"weight_diagnostics.json").read_text())
+    assert diag["relevance_mode"]=="permuted"
+    assert base["status"]==uni["status"]==perm["status"]=="prepared"
 
 
 def test_diagnostic_is_per_case_and_never_performs_gpu_update(tmp_path):

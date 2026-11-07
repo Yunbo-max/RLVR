@@ -1,0 +1,111 @@
+"""CI checks: 17 truly separate Python entrypoints, 4 audits, all 3x4 cells.
+
+No GPU or untrusted candidate program is executed in these tests.
+"""
+from __future__ import annotations
+
+import ast
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+import pytest
+
+ROOT=Path(__file__).resolve().parents[1]
+SCRIPTS=ROOT/"scripts"
+CASES=SCRIPTS/"rebuttal_cases"
+spec=importlib.util.spec_from_file_location("eesd_coverage",SCRIPTS/"check_eesd_rebuttal_coverage.py")
+coverage=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(coverage)
+
+
+def test_model_dataset_matrix_matches_exact_original_twelve_results():
+    m=coverage.load_matrix()
+    assert len(m)==12
+    assert set(m)=={f"{d}__{model}" for d in coverage.DATASETS
+                    for model in coverage.MODELS}
+    assert sum(x["primary_evaluator"]=="pinned_pbpf_sandbox" for x in m.values())==4
+    assert sum(x["primary_evaluator"]!="pinned_pbpf_sandbox" for x in m.values())==8
+    assert m["codearc__deepseek_6p7b"]["original_paper"]["original_eed_solved"]==102
+    assert m["apps_replay__gemma3_4b"]["original_paper"]["original_eed_solved"]==2
+
+
+def test_17_case_python_files_are_one_to_one_not_one_batch_script():
+    reg=json.loads((ROOT/"configs/rebuttal/eesd_case_registry.json").read_text())
+    all_cases={entry["id"] for entry in reg["cases"]}
+    c={key for key in all_cases if key.startswith("C")}
+    d={key for key in all_cases if key.startswith("D")}
+    assert len(c)==17 and len(d)==4
+    assert {int(k[1:3]) for k in c}==set(range(17))
+    scripts=[p for p in CASES.glob("*.py") if p.name!="_entry.py"]
+    assert len(scripts)==21
+    launched=[]
+    for file in scripts:
+        node=ast.parse(file.read_text())
+        invocations=[
+            n for n in ast.walk(node) if isinstance(n,ast.Call)
+            and isinstance(n.func,ast.Name) and n.func.id=="main_for"
+        ]
+        assert len(invocations)==1,file
+        args=invocations[0].args
+        assert len(args)==1 and isinstance(args[0],ast.Constant),file
+        launched.append(args[0].value)
+    assert set(launched)==all_cases and len(launched)==len(set(launched))
+
+
+def test_all_seventeen_launcher_help_commands_work_without_data():
+    # Smoke the actual real Python entrypoint, not only its AST wrapper.
+    for p in sorted(CASES.glob("c[0-1][0-9]_*.py")):
+        r=subprocess.run([sys.executable,str(p),"--help"],cwd=ROOT,
+                         text=True,capture_output=True,timeout=15)
+        assert r.returncode==0,(p,r.stderr)
+        assert "--cell" in r.stdout
+        assert "--action" in r.stdout
+
+
+def test_named_cell_rejects_backbone_mismatch_before_training(tmp_path):
+    file=tmp_path/"input.jsonl"
+    record={
+        "split":"train","trajectory_id":"t0","source_component_id":"s0",
+        "model_id":"Qwen/Qwen2.5-Coder-7B-Instruct",
+        "model_revision":coverage.load_matrix()["codearc__qwen25_7b"]["model_revision"],
+        "domain":"codearc","prompt":"repair","correction":"print(42)",
+        "before_outcomes":[1],"after_outcomes":[0],"relevance":[1.]
+    }
+    dev={**record,"split":"development","trajectory_id":"t1","source_component_id":"s1"}
+    file.write_text(json.dumps(record)+"\n"+json.dumps(dev)+"\n")
+    valid=coverage.audit_correction_identity("codearc__qwen25_7b",file,strict=True)
+    assert valid["status"]=="verified_model_and_dataset_identity"
+    assert valid["rows"]==2
+    with pytest.raises(ValueError,match="correction model_id"):
+        coverage.audit_correction_identity("codearc__deepseek_6p7b",file)
+    with pytest.raises(ValueError,match="correction domain"):
+        coverage.audit_correction_identity("runbugrun__qwen25_7b",file)
+
+
+def test_model_dataset_coverage_discloses_missing_inputs_and_unverified_eval():
+    rows=coverage.coverage_rows()
+    assert len(rows)==12
+    assert all(x["correction_data"]=="not_supplied" for x in rows)
+    assert all(x["evaluation_claim_allowed"] is False for x in rows)
+    assert all(x["training_code"] for x in rows)
+    assert sum(x["evaluation_code"]=="pinned_pbpf_sandbox" for x in rows)==4
+
+
+def test_standalone_launcher_requires_cell_and_fixes_case_id(tmp_path):
+    script=CASES/"c03_eed.py"
+    bad=subprocess.run([sys.executable,str(script),"--action","prepare",
+                        "--out-root",str(tmp_path)],cwd=ROOT,
+                       text=True,capture_output=True,timeout=15)
+    assert bad.returncode!=0
+    assert "require --cell" in bad.stderr
+
+    mismatch=subprocess.run([
+        sys.executable,str(script),"--case","C02_FIXED",
+        "--cell","runbugrun__qwen25_7b","--action","prepare",
+        "--out-root",str(tmp_path)],cwd=ROOT,
+        text=True,capture_output=True,timeout=15)
+    assert mismatch.returncode!=0
+    assert "cannot run another --case" in mismatch.stderr

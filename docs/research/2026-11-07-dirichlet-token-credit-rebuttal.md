@@ -163,6 +163,55 @@ aggregate results, not the raw correction program pairs or a proven
 disjoint evaluation manifest; we cannot produce real new test
 accuracy from that CSV alone.
 
+## One-command fixed training matrix (H100, not executed here)
+
+After the real original corrections, independent evaluation identifiers and
+an identical shared initial LoRA adapter have been sealed, run from repo root:
+
+    export PYTHONPATH="$PWD/src"
+
+    bash scripts/run_submitted_eed_token_factorial.sh \
+      /sealed/corrections.jsonl \
+      runs/rebuttal-deepseek-codearc-s1701 \
+      configs/rebuttal/deepseek_coder_6p7b.yaml \
+      1701 524288 /sealed/shared-initial-adapter \
+      /sealed/eval-ids.jsonl
+
+The launch refuses existing outputs, refuses missing original programs,
+builds exactly the six arms above and calls
+scripts/check_submitted_eed_token_factorial.py to verify common
+response-token budget, optimizer steps, initial LoRA adapter PATH,
+KL coefficient, token schedule and model version.
+
+**Caution:** 524288 is an illustrative declared budget from the current
+experimental configuration, not automatically proof this was the actual
+sealed budget of the ICLR-submitted run. Before comparing against those
+historical numbers, recover its original budget and evaluator ancestry.
+If unavailable, label the new study as a separate new protocol.
+
+AFTER an independent evaluator has generated the original
+eesd-fresh-policy-eval-v1 JSON reports under a single frozen
+task/execution lock, store:
+
+    runs/ta-eval/equal_uniform.json
+    runs/ta-eval/fixed_uniform.json
+    runs/ta-eval/adaptive_uniform.json
+    runs/ta-eval/fixed_edit.json
+    runs/ta-eval/adaptive_edit.json
+    runs/ta-eval/adaptive_random.json
+
+Then compute paired mass/edit/random contrasts with true independent
+problem-cluster bootstraps:
+
+    python scripts/summarize_submitted_eed_token_factorial.py \
+      --eval-dir runs/ta-eval \
+      --output runs/ta-eval/paired_factorial.json
+
+The script fails if source IDs, problem IDs, model revision, dataset
+manifest or execution lock differ. **The evaluator itself must run
+separately**; new GPU training and held-out correctness have NOT been
+executed or fabricated on this research branch.
+
 ## Decision tree after results
 
 - E>F and E>U, E+T>E and E+T>E+R:

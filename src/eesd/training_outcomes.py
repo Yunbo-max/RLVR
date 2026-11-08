@@ -86,19 +86,28 @@ def classify(rows):
 
 
 _GEMMA_TEXT_TARGET = re.compile(
-    r"(?:model\.language_model|language_model\.model)\.layers\.[0-9]+\."
+    # Fully-qualified layouts: transformers 4.51 (language_model.model.*),
+    # 4.52+ (model.language_model.*) and 5.x (language_model.layers.*).
+    r"(?:(?:model\.language_model|language_model\.model|language_model)\.layers\.[0-9]+\."
     r"(?:self_attn\.(?:q_proj|k_proj|v_proj|o_proj)|mlp\.(?:gate_proj|up_proj|down_proj))"
+    # PEFT 0.14 canonical forms: base-relative layer names for vision-tied
+    # layers (e.g. "27.self_attn.q_proj") and bare shared projections
+    # (o_proj/gate_proj/up_proj/down_proj are tied across layers in Gemma 3).
+    r"|[0-9]+\.self_attn\.(?:q_proj|k_proj|v_proj|o_proj)"
+    r"|(?:o_proj|gate_proj|up_proj|down_proj))"
 )
 
 
 def gemma_text_lora_targets(module_names):
-    """Select text decoder projections in Transformers 4.51 and 4.52+ layouts."""
+    """Select text decoder projections across Transformers 4.51/4.52+/5.x and
+    PEFT 0.14 canonical (base-relative / bare shared projection) names."""
     targets = sorted({name for name in module_names
                       if isinstance(name, str) and _GEMMA_TEXT_TARGET.fullmatch(name)})
     if not targets:
         raise ValueError(
             'Gemma 3 text decoder LoRA targets not found; expected '
-            'language_model.model.layers.* (4.51) or model.language_model.layers.* (4.52+)'
+            'language_model.model.layers.* (4.51), model.language_model.layers.* (4.52+), '
+            'language_model.layers.* (5.x) or PEFT 0.14 canonical relative/bare names'
         )
     return targets
 

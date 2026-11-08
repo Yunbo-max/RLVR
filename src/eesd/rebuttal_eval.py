@@ -130,7 +130,27 @@ def validate_checkout(pbpf):
     return dict(pbpf_commit=head, pbpf_source_hashes={name: file_sha(pbpf / name) for name in PBPF_FILES})
 
 
-def _case_identity(case, domain=None):
+def _validate_identity_manifest(manifest_path, *, receipt, audit, cell, model, revision, dataset):
+    """Sealed per-cell identity manifest (the README's separate original-source
+    manifest). Only fills the dataset_identity gap; model identity must already
+    be verified by the receipt audit. The manifest binds the corrections sha
+    and the cell/model/dataset triple; it is an auxiliary sealed artifact, not
+    a substitute for per-row model identity."""
+    manifest_path = Path(manifest_path).resolve()
+    value = read_json(manifest_path)
+    if value.get('schema') != 'eesd-iclr2027-cell-identity-manifest-v1':
+        raise ValueError('identity manifest schema mismatch')
+    corrections_sha = audit.get('source_sha256')
+    if (value.get('corrections_sha256') != corrections_sha
+            or value.get('cell') != cell or value.get('dataset') != dataset
+            or value.get('model_id') != model or value.get('model_revision') != revision):
+        raise ValueError('identity manifest does not bind the frozen corrections/cell/model')
+    if not isinstance(value.get('prepare_receipt_sha256'), str) or len(value['prepare_receipt_sha256']) != 64:
+        raise ValueError('identity manifest lacks the prepare receipt binding')
+    return dict(path=str(manifest_path), sha256=file_sha(manifest_path))
+
+
+def _case_identity(case, domain=None, identity_manifest=None):
     import yaml
     receipt = read_json(case / 'case.json')
     if receipt.get('schema') != 'eesd-iclr2027-independent-case-v1':
@@ -168,10 +188,20 @@ def _case_identity(case, domain=None):
     if provenance.get('errors'):
         raise ValueError('case provenance contains input errors')
     audit = receipt.get('cell_identity_audit', {})
-    if (audit.get('status') != 'verified_model_and_dataset_identity' or audit.get('cell') != cell
-            or audit.get('model_id') != model or audit.get('model_revision') != revision
+    manifest_binding = None
+    if (audit.get('cell') != cell or audit.get('model_id') != model
+            or audit.get('model_revision') != revision
             or audit.get('dataset') != profile['dataset']):
         raise ValueError('case model/dataset identity audit is incomplete or mismatched')
+    if audit.get('status') != 'verified_model_and_dataset_identity':
+        if (audit.get('status') == 'incomplete_record_identity_metadata'
+                and audit.get('missing_fields') == {'dataset_identity': audit.get('rows')}
+                and identity_manifest is not None):
+            manifest_binding = _validate_identity_manifest(
+                identity_manifest, receipt=receipt, audit=audit, cell=cell,
+                model=model, revision=revision, dataset=profile['dataset'])
+        else:
+            raise ValueError('case model/dataset identity audit is incomplete or mismatched')
     adapter = (case / 'model/adapter') if kind == 'train' else Path(setup['shared_init_adapter_path'])
     adapter = adapter.resolve()
     expected = receipt.get('trained_adapter_tree_sha256') if kind == 'train' else setup.get('shared_init_adapter_tree_sha256')
@@ -179,7 +209,7 @@ def _case_identity(case, domain=None):
         raise ValueError('adapter differs from frozen case outcome')
     from eesd.training_outcomes import adapter_metadata
     adapter_metadata(adapter, receipt['setup']['model_config_path'])
-    return receipt, profile, cfg, provenance, adapter
+    return receipt, profile, cfg, provenance, adapter, manifest_binding
 
 
 def _validate_tests(public, private, domain):
@@ -397,14 +427,14 @@ def _code_hashes():
     return {str(p): file_sha(p) for p in paths}
 
 
-def prepare(case, pbpf, public, evaluator, workers=1, eval_ids=None, domain=None):
+def prepare(case, pbpf, public, evaluator, workers=1, eval_ids=None, domain=None, identity_manifest=None):
     case, pbpf, public, evaluator = [Path(p).resolve() for p in (case, pbpf, public, evaluator)]
     if type(workers) is not int or not 1 <= workers <= 12:
         raise ValueError('workers must be an integer from 1 through 12')
     output = case / 'evaluation'
     if output.exists():
         raise FileExistsError('immutable case evaluator already prepared')
-    receipt, profile, cfg, provenance, adapter = _case_identity(case, domain)
+    receipt, profile, cfg, provenance, adapter, manifest_binding = _case_identity(case, domain, identity_manifest)
     pin = validate_checkout(pbpf)
     inv = inventory(public, evaluator, profile['domain'], profile['original_paper']['N'])
     mapping = _mapping_and_disjointness(case, receipt, profile, provenance, eval_ids, inv)
@@ -425,6 +455,7 @@ def prepare(case, pbpf, public, evaluator, workers=1, eval_ids=None, domain=None
                 historical_replication=False,
                 protocol_differences=['common NF4/BF16 model loading', 'common greedy decoding and input tokenization',
                                       'Gemma system instructions folded into user', 'Replay uses isolated PBPF stdin executor'],
+                identity_manifest=manifest_binding,
                 local_source_hashes=_code_hashes(), **pin, **inv, **mapping,
                 scientific_status='prospective protocol prepared; generation/evaluation NOT YET RUN', created_at=now())
     plan['generation_command'] = [sys.executable, str(ENTRYPOINT), '--case-dir', str(case), '--_phase', 'generate']
@@ -451,7 +482,7 @@ def check_frozen(plan, case):
         raise ValueError('prepared prospective plan identity/content changed')
     if file_sha(case / 'case.json') != plan['case_sha256']:
         raise ValueError('case receipt changed after evaluator preparation')
-    receipt, profile, cfg, provenance, adapter = _case_identity(case, plan['domain'])
+    receipt, profile, cfg, provenance, adapter, _manifest = _case_identity(case, plan['domain'])
     for key, value in dict(original_paper_cell=profile['cell'], model_id=cfg['model_id'], revision=cfg['revision'],
                            adapter_path=str(adapter), adapter_tree_sha256=tree_sha(adapter),
                            data_provenance_sha256=file_sha(case / 'data_provenance.json'),

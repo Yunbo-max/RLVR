@@ -41,6 +41,8 @@ def main():
     parser.add_argument("--evaluator-root", type=Path)
     parser.add_argument("--eval-ids", type=Path)
     parser.add_argument("--workers", type=int)
+    parser.add_argument("--identity-manifest", type=Path,
+                        help="sealed per-cell identity manifest filling the dataset_identity gap")
     parser.add_argument("--domain", choices=sorted(set(ev.DATASETS.values())))
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--action", choices=("prepare", "run", "both"), default=None)
@@ -63,6 +65,7 @@ def main():
                 case=case, pbpf=args.pbpf_root, public=args.public_root,
                 evaluator=args.evaluator_root, eval_ids=args.eval_ids,
                 workers=1 if args.workers is None else args.workers, domain=args.domain,
+                identity_manifest=args.identity_manifest,
             )
         if operation in ("run", "both"):
             plan = ev.read_json(case / "evaluation/plan.json")

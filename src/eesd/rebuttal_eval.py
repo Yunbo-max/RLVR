@@ -482,7 +482,9 @@ def check_frozen(plan, case):
         raise ValueError('prepared prospective plan identity/content changed')
     if file_sha(case / 'case.json') != plan['case_sha256']:
         raise ValueError('case receipt changed after evaluator preparation')
-    receipt, profile, cfg, provenance, adapter, _manifest = _case_identity(case, plan['domain'])
+    manifest_binding = plan.get('identity_manifest') or {}
+    receipt, profile, cfg, provenance, adapter, _manifest = _case_identity(
+        case, plan['domain'], manifest_binding.get('path'))
     for key, value in dict(original_paper_cell=profile['cell'], model_id=cfg['model_id'], revision=cfg['revision'],
                            adapter_path=str(adapter), adapter_tree_sha256=tree_sha(adapter),
                            data_provenance_sha256=file_sha(case / 'data_provenance.json'),

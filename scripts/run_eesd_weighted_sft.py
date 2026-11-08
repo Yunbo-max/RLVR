@@ -15,6 +15,7 @@ import hashlib
 import importlib.metadata
 import json
 import math
+import os
 from pathlib import Path
 import random
 import sys
@@ -195,6 +196,14 @@ def main() -> None:
         help="Exact response loss-token budget; overrides max-steps stopping",
     )
     p.add_argument("--gradient-accumulation", type=int, default=16)
+    p.add_argument(
+        "--batch-size",
+        type=int,
+        default=int(os.environ.get("EESD_TRAIN_BATCH_SIZE", "1")),
+        help="Trajectories per forward pass. Rows are summed into one backward; "
+        "group normalization and the schedule order are unchanged, so the "
+        "training math is equivalent to batch size 1.",
+    )
     p.add_argument("--max-length", type=int, default=4608)
     p.add_argument("--learning-rate", type=float, default=2e-4)
     p.add_argument("--anchor-beta", type=float, default=0.03)
@@ -233,6 +242,8 @@ def main() -> None:
         args.max_steps < 1
         or (args.response_token_budget is not None and args.response_token_budget < 1)
         or args.gradient_accumulation < 1
+        or args.batch_size < 1
+        or args.batch_size > args.gradient_accumulation
         or args.max_length < 64
         or not math.isfinite(args.learning_rate)
         or args.learning_rate <= 0
@@ -454,94 +465,105 @@ def main() -> None:
         response_token_budget=args.response_token_budget,
     )
     schedule_digest = hashlib.sha256((SCHEDULE_SCHEMA + "\n").encode())
-    for index, token_count in schedule:
-        row = positive[index]
-        encoded = positive_encoded[index]
-        schedule_digest.update(schedule_step_bytes(row, encoded, token_count))
-        prompt_ids = encoded["prompt_ids"]
-        completion_ids = encoded["completion_ids"][:token_count]
-        input_ids = torch.tensor(
-            [prompt_ids + completion_ids], dtype=torch.long, device=student.device
+    pad_token_id = tokenizer.pad_token_id
+    from eesd.token_aware import prefix_multipliers
+
+    def flush_pending(rows):
+        """One student(+reference) forward and one backward over the buffered rows.
+
+        Per-row losses are computed from the batched logits, summed and backpropped
+        once. The schedule order, per-row token counts, group normalization and the
+        final-budget cut are all unchanged, so gradients match batch size 1 up to
+        floating-point summation order.
+        """
+        nonlocal response_tokens, group_tokens, group_examples, micro_steps
+        longest = max(len(r[1]["prompt_ids"]) + r[2] for r in rows)
+        input_ids = torch.stack([
+            torch.tensor(
+                r[1]["prompt_ids"] + r[1]["completion_ids"][: r[2]]
+                + [pad_token_id] * (longest - len(r[1]["prompt_ids"]) - r[2]),
+                dtype=torch.long,
+            )
+            for r in rows
+        ]).to(student.device)
+        labels = torch.stack([
+            torch.tensor(
+                [-100] * len(r[1]["prompt_ids"])
+                + r[1]["completion_ids"][: r[2]]
+                + [-100] * (longest - len(r[1]["prompt_ids"]) - r[2]),
+                dtype=torch.long,
+            )
+            for r in rows
+        ]).to(student.device)
+        attention_mask = (
+            torch.arange(longest, device=student.device)[None, :]
+            < torch.tensor(
+                [len(r[1]["prompt_ids"]) + r[2] for r in rows],
+                device=student.device,
+            )[:, None]
         )
-        labels = torch.tensor(
-            [[-100] * len(prompt_ids) + completion_ids],
-            dtype=torch.long,
-            device=student.device,
-        )
-        attention_mask = torch.ones_like(input_ids)
-        output = student(
+        forward_kwargs = dict(
             input_ids=input_ids, attention_mask=attention_mask, use_cache=False
         )
+        if is_gemma3:
+            # transformers 5.x requires token_type_ids in training mode; all-text
+            # sequences carry zeros (no image tokens).
+            forward_kwargs["token_type_ids"] = torch.zeros_like(input_ids)
+        output = student(**forward_kwargs)
         shift_logits = output.logits[:, :-1, :]
         shift_labels = labels[:, 1:]
         mask = shift_labels.ne(-100)
-        if int(mask.sum().item()) != token_count:
-            raise ValueError("response loss mask does not match scheduled token budget")
-        ce_tokens = F.cross_entropy(
-            shift_logits.reshape(-1, shift_logits.shape[-1]).float(),
-            shift_labels.reshape(-1),
-            reduction="none",
-            ignore_index=-100,
-        ).reshape_as(shift_labels)
-        if args.token_weighting == "uniform":
-            # Preserve the exact published whole-correction CE behavior.
-            ce = ce_tokens[mask].mean()
-        else:
-            from eesd.token_aware import prefix_multipliers
-            multipliers = prefix_multipliers(
-                encoded["edit_mask"], count=token_count,
-                boost=args.token_edit_boost, mode=args.token_weighting,
-                identity=row["trajectory_id"], seed=args.seed,
-                eos_excluded=encoded["edit_eos_excluded"],
-            )
-            # Mean multiplier is exactly one on THIS scheduled (possibly
-            # shortened) prefix; thus only token allocation differs.
-            factors = torch.as_tensor(
-                multipliers, device=ce_tokens.device, dtype=ce_tokens.dtype
-            )
-            ce = (ce_tokens[mask] * factors).mean()
-
-        kl = torch.zeros((), device=ce.device, dtype=torch.float32)
+        ref_logits = None
         if reference is not None:
             with torch.no_grad():
-                ref_logits = reference(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    use_cache=False,
-                ).logits[:, :-1, :]
-            # Compute only at response positions. Full-vocabulary forward KL keeps the
-            # previous policy as the anchor without selecting favored tokens.
-            s = shift_logits[mask].float()
-            r = ref_logits[mask].float()
-            r_log = F.log_softmax(r, dim=-1)
-            s_log = F.log_softmax(s, dim=-1)
-            kl = (r_log.exp() * (r_log - s_log)).sum(dim=-1).mean()
+                ref_logits = reference(**forward_kwargs).logits[:, :-1, :]
+        summed = None
+        for i, (row, encoded, token_count, multipliers) in enumerate(rows):
+            if int(mask[i].sum().item()) != token_count:
+                raise ValueError("response loss mask does not match scheduled token budget")
+            ce_tokens = F.cross_entropy(
+                shift_logits[i].reshape(-1, shift_logits.shape[-1]).float(),
+                shift_labels[i].reshape(-1),
+                reduction="none",
+                ignore_index=-100,
+            ).reshape_as(shift_labels[i])
+            if multipliers is not None:
+                factors = torch.as_tensor(
+                    multipliers, device=ce_tokens.device, dtype=ce_tokens.dtype
+                )
+                ce = (ce_tokens[mask[i]] * factors).mean()
+            else:
+                # Preserve the exact published whole-correction CE behavior.
+                ce = ce_tokens[mask[i]].mean()
+            kl = torch.zeros((), device=ce.device, dtype=torch.float32)
+            if ref_logits is not None:
+                # Compute only at response positions. Full-vocabulary forward KL keeps the
+                # previous policy as the anchor without selecting favored tokens.
+                s = shift_logits[i][mask[i]].float()
+                r = ref_logits[i][mask[i]].float()
+                r_log = F.log_softmax(r, dim=-1)
+                s_log = F.log_softmax(s, dim=-1)
+                kl = (r_log.exp() * (r_log - s_log)).sum(dim=-1).mean()
+            weight = float(row["_weight"])
+            loss = weight * ce + anchor_beta * kl
+            scale = token_count if args.response_token_budget is not None else 1
+            summed = loss * scale if summed is None else summed + loss * scale
+            response_tokens += token_count
+            group_tokens += token_count
+            group_examples += 1
+            micro_steps += 1
+            totals["loss"] += float(loss.detach())
+            totals["ce"] += float(ce.detach())
+            totals["kl"] += float(kl.detach())
+            totals["weight"] += weight
+            for name, value in (("loss", loss), ("ce", ce), ("kl", kl)):
+                token_totals[name] += float(value.detach()) * token_count
+            token_totals["weight"] += weight * token_count
+        summed.backward()
 
-        weight = float(row["_weight"])
-        loss = weight * ce + anchor_beta * kl
-        # In exact-budget mode each response token contributes equally before
-        # trajectory weighting. Normalize by the actual group count at the step,
-        # including a partially filled final accumulation group.
-        (
-            loss * (token_count if args.response_token_budget is not None else 1)
-        ).backward()
-        response_tokens += token_count
-        group_tokens += token_count
-        group_examples += 1
-        micro_steps += 1
-        totals["loss"] += float(loss.detach())
-        totals["ce"] += float(ce.detach())
-        totals["kl"] += float(kl.detach())
-        totals["weight"] += weight
-        for name, value in (("loss", loss), ("ce", ce), ("kl", kl)):
-            token_totals[name] += float(value.detach()) * token_count
-        token_totals["weight"] += weight * token_count
-
-        final_budget = (
-            response_tokens == args.response_token_budget
-            if args.response_token_budget is not None
-            else micro_steps == args.max_steps * args.gradient_accumulation
-        )
+    def maybe_step(final_budget):
+        """Optimizer step with the original group normalization and clipping."""
+        nonlocal group_tokens, group_examples
         if group_examples == args.gradient_accumulation or final_budget:
             normalize_gradients(
                 trainable,
@@ -554,24 +576,88 @@ def main() -> None:
             torch.nn.utils.clip_grad_norm_(trainable, OPTIMIZER_SPEC["max_grad_norm"])
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)
-            optimizer_steps += 1
             group_tokens = group_examples = 0
-            if optimizer_steps % 10 == 0 or final_budget:
-                print(
-                    json.dumps(
-                        {
-                            "optimizer_step": optimizer_steps,
-                            "micro_steps": micro_steps,
-                            "response_tokens": response_tokens,
-                            "mean_loss": totals["loss"] / micro_steps,
-                            "mean_ce": totals["ce"] / micro_steps,
-                            "mean_kl": totals["kl"] / micro_steps,
-                            "mean_weight": totals["weight"] / micro_steps,
-                        },
-                        sort_keys=True,
-                    ),
-                    flush=True,
-                )
+            return True
+        return False
+
+    def budget_now():
+        return (
+            response_tokens == args.response_token_budget
+            if args.response_token_budget is not None
+            else micro_steps == args.max_steps * args.gradient_accumulation
+        )
+
+    pending = []
+    done = False
+    iterator = iter(schedule)
+    while not done:
+        try:
+            index, token_count = next(iterator)
+        except StopIteration:
+            done = True
+            if pending:
+                flush_pending(pending)
+                pending = []
+                if maybe_step(budget_now()):
+                    optimizer_steps += 1
+                    if optimizer_steps % 10 == 0 or budget_now():
+                        print(
+                            json.dumps(
+                                {
+                                    "optimizer_step": optimizer_steps,
+                                    "micro_steps": micro_steps,
+                                    "response_tokens": response_tokens,
+                                    "mean_loss": totals["loss"] / micro_steps,
+                                    "mean_ce": totals["ce"] / micro_steps,
+                                    "mean_kl": totals["kl"] / micro_steps,
+                                    "mean_weight": totals["weight"] / micro_steps,
+                                },
+                                sort_keys=True,
+                            ),
+                            flush=True,
+                        )
+            continue
+        row = positive[index]
+        encoded = positive_encoded[index]
+        schedule_digest.update(schedule_step_bytes(row, encoded, token_count))
+        multipliers = None
+        if args.token_weighting != "uniform":
+            multipliers = prefix_multipliers(
+                encoded["edit_mask"], count=token_count,
+                boost=args.token_edit_boost, mode=args.token_weighting,
+                identity=row["trajectory_id"], seed=args.seed,
+                eos_excluded=encoded["edit_eos_excluded"],
+            )
+        pending.append((row, encoded, token_count, multipliers))
+        group_full = group_examples + len(pending) == args.gradient_accumulation
+        budget_reached = (
+            args.response_token_budget is not None
+            and response_tokens + token_count == args.response_token_budget
+        )
+        if len(pending) == args.batch_size or group_full or budget_reached:
+            flush_pending(pending)
+            pending = []
+            final_budget = budget_now()
+            if maybe_step(final_budget):
+                optimizer_steps += 1
+                if optimizer_steps % 10 == 0 or final_budget:
+                    print(
+                        json.dumps(
+                            {
+                                "optimizer_step": optimizer_steps,
+                                "micro_steps": micro_steps,
+                                "response_tokens": response_tokens,
+                                "mean_loss": totals["loss"] / micro_steps,
+                                "mean_ce": totals["ce"] / micro_steps,
+                                "mean_kl": totals["kl"] / micro_steps,
+                                "mean_weight": totals["weight"] / micro_steps,
+                            },
+                            sort_keys=True,
+                        ),
+                        flush=True,
+                    )
+            if final_budget:
+                done = True
 
     if (
         args.response_token_budget is not None
@@ -628,6 +714,7 @@ def main() -> None:
         "tokenization_audit": token_audit,
         "trainer_source_sha256": sha(Path(__file__)),
         "gradient_accumulation": args.gradient_accumulation,
+        "batch_size": args.batch_size,
         "max_length": args.max_length,
         "learning_rate": args.learning_rate,
         "anchor_beta": anchor_beta,

@@ -1,0 +1,2343 @@
+{
+  "case_ids": [
+    "C00_FROZEN",
+    "C01_EQUAL",
+    "C02_FIXED",
+    "C03_EED",
+    "C04_CONSTANT",
+    "C05_SHUFFLED",
+    "C06_NO_UNCERTAINTY",
+    "C07_FINAL_FILTER",
+    "C08_CONFIDENCE",
+    "C09_TERMINAL_EED",
+    "C10_FIXED_EDIT",
+    "C11_EED_EDIT",
+    "C12_EED_RANDOM_TOKEN",
+    "C13_KAPPA8",
+    "C14_KAPPA32",
+    "C15_UNIFORM_RELEVANCE",
+    "C16_PERMUTED_RELEVANCE"
+  ],
+  "cases": {
+    "C00_FROZEN": {
+      "adapter_tree_sha256": "c6f5cbd0bb5ce37cb0398e0823e39d4e767ad46e9cd6b707864ac21d850f4886",
+      "alias": "frozen",
+      "all_tests_passes": 277,
+      "case_specification": {
+        "goal": "Frozen no-update reference; external evaluator must verify identical test population",
+        "id": "C00_FROZEN",
+        "kappa": 16,
+        "kind": "baseline",
+        "priority": 0,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": null
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.51,
+          0.598
+        ],
+        "estimate": 0.554
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6716,
+          0.7417999999999995
+        ],
+        "estimate": 0.7074000000000001
+      },
+      "source_all_tests_pass_rate": 0.554,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7074000000000001,
+      "training": null
+    },
+    "C01_EQUAL": {
+      "adapter_tree_sha256": "ec17fc728f1ee4a8850f496b7bd59b03533402f6ec9c7a3183ea54b3f683bb9c",
+      "alias": "equal_uniform",
+      "all_tests_passes": 274,
+      "case_specification": {
+        "goal": "Equal-weight correction SFT with IDENTICAL forward-KL anchor",
+        "id": "C01_EQUAL",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 0,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX",
+          "kZZR"
+        ],
+        "token": "uniform",
+        "weight": "equal_weight"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.504,
+          0.592
+        ],
+        "estimate": 0.548
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6747999999999997,
+          0.7437999999999998
+        ],
+        "estimate": 0.7093999999999998
+      },
+      "source_all_tests_pass_rate": 0.548,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7094000000000001,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "f81098afb162bd1f29e6a80f475c59b1ffa93afe642df2a0740b8f13e8c2e57a",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "a25a92c0619aeb8d0cc246df9bc1ba7313e5376a33e73d40f4e3373a7dd67879",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C02_FIXED": {
+      "adapter_tree_sha256": "8d1c69925606428d4bc154507bf6c87de8449e8de8a7c1b93b5b673dee1471b4",
+      "alias": "fixed_uniform",
+      "all_tests_passes": 287,
+      "case_specification": {
+        "goal": "Original 4-state Dirichlet, fixed mass n; isolate E(p)",
+        "id": "C02_FIXED",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 0,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "fixed_mass"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.53,
+          0.618
+        ],
+        "estimate": 0.574
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6901949999999996,
+          0.7589999999999996
+        ],
+        "estimate": 0.7245999999999999
+      },
+      "source_all_tests_pass_rate": 0.574,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7246000000000001,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "c087ce08acef2cef1222e35a4f1896010dda603d3fd07737c3b6c3f28d63f1a7",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "65b75f6d0fe7d934f27f9e94dfb9da5d83b3139cc2d89ad568bdccdcb1151631",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C03_EED": {
+      "adapter_tree_sha256": "f071648512391808958a7470c1621bc67d15094b02d9b91c1b6bc924267f4663",
+      "alias": "adaptive_uniform",
+      "all_tests_passes": 285,
+      "case_specification": {
+        "goal": "Submitted original adaptive EED + KL; correction-level supervision",
+        "id": "C03_EED",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 0,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.526,
+          0.614
+        ],
+        "estimate": 0.57
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6885949999999993,
+          0.7573999999999997
+        ],
+        "estimate": 0.7231999999999998
+      },
+      "source_all_tests_pass_rate": 0.57,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7232000000000001,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "dd1129d4279a2fbff2aadb2f95c69e4c7353840584ae76e9b0e7f13b21c19e7a",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "ecdd5200f63f2bde6864a84ef12287906447a70e7e3f1697a3025a19a3df3542",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C04_CONSTANT": {
+      "adapter_tree_sha256": "6a9d24cfef269c7e124698e5cdc6bc26af08fcb2ab1fc2941a53a0dcb2331d6e",
+      "alias": "constant_mass",
+      "all_tests_passes": 287,
+      "case_specification": {
+        "goal": "Equal mean CE coefficient without per-correction adaptation",
+        "id": "C04_CONSTANT",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz"
+        ],
+        "token": "uniform",
+        "weight": "constant_mass_matched"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.53,
+          0.618
+        ],
+        "estimate": 0.574
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6869999999999998,
+          0.7560000000000001
+        ],
+        "estimate": 0.7215999999999999
+      },
+      "source_all_tests_pass_rate": 0.574,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7216,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "7a6f731ccac6f547d5f0700f2b152fd878ff8bcfcd82760e212abf4dac53239c",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "36466873111ee0c3ce65c866d50ef5b3aaee77e216057a0563403e37df7f930d",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C05_SHUFFLED": {
+      "adapter_tree_sha256": "b927b24b961722dd2c7b588f8165a9b42d08cf3a75bba640454a0922ef4191f7",
+      "alias": "shuffled_mass",
+      "all_tests_passes": 282,
+      "case_specification": {
+        "goal": "Same training weights, randomly reassigned to corrections",
+        "id": "C05_SHUFFLED",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "shuffled_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.52,
+          0.606
+        ],
+        "estimate": 0.564
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6727999999999998,
+          0.7435999999999997
+        ],
+        "estimate": 0.7087999999999998
+      },
+      "source_all_tests_pass_rate": 0.564,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7088,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "ee6abff4ad76b39cc18116560f413ec44d22ec1f5af0df300c24ddd83b7f83b3",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "7c504bd0aedf8e04a19bd87ca2f8dca9fb51286fa73fd045fdbac3a11fbca3e9",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C06_NO_UNCERTAINTY": {
+      "adapter_tree_sha256": "a8776fad5488f9b6e8b4b2fd0cb83daced45dae114e3d0209427cc53c4f51a68",
+      "alias": "no_uncertainty",
+      "all_tests_passes": 289,
+      "case_specification": {
+        "goal": "Remove lambda*SD while keeping adaptive mass and KL",
+        "id": "C06_NO_UNCERTAINTY",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX",
+          "GRLz"
+        ],
+        "token": "uniform",
+        "weight": "eed_no_uncertainty"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.534,
+          0.622
+        ],
+        "estimate": 0.578
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6953999999999998,
+          0.7635999999999995
+        ],
+        "estimate": 0.7297999999999998
+      },
+      "source_all_tests_pass_rate": 0.578,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7298000000000001,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "a64f9d3dbf8b71644decbc0e3ff934e0e1d276df8c60a75563087e767f4447a4",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "17cae766f3ffe87fdd6c49dfd62e247fdf48c1ce2748cea1e02dd2283e6e5527",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C07_FINAL_FILTER": {
+      "adapter_tree_sha256": "6a149d82e886b8aa99f60700cbebf2c4c030a9f0cfce2fd02930eec25a8cf860",
+      "alias": "final_filter",
+      "all_tests_passes": 280,
+      "case_specification": {
+        "goal": "Only fully passing post-correction public programs get CE weight",
+        "id": "C07_FINAL_FILTER",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "final_correctness"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.516,
+          0.604
+        ],
+        "estimate": 0.56
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6704000000000002,
+          0.7407999999999997
+        ],
+        "estimate": 0.7059999999999998
+      },
+      "source_all_tests_pass_rate": 0.56,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.706,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "420d19b2cda761e8dbc3d0023ebe823d3289dca6bcf71ad1df79be156a1a2b12",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "4d6e58af48d08948a69e42612fec6ca350c0c8f04f66d555cc130496392b5235",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C08_CONFIDENCE": {
+      "adapter_tree_sha256": "0de5c1237713580abbe28694939f3fd905f6da01a17910bb074bf4734be0ffb3",
+      "alias": "confidence",
+      "all_tests_passes": 282,
+      "case_specification": {
+        "goal": "Weight by final public pass fraction; tests simple outcome confidence",
+        "id": "C08_CONFIDENCE",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX",
+          "kZZR"
+        ],
+        "token": "uniform",
+        "weight": "scalar_confidence"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.52,
+          0.608
+        ],
+        "estimate": 0.564
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6875999999999995,
+          0.7566050000000001
+        ],
+        "estimate": 0.7225999999999996
+      },
+      "source_all_tests_pass_rate": 0.564,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7226,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "37c9a57f9999fbf52228c9a91162872f424599dd2359e2797db9d30cff9ec5f1",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "f79764e7105354dc488b481a62c0c00fe83ded9df311cb755306ac35ca204252",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C09_TERMINAL_EED": {
+      "adapter_tree_sha256": "8a519eac57bfacaeb1e1f6ec56a8ec6a31492c9b69d6490c8622bd4df20db569",
+      "alias": "terminal_eed",
+      "all_tests_passes": 279,
+      "case_specification": {
+        "goal": "Reviewer-motivated terminal quality gate w_EED*post-pass fraction",
+        "id": "C09_TERMINAL_EED",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "eed_terminal_quality"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.514,
+          0.602
+        ],
+        "estimate": 0.558
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6748000000000002,
+          0.7444
+        ],
+        "estimate": 0.7098000000000001
+      },
+      "source_all_tests_pass_rate": 0.558,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7098,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "f1bd948f7106a41a0de86098cb75bfed0cd9322f6eb24ae45e93d9182f7abf18",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "68af109e8a4829e417f5da433b1c48c0805155751ed43a13261ede8eafad3a22",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C10_FIXED_EDIT": {
+      "adapter_tree_sha256": "2517006c78071705d3af46f41363cea655c6e454e104344589ebd607973905eb",
+      "alias": "fixed_edit",
+      "all_tests_passes": 281,
+      "case_specification": {
+        "goal": "Fixed Dirichlet with changed-token credit; independent granularity main effect",
+        "id": "C10_FIXED_EDIT",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX",
+          "GRLz"
+        ],
+        "token": "edit",
+        "weight": "fixed_mass"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.518,
+          0.604
+        ],
+        "estimate": 0.562
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6772,
+          0.7473999999999997
+        ],
+        "estimate": 0.7125999999999999
+      },
+      "source_all_tests_pass_rate": 0.562,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7126,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "a5dce620b2b40d4551f11d8a18f2cbaf141e425b47fa11d948a699fc501a3b75",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "0d9417c1d295f8cc6a0614b4cc06a3a512b0bbc9298451232cb087dfe761065a",
+        "token_weighting": "edit",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C11_EED_EDIT": {
+      "adapter_tree_sha256": "e05ba78e372777e87aec0cb1c51a81d2590e240c5ba72b1e569eb748e15a7dad",
+      "alias": "adaptive_edit",
+      "all_tests_passes": 280,
+      "case_specification": {
+        "goal": "Token-aware Dirichlet extension (NOT the submitted original method)",
+        "id": "C11_EED_EDIT",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX",
+          "GRLz",
+          "kZZR"
+        ],
+        "token": "edit",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.516,
+          0.602
+        ],
+        "estimate": 0.56
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6819999999999997,
+          0.7507999999999996
+        ],
+        "estimate": 0.7162
+      },
+      "source_all_tests_pass_rate": 0.56,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7162,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "2421d08f67704a38f8a2273220ffc40b21dfc54826499f6091452cb2c17b576e",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "9ce8b2002577b5fffba19b763bb2e6f10772f84166370c32045a418bb06dad0c",
+        "token_weighting": "edit",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C12_EED_RANDOM_TOKEN": {
+      "adapter_tree_sha256": "2e68e2d27820d1ed753e7711096b1d54f0ef6f091e1c1e98d5a1863cab532a57",
+      "alias": "adaptive_random",
+      "all_tests_passes": 282,
+      "case_specification": {
+        "goal": "Random positions with same count & normalized weight as C11",
+        "id": "C12_EED_RANDOM_TOKEN",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "original",
+        "reviewers": [
+          "JToX",
+          "GRLz"
+        ],
+        "token": "random",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.52,
+          0.608
+        ],
+        "estimate": 0.564
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6866,
+          0.7562
+        ],
+        "estimate": 0.7218
+      },
+      "source_all_tests_pass_rate": 0.564,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7218,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "1b3e4a9cf43e5f5cb5b10068f6b1e9bfb8fd1909aa1336c70ac05084ba1ed9c7",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "ee24dda501cb8f436300b1032c785058fb988a1f375b49c5d3b148ee00ed9cbf",
+        "token_weighting": "random",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C13_KAPPA8": {
+      "adapter_tree_sha256": "21181eba94a689cbe8619d26382d7d31ab9ae6efffb1344d2886c7a9d6d17c72",
+      "alias": "kappa8",
+      "all_tests_passes": 282,
+      "case_specification": {
+        "goal": "Frozen lexical kernel temperature kappa=8, full downstream optional",
+        "id": "C13_KAPPA8",
+        "kappa": 8,
+        "kind": "train",
+        "priority": 2,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.52,
+          0.608
+        ],
+        "estimate": 0.564
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6821999999999999,
+          0.7507999999999999
+        ],
+        "estimate": 0.7168
+      },
+      "source_all_tests_pass_rate": 0.564,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7168,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "1eda8c664643bc61f99d2fc9ecb873891f7f22fb1874e8b2fda4583574325649",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "4c3b7d40828a409a7e48ad0a2b82caddd33acfdf7bae5a29a09752b27a73b6e0",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C14_KAPPA32": {
+      "adapter_tree_sha256": "60959a62a6c42322ea2377e12a5ecb374c6ae711874163f043397286875f70a9",
+      "alias": "kappa32",
+      "all_tests_passes": 285,
+      "case_specification": {
+        "goal": "Frozen lexical kernel temperature kappa=32, full downstream optional",
+        "id": "C14_KAPPA32",
+        "kappa": 32,
+        "kind": "train",
+        "priority": 2,
+        "relevance_mode": "original",
+        "reviewers": [
+          "GRLz",
+          "JToX"
+        ],
+        "token": "uniform",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.526,
+          0.614
+        ],
+        "estimate": 0.57
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6857999999999999,
+          0.7549999999999993
+        ],
+        "estimate": 0.7206
+      },
+      "source_all_tests_pass_rate": 0.57,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.7206,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "13ac0d32df8837241983783380e46716a70dbbb3353e26184f9f4593f98a893f",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "2d6fa1a915962554570e57a048dc96c098d70bed9cbe813019780daa9e1ad406",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C15_UNIFORM_RELEVANCE": {
+      "adapter_tree_sha256": "9b7cff9e3ce0e5682f8325a6f6fca889d19225d3cf634460dbbf85dd8b788060",
+      "alias": "uniform_relevance",
+      "all_tests_passes": 277,
+      "case_specification": {
+        "goal": "Ablate lexical relevance entirely with uniform public-test relevance while keeping four-state Dirichlet and KL",
+        "id": "C15_UNIFORM_RELEVANCE",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "uniform",
+        "reviewers": [
+          "JToX",
+          "kZZR"
+        ],
+        "token": "uniform",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.51,
+          0.598
+        ],
+        "estimate": 0.554
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.6701999999999998,
+          0.7394
+        ],
+        "estimate": 0.705
+      },
+      "source_all_tests_pass_rate": 0.554,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.705,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "67a50490c7f642e61864b13ba5772e2b1acd07b1c64c4437d52cff80ae778b4a",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "99bb544126018ea8562edf479de6a14721f176a7dbc47013106bd0bde35e439b",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    },
+    "C16_PERMUTED_RELEVANCE": {
+      "adapter_tree_sha256": "d5a16bf6e3ff025a9dbff8fa276749a3d2acd6bf1d3d66b82275e09ba46dab15",
+      "alias": "permuted_relevance",
+      "all_tests_passes": 286,
+      "case_specification": {
+        "goal": "Preserve relevance concentration and its value distribution, shuffle relevance-to-public-test alignment deterministically",
+        "id": "C16_PERMUTED_RELEVANCE",
+        "kappa": 16,
+        "kind": "train",
+        "priority": 1,
+        "relevance_mode": "permuted",
+        "reviewers": [
+          "JToX",
+          "GRLz",
+          "kZZR"
+        ],
+        "token": "uniform",
+        "weight": "adaptive_eed"
+      },
+      "distinct_problem_count": 500,
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.528,
+          0.614
+        ],
+        "estimate": 0.572
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.683,
+          0.7523999999999997
+        ],
+        "estimate": 0.718
+      },
+      "source_all_tests_pass_rate": 0.572,
+      "source_count": 500,
+      "source_mean_test_pass_rate": 0.718,
+      "training": {
+        "dependency_versions": {
+          "bitsandbytes": "0.48.2",
+          "peft": "0.14.0",
+          "torch": "2.8.0a0+5228986c39.nv25.6",
+          "transformers": "5.3.0"
+        },
+        "loss_normalization": "response_tokens",
+        "micro_steps": 2252,
+        "optimizer_steps": 141,
+        "report_sha256": "39a5a867268529afda6e4a06a60b361978a9724c7fa51ac2537d1e1641da3b2a",
+        "response_tokens": 524288,
+        "scheduled_training_trajectories": 149,
+        "scored_input_sha256": "9c626428d5e29aac895eb5fc4d828df595e467db49807cbcd7fde06968dc937f",
+        "token_weighting": "uniform",
+        "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+        "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+      }
+    }
+  },
+  "common_training_parameters": {
+    "alpha": 0.1,
+    "beta": 0.03,
+    "corrections_sha256": "f79105902f32ffd88afcfaa295800e8f4f92177d7f7464a0c049b4871a7d3749",
+    "dependency_versions": {
+      "bitsandbytes": "0.48.2",
+      "peft": "0.14.0",
+      "torch": "2.8.0a0+5228986c39.nv25.6",
+      "transformers": "5.3.0"
+    },
+    "gradient_accumulation": 16,
+    "lambda_penalty": 0.5,
+    "learning_rate": 0.0002,
+    "lora_config": {
+      "alpha_pattern": {},
+      "bias": "none",
+      "fan_in_fan_out": false,
+      "lora_alpha": 32,
+      "lora_dropout": 0.0,
+      "modules_to_save": null,
+      "peft_type": "LORA",
+      "r": 16,
+      "rank_pattern": {},
+      "target_modules": [
+        "down_proj",
+        "gate_proj",
+        "k_proj",
+        "o_proj",
+        "q_proj",
+        "up_proj",
+        "v_proj"
+      ],
+      "task_type": "CAUSAL_LM",
+      "use_dora": false,
+      "use_rslora": false
+    },
+    "loss_normalization": "response_tokens",
+    "max_length": 4608,
+    "max_steps": 200,
+    "micro_steps": 2252,
+    "model_config_sha256": "e037ff922e8cfc3033908efb78c42517c6e83ad03f0c0b700225a7faf6fefbd6",
+    "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "learning_rate": 0.0002,
+      "lr_scheduler": "constant",
+      "max_grad_norm": 1.0,
+      "name": "torch.optim.AdamW",
+      "weight_decay": 0.0
+    },
+    "optimizer_steps": 141,
+    "registry_sha256": "adff8f79fe1d0ef882ff1ac9aaf509c57372e0605480a47f03cd63093cc37e68",
+    "response_token_budget": 524288,
+    "response_tokens": 524288,
+    "revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+    "scheduled_training_trajectories": 149,
+    "scorer_source_sha256": "770dfaa7485d06514db3b5d3e38b3ef5b7dd17407075a5b28c4ef9a608571bf6",
+    "seed": 1701,
+    "shared_init_adapter_tree_sha256": "c6f5cbd0bb5ce37cb0398e0823e39d4e767ad46e9cd6b707864ac21d850f4886",
+    "source_sha256": {
+      "configs/rebuttal/eesd_case_registry.json": "adff8f79fe1d0ef882ff1ac9aaf509c57372e0605480a47f03cd63093cc37e68",
+      "configs/rebuttal/model_dataset_matrix.json": "a9a306fcea2df4df2d9b2218ccd6245ad89d81a7d4215e88e9abe25a656146c1",
+      "docs/EESD_ZERO_WEIGHT_ADOPTION_20260920.md": "580eeb9b8e9d485e04b53febc989d6d3378cbe484c0bb1975cf07c295fa4fec3",
+      "scripts/audit_eesd_token_aware_inputs.py": "85cb766e6980e2e9db0ee8a0d843e0600a3345ac5c4bc1e374aca1c5256a2dc4",
+      "scripts/check_eesd_rebuttal_coverage.py": "50e8efb3cf3db44571dc85d1cab252e52d8118e8ae0308352663c51587d4b359",
+      "scripts/prepare_submitted_dirichlet_rebuttal_weights.py": "770dfaa7485d06514db3b5d3e38b3ef5b7dd17407075a5b28c4ef9a608571bf6",
+      "scripts/run_eesd_rebuttal_case.py": "79fdd23fcbf12d9ef67b8c27fed0b6940b95c4ef30354ff9064d8e8598a08913",
+      "scripts/run_eesd_weighted_sft.py": "092e01f22f869fff8deef6e2916bbe16d5fc339d775aafb41aed57498703f69d",
+      "src/eesd/distillation.py": "f32913a4bf5d085797a6a0ab06e01068b626c66fa7eb784d1aec7713b6d41aa9",
+      "src/eesd/evidence.py": "825dae55d69953aff60fb300fc63a97403259abcf501c3685f21350fd0a6070c",
+      "src/eesd/registry.py": "63527b0ec00fdeb2b78a3c0e8f295f9ba7645701576260d910895c32d89b4679",
+      "src/eesd/shapley_relevance.py": "ac808df234f4fa2cdaef258329a93f212b30cf00b769139fb336a73c4fffa0bd",
+      "src/eesd/token_aware.py": "07f25a2b18c7f4c23b83b2e6aacc1bf4e9d18aa093691639bc5ce79f837c5516",
+      "src/eesd/training_outcomes.py": "e683351f14bdef84c182de09d27d46b516a222c64c4f52c9f1713eb9b4babe28"
+    },
+    "token_edit_boost": 2.0,
+    "token_source_sha256": "07f25a2b18c7f4c23b83b2e6aacc1bf4e9d18aa093691639bc5ce79f837c5516",
+    "trainer_source_sha256": "092e01f22f869fff8deef6e2916bbe16d5fc339d775aafb41aed57498703f69d",
+    "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+    "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+  },
+  "contrasts": {
+    "adaptive_vs_confidence": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C08_CONFIDENCE": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.014000000000000012,
+          0.025999999999999912
+        ],
+        "estimate": 0.006000000000000005
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.014605000000000043,
+          0.016000000000000018
+        ],
+        "estimate": 0.000600000000000267
+      },
+      "source_all_tests_pass_difference": 0.006,
+      "source_fixes": 14,
+      "source_mean_test_pass_rate_difference": 0.0005999999999999998,
+      "source_net_fixes": 3,
+      "source_regressions": 11,
+      "sources_unchanged": 475,
+      "status": "estimated"
+    },
+    "adaptive_vs_constant_mass": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C04_CONSTANT": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.02400000000000002,
+          0.016000000000000014
+        ],
+        "estimate": -0.0040000000000000036
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.01480000000000015,
+          0.017805000000000064
+        ],
+        "estimate": 0.0015999999999999348
+      },
+      "source_all_tests_pass_difference": -0.004,
+      "source_fixes": 12,
+      "source_mean_test_pass_rate_difference": 0.0015999999999999992,
+      "source_net_fixes": -2,
+      "source_regressions": 14,
+      "sources_unchanged": 474,
+      "status": "estimated"
+    },
+    "adaptive_vs_equal_uniform": {
+      "coefficients": {
+        "C01_EQUAL": -1,
+        "C03_EED": 1
+      },
+      "group": "submitted_lexical_eed",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.0040000000000000036,
+          0.04799999999999993
+        ],
+        "estimate": 0.02199999999999991
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.007199999999999873,
+          0.03520000000000023
+        ],
+        "estimate": 0.013800000000000034
+      },
+      "source_all_tests_pass_difference": 0.022,
+      "source_fixes": 27,
+      "source_mean_test_pass_rate_difference": 0.013800000000000002,
+      "source_net_fixes": 11,
+      "source_regressions": 16,
+      "sources_unchanged": 457,
+      "status": "estimated"
+    },
+    "adaptive_vs_final_filter": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C07_FINAL_FILTER": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.008000000000000007,
+          0.028000000000000025
+        ],
+        "estimate": 0.009999999999999898
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.0027999999999999137,
+          0.032400000000000095
+        ],
+        "estimate": 0.017199999999999993
+      },
+      "source_all_tests_pass_difference": 0.01,
+      "source_fixes": 14,
+      "source_mean_test_pass_rate_difference": 0.017200000000000007,
+      "source_net_fixes": 5,
+      "source_regressions": 9,
+      "sources_unchanged": 477,
+      "status": "estimated"
+    },
+    "adaptive_vs_fixed_edit": {
+      "coefficients": {
+        "C10_FIXED_EDIT": -1,
+        "C11_EED_EDIT": 1
+      },
+      "group": "token_extension",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.014000000000000012,
+          0.010000000000000009
+        ],
+        "estimate": -0.0020000000000000018
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.0048000000000000265,
+          0.0122000000000001
+        ],
+        "estimate": 0.0036000000000000476
+      },
+      "source_all_tests_pass_difference": -0.002,
+      "source_fixes": 4,
+      "source_mean_test_pass_rate_difference": 0.0036,
+      "source_net_fixes": -1,
+      "source_regressions": 5,
+      "sources_unchanged": 491,
+      "status": "estimated"
+    },
+    "adaptive_vs_fixed_uniform": {
+      "coefficients": {
+        "C02_FIXED": -1,
+        "C03_EED": 1
+      },
+      "group": "submitted_lexical_eed",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.015999999999999903,
+          0.006000000000000005
+        ],
+        "estimate": -0.0040000000000000036
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.011599999999999947,
+          0.008600000000000163
+        ],
+        "estimate": -0.0014000000000000679
+      },
+      "source_all_tests_pass_difference": -0.004,
+      "source_fixes": 3,
+      "source_mean_test_pass_rate_difference": -0.0014000000000000004,
+      "source_net_fixes": -2,
+      "source_regressions": 5,
+      "sources_unchanged": 492,
+      "status": "estimated"
+    },
+    "adaptive_vs_frozen": {
+      "coefficients": {
+        "C00_FROZEN": -1,
+        "C03_EED": 1
+      },
+      "group": "submitted_lexical_eed",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.006000000000000005,
+          0.039999999999999925
+        ],
+        "estimate": 0.015999999999999903
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.0038000000000001366,
+          0.03600000000000003
+        ],
+        "estimate": 0.015799999999999703
+      },
+      "source_all_tests_pass_difference": 0.016,
+      "source_fixes": 21,
+      "source_mean_test_pass_rate_difference": 0.015799999999999998,
+      "source_net_fixes": 8,
+      "source_regressions": 13,
+      "sources_unchanged": 466,
+      "status": "estimated"
+    },
+    "adaptive_vs_kappa32": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C14_KAPPA32": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.010000000000000009,
+          0.0119999999999999
+        ],
+        "estimate": 0.0
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.005400000000000071,
+          0.011199999999999877
+        ],
+        "estimate": 0.0025999999999998247
+      },
+      "source_all_tests_pass_difference": 0.0,
+      "source_fixes": 4,
+      "source_mean_test_pass_rate_difference": 0.0026,
+      "source_net_fixes": 0,
+      "source_regressions": 4,
+      "sources_unchanged": 492,
+      "status": "estimated"
+    },
+    "adaptive_vs_kappa8": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C13_KAPPA8": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.0020000000000000018,
+          0.014000000000000012
+        ],
+        "estimate": 0.006000000000000005
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.0005999999999999339,
+          0.013799999999999812
+        ],
+        "estimate": 0.00639999999999985
+      },
+      "source_all_tests_pass_difference": 0.006,
+      "source_fixes": 4,
+      "source_mean_test_pass_rate_difference": 0.0064,
+      "source_net_fixes": 3,
+      "source_regressions": 1,
+      "sources_unchanged": 495,
+      "status": "estimated"
+    },
+    "adaptive_vs_no_uncertainty": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C06_NO_UNCERTAINTY": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.020000000000000018,
+          0.0040000000000000036
+        ],
+        "estimate": -0.008000000000000007
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.016600000000000063,
+          0.0024000000000000687
+        ],
+        "estimate": -0.006599999999999939
+      },
+      "source_all_tests_pass_difference": -0.008,
+      "source_fixes": 3,
+      "source_mean_test_pass_rate_difference": -0.0066,
+      "source_net_fixes": -4,
+      "source_regressions": 7,
+      "sources_unchanged": 490,
+      "status": "estimated"
+    },
+    "adaptive_vs_permuted_relevance": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C16_PERMUTED_RELEVANCE": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.019999999999999907,
+          0.015999999999999903
+        ],
+        "estimate": -0.0020000000000000018
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.009199999999999878,
+          0.019799999999999932
+        ],
+        "estimate": 0.005199999999999871
+      },
+      "source_all_tests_pass_difference": -0.002,
+      "source_fixes": 9,
+      "source_mean_test_pass_rate_difference": 0.005199999999999999,
+      "source_net_fixes": -1,
+      "source_regressions": 10,
+      "sources_unchanged": 481,
+      "status": "estimated"
+    },
+    "adaptive_vs_shuffled_mass": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C05_SHUFFLED": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.014000000000000012,
+          0.026000000000000023
+        ],
+        "estimate": 0.006000000000000005
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.003199999999999761,
+          0.032400000000000206
+        ],
+        "estimate": 0.01440000000000008
+      },
+      "source_all_tests_pass_difference": 0.006,
+      "source_fixes": 15,
+      "source_mean_test_pass_rate_difference": 0.014399999999999998,
+      "source_net_fixes": 3,
+      "source_regressions": 12,
+      "sources_unchanged": 473,
+      "status": "estimated"
+    },
+    "adaptive_vs_terminal_eed": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C09_TERMINAL_EED": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.0040000000000000036,
+          0.028000000000000025
+        ],
+        "estimate": 0.0119999999999999
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.0011999999999999789,
+          0.02639999999999998
+        ],
+        "estimate": 0.013399999999999745
+      },
+      "source_all_tests_pass_difference": 0.012,
+      "source_fixes": 11,
+      "source_mean_test_pass_rate_difference": 0.013399999999999999,
+      "source_net_fixes": 6,
+      "source_regressions": 5,
+      "sources_unchanged": 484,
+      "status": "estimated"
+    },
+    "adaptive_vs_uniform_relevance": {
+      "coefficients": {
+        "C03_EED": 1,
+        "C15_UNIFORM_RELEVANCE": -1
+      },
+      "group": "submitted_lexical_eed_control",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          0.0039999999999998925,
+          0.030000000000000027
+        ],
+        "estimate": 0.015999999999999903
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          0.005999999999999894,
+          0.031199999999999894
+        ],
+        "estimate": 0.018199999999999883
+      },
+      "source_all_tests_pass_difference": 0.016,
+      "source_fixes": 10,
+      "source_mean_test_pass_rate_difference": 0.0182,
+      "source_net_fixes": 8,
+      "source_regressions": 2,
+      "sources_unchanged": 488,
+      "status": "estimated"
+    },
+    "equal_vs_frozen": {
+      "coefficients": {
+        "C00_FROZEN": -1,
+        "C01_EQUAL": 1
+      },
+      "group": "submitted_lexical_eed",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.038000000000000034,
+          0.025999999999999912
+        ],
+        "estimate": -0.006000000000000005
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.024400000000000092,
+          0.027800000000000158
+        ],
+        "estimate": 0.0019999999999996687
+      },
+      "source_all_tests_pass_difference": -0.006,
+      "source_fixes": 31,
+      "source_mean_test_pass_rate_difference": 0.0019999999999999987,
+      "source_net_fixes": -3,
+      "source_regressions": 34,
+      "sources_unchanged": 435,
+      "status": "estimated"
+    },
+    "token_edit_vs_random": {
+      "coefficients": {
+        "C11_EED_EDIT": 1,
+        "C12_EED_RANDOM_TOKEN": -1
+      },
+      "group": "token_extension",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.020000000000000018,
+          0.01200000000000001
+        ],
+        "estimate": -0.0039999999999998925
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.018999999999999906,
+          0.006799999999999917
+        ],
+        "estimate": -0.005600000000000049
+      },
+      "source_all_tests_pass_difference": -0.004,
+      "source_fixes": 7,
+      "source_mean_test_pass_rate_difference": -0.005599999999999998,
+      "source_net_fixes": -2,
+      "source_regressions": 9,
+      "sources_unchanged": 484,
+      "status": "estimated"
+    },
+    "token_edit_with_adaptive_mass": {
+      "coefficients": {
+        "C03_EED": -1,
+        "C11_EED_EDIT": 1
+      },
+      "group": "token_extension",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.026000000000000023,
+          0.006000000000000005
+        ],
+        "estimate": -0.009999999999999898
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.01980000000000004,
+          0.0052000000000000934
+        ],
+        "estimate": -0.006999999999999895
+      },
+      "source_all_tests_pass_difference": -0.01,
+      "source_fixes": 6,
+      "source_mean_test_pass_rate_difference": -0.007,
+      "source_net_fixes": -5,
+      "source_regressions": 11,
+      "sources_unchanged": 483,
+      "status": "estimated"
+    },
+    "token_edit_with_fixed_mass": {
+      "coefficients": {
+        "C02_FIXED": -1,
+        "C10_FIXED_EDIT": 1
+      },
+      "group": "token_extension",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.030000000000000027,
+          0.006000000000000005
+        ],
+        "estimate": -0.0119999999999999
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.02760000000000007,
+          0.0034000000000000722
+        ],
+        "estimate": -0.01200000000000001
+      },
+      "source_all_tests_pass_difference": -0.012,
+      "source_fixes": 8,
+      "source_mean_test_pass_rate_difference": -0.011999999999999999,
+      "source_net_fixes": -6,
+      "source_regressions": 14,
+      "sources_unchanged": 478,
+      "status": "estimated"
+    },
+    "token_mass_interaction": {
+      "coefficients": {
+        "C02_FIXED": 1,
+        "C03_EED": -1,
+        "C10_FIXED_EDIT": -1,
+        "C11_EED_EDIT": 1
+      },
+      "group": "token_extension",
+      "problem_mean_all_tests_pass": {
+        "ci95": [
+          -0.013999999999999901,
+          0.017999999999999905
+        ],
+        "estimate": 0.0020000000000000018
+      },
+      "problem_mean_test_pass_rate": {
+        "ci95": [
+          -0.006999999999999678,
+          0.017000000000000126
+        ],
+        "estimate": 0.0050000000000001155
+      },
+      "source_all_tests_pass_difference": 0.002,
+      "source_mean_test_pass_rate_difference": 0.004999999999999999,
+      "status": "estimated"
+    }
+  },
+  "distinct_problem_count": 500,
+  "estimand": "Mean across distinct heldout problems of each problem's mean across its source components. Test-pass rates first average the tests within each source; source-weighted descriptive rates are also reported.",
+  "evaluation_identity": {
+    "domain": "rbr",
+    "evaluation_protocol": "eesd-rebuttal-matched-prospective-v1",
+    "evaluator_tasks_sha256": "db1bc75472b1f3e64c69203abcb48503bd2d7177b781913af78ac7ce7f7bfb11",
+    "execution_lock_sha256": "5801cd871d9b32be9019a8033ccdd32fdc2b1c271cef17cf47729235cae17da5",
+    "execution_profile": "sandbox",
+    "generation_policy": {
+      "candidates": 1,
+      "decode_policy": "greedy",
+      "do_sample": false,
+      "input_tokenization": "rendered chat template; add_special_tokens=False; no truncation",
+      "local_files_only": true,
+      "max_input_tokens": 4096,
+      "max_new_tokens": 1024,
+      "num_beams": 1,
+      "primary_task_policy": "lexicographically first task_id per source; sorted source order",
+      "prompt_policy": "pinned PBPF public task prompts; Gemma system content folded into user",
+      "quantization": {
+        "bnb_4bit_compute_dtype": "bfloat16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true,
+        "load_in_4bit": true
+      },
+      "split": "primary",
+      "task_kind": "repair",
+      "torch_dtype": "bfloat16"
+    },
+    "generator_dependency_versions": {
+      "bitsandbytes": "0.48.2",
+      "peft": "0.14.0",
+      "python": "3.12.3",
+      "torch": "2.8.0a0+5228986c39.nv25.6",
+      "transformers": "5.3.0"
+    },
+    "local_source_hashes": {
+      "/inspire/hdd/global_user/zhangjiaquan-253108540222/baseline/RLVR/configs/rebuttal/model_dataset_matrix.json": "a9a306fcea2df4df2d9b2218ccd6245ad89d81a7d4215e88e9abe25a656146c1",
+      "/inspire/hdd/global_user/zhangjiaquan-253108540222/baseline/RLVR/scripts/run_eesd_rebuttal_matched_evaluation.py": "470565b86defb6f74aa9d6ec562ef493316110a5d47e21a3c09ac871936dd396",
+      "/inspire/hdd/global_user/zhangjiaquan-253108540222/baseline/RLVR/scripts/run_eesd_weighted_sft.py": "092e01f22f869fff8deef6e2916bbe16d5fc339d775aafb41aed57498703f69d",
+      "/inspire/hdd/global_user/zhangjiaquan-253108540222/baseline/RLVR/src/eesd/rebuttal_eval.py": "f2a666243fa4c201dbb4dc1ff7af947d2e9b2b257b8b3b387ac0e44b08028316",
+      "/inspire/hdd/global_user/zhangjiaquan-253108540222/baseline/RLVR/src/eesd/training_outcomes.py": "b56b082a195f41403cb26ff75903b4e755516bfb72173e5df562ee62a89b8696"
+    },
+    "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "model_config_sha256": "e037ff922e8cfc3033908efb78c42517c6e83ad03f0c0b700225a7faf6fefbd6",
+    "original_paper_cell": "runbugrun__qwen25_7b",
+    "pbpf_commit": "0200283849274b49e303638b91f142acd8bba984",
+    "pbpf_source_hashes": {
+      "src/pbpf/apbpf/codearc_bank.py": "cc479620ee4a4922a060be466092a027881f35ab8203cc5b7f9154d7dc29cdfc",
+      "src/pbpf/apbpf/codearc_execution.py": "e55bbd0fc69e2efb847524932dbf0e6ef0a22d8142dc869ca2c655c2b17d21e9",
+      "src/pbpf/apbpf/codearc_materialize.py": "c5a490e9ec630e0fb48ccfadc11999270dd767fcb5f92839908c6124f6feb538",
+      "src/pbpf/apbpf/codearc_prompt.py": "4023efd2fa65ddb3e6b6e1410f303dd4b7d10e9b3118acc7f524ae9deda97a39",
+      "src/pbpf/apbpf/rbr_execution.py": "b7f1dfc3044e9d35364a60b68be3a3355db784ab2cf7ad09b16c8bfda880a659",
+      "src/pbpf/apbpf/rbr_materialize.py": "1be71200ad76edb9686af926ceb21ba210398fcc84ec902d89655368bbefe889",
+      "src/pbpf/apbpf/rbr_prompt.py": "653ddf10aeedf4fedde4d64a84331c144494a51ef31b43a51a94a6b06448769d",
+      "src/pbpf/eesd/replay_admission.py": "453576aeb2be06f7385e61e802a7327bf87b2b2d2ad0686d1dfc056886207e2f",
+      "src/pbpf/eesd/replay_materialization.py": "2b5f2d473ce6332550ee7b758f2d8aa7f831c142ea029331f5c9643cb3520309",
+      "src/pbpf/eesd/replay_prompt.py": "13d2cc7e0fe43992884cc26eebeb39107d8407a4df79bf9c8fb383ca3808112e"
+    },
+    "problem_map_sha256": "6a5057fb3582a4b851b2fa117e9c1435bdf2cdecedf8b36a2232735c8797fa1b",
+    "public_manifest_sha256": "27dda6a6eca39d3f39283196944a4ffe52a5905d6535156991922ba3813912f7",
+    "public_tasks_sha256": "3b1fcc94872c4ae7137e5b709476ba43dd2dbd757f8c2e1d83ad2bdb6c0309fd",
+    "revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+    "shared_init_adapter_tree_sha256": "c6f5cbd0bb5ce37cb0398e0823e39d4e767ad46e9cd6b707864ac21d850f4886",
+    "sources": 500,
+    "task_manifest_sha256": "e03f0bc4f21e91d97d57a6bb4baf81250d3af08769c7212c9858d612973d0336"
+  },
+  "provenance": {
+    "case_receipts": {
+      "C00_FROZEN": {
+        "adapter_tree_sha256": "c6f5cbd0bb5ce37cb0398e0823e39d4e767ad46e9cd6b707864ac21d850f4886",
+        "case_id": "C00_FROZEN",
+        "case_sha256": "72f2ddf26882957ab699c4355311ea3ec19e9ab89e55d2e0cbc418474251aa46",
+        "case_specification": {
+          "goal": "Frozen no-update reference; external evaluator must verify identical test population",
+          "id": "C00_FROZEN",
+          "kappa": 16,
+          "kind": "baseline",
+          "priority": 0,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": null
+        },
+        "collected_sha256": "b89708649a771d05e97114cfb96c4ffd2cac954e7745af7419f229276a55ec72",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "2fef212de0bb5dd5d897f9c2938d785771e03e6d146f1606e1a90da22aa97109",
+        "raw_evaluation_report_sha256": "25eff7c4acfa536d5211dc2fb4c75dc3a2a6321d6d0b9a01f32c97843421899f",
+        "report_file": "frozen.json",
+        "training": null
+      },
+      "C01_EQUAL": {
+        "adapter_tree_sha256": "ec17fc728f1ee4a8850f496b7bd59b03533402f6ec9c7a3183ea54b3f683bb9c",
+        "case_id": "C01_EQUAL",
+        "case_sha256": "6023779be9239547c1a3b0f28e63dec2def4817d441eb5772acc4e5894bd6b17",
+        "case_specification": {
+          "goal": "Equal-weight correction SFT with IDENTICAL forward-KL anchor",
+          "id": "C01_EQUAL",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 0,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX",
+            "kZZR"
+          ],
+          "token": "uniform",
+          "weight": "equal_weight"
+        },
+        "collected_sha256": "07a38368dc57d25d45dbb41475f0233be1d2283fdb9fe52e259159ae3b70d4ef",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "11460e5446237898e22f94287aad2b54d456cc65ba9ad6aef0fd078408f19d5e",
+        "raw_evaluation_report_sha256": "8dde2d68cdaa8c1dbc19115c7b138c3cb7be5454210cc4dcdd967e92b1f79608",
+        "report_file": "equal_uniform.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "f81098afb162bd1f29e6a80f475c59b1ffa93afe642df2a0740b8f13e8c2e57a",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "a25a92c0619aeb8d0cc246df9bc1ba7313e5376a33e73d40f4e3373a7dd67879",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C02_FIXED": {
+        "adapter_tree_sha256": "8d1c69925606428d4bc154507bf6c87de8449e8de8a7c1b93b5b673dee1471b4",
+        "case_id": "C02_FIXED",
+        "case_sha256": "1877bf1ae7c7c1b82b3baeac0d705835c5371904548970cea2d2d05e25a0fea3",
+        "case_specification": {
+          "goal": "Original 4-state Dirichlet, fixed mass n; isolate E(p)",
+          "id": "C02_FIXED",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 0,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "fixed_mass"
+        },
+        "collected_sha256": "27b29d8b32463e504c6af6553dd486a5c1719094fcab6c6290dcaf830b8dcf3f",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "640d4a1f1dd5756ab7651c85e2635c7c3300b862faf6fdbde69b9ed68828ea57",
+        "raw_evaluation_report_sha256": "fe25adf60ecaf8d1821f20d193bd3c971abe7c5ba795c15f68d09e604c6d1e09",
+        "report_file": "fixed_uniform.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "c087ce08acef2cef1222e35a4f1896010dda603d3fd07737c3b6c3f28d63f1a7",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "65b75f6d0fe7d934f27f9e94dfb9da5d83b3139cc2d89ad568bdccdcb1151631",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C03_EED": {
+        "adapter_tree_sha256": "f071648512391808958a7470c1621bc67d15094b02d9b91c1b6bc924267f4663",
+        "case_id": "C03_EED",
+        "case_sha256": "f925a9a1694e834cb1ad57f50f37a94d7c80466a80e3a0700364b5f93a62a36d",
+        "case_specification": {
+          "goal": "Submitted original adaptive EED + KL; correction-level supervision",
+          "id": "C03_EED",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 0,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "3b3da2e9cbf74e1cd5c3e4bc6569faf716bc5cceeab60e18890236daaed689e9",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "c6cd7f26a8808a21605f32f0c80163a4df3817aa464b01156a3c6d7cef67c32c",
+        "raw_evaluation_report_sha256": "1415a27a8253312873f2815ea1c128d94c03cb58a0f2afd67327fcb71a9b4e58",
+        "report_file": "adaptive_uniform.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "dd1129d4279a2fbff2aadb2f95c69e4c7353840584ae76e9b0e7f13b21c19e7a",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "ecdd5200f63f2bde6864a84ef12287906447a70e7e3f1697a3025a19a3df3542",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C04_CONSTANT": {
+        "adapter_tree_sha256": "6a9d24cfef269c7e124698e5cdc6bc26af08fcb2ab1fc2941a53a0dcb2331d6e",
+        "case_id": "C04_CONSTANT",
+        "case_sha256": "ebfb6087a0de4040e437eba9cb0e1560d22e427864b41af9870445bf6909a9a0",
+        "case_specification": {
+          "goal": "Equal mean CE coefficient without per-correction adaptation",
+          "id": "C04_CONSTANT",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz"
+          ],
+          "token": "uniform",
+          "weight": "constant_mass_matched"
+        },
+        "collected_sha256": "118956fcb1cbb7109722467edb775ffbe941dda5d8c9e60d5be417eb1ff55ace",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "5b52c93769456901ef6f54a2fa136d375abd8c30e41e377c391bec0959236656",
+        "raw_evaluation_report_sha256": "fca71e59dccdb884ace83d3ed27c69591138200ed2d76b4e28b90d0a2adb1f4c",
+        "report_file": "constant_mass.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "7a6f731ccac6f547d5f0700f2b152fd878ff8bcfcd82760e212abf4dac53239c",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "36466873111ee0c3ce65c866d50ef5b3aaee77e216057a0563403e37df7f930d",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C05_SHUFFLED": {
+        "adapter_tree_sha256": "b927b24b961722dd2c7b588f8165a9b42d08cf3a75bba640454a0922ef4191f7",
+        "case_id": "C05_SHUFFLED",
+        "case_sha256": "575c8e40f916d88c070928b4cb301034cf3089ee8047ec5e650162bc492467d3",
+        "case_specification": {
+          "goal": "Same training weights, randomly reassigned to corrections",
+          "id": "C05_SHUFFLED",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "shuffled_eed"
+        },
+        "collected_sha256": "c5e5b5574b9367128353c4ce4530749d0f6f11b77d7d97811f19745c95510bcf",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "a84389dd70291db8d143de4f5c0778f4c2a4121e6d9b937b8453c82c36929875",
+        "raw_evaluation_report_sha256": "9b8e6ee03b55d6126cd57bb06f1e8c57bad5bac04ce1d2d150445f3bd2718797",
+        "report_file": "shuffled_mass.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "ee6abff4ad76b39cc18116560f413ec44d22ec1f5af0df300c24ddd83b7f83b3",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "7c504bd0aedf8e04a19bd87ca2f8dca9fb51286fa73fd045fdbac3a11fbca3e9",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C06_NO_UNCERTAINTY": {
+        "adapter_tree_sha256": "a8776fad5488f9b6e8b4b2fd0cb83daced45dae114e3d0209427cc53c4f51a68",
+        "case_id": "C06_NO_UNCERTAINTY",
+        "case_sha256": "966ec4b47a2faa98003b223d9b386ec4d75e9f48441f7a67fb8f9e430edf7da9",
+        "case_specification": {
+          "goal": "Remove lambda*SD while keeping adaptive mass and KL",
+          "id": "C06_NO_UNCERTAINTY",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX",
+            "GRLz"
+          ],
+          "token": "uniform",
+          "weight": "eed_no_uncertainty"
+        },
+        "collected_sha256": "321ecfe5b3e05deb5acd48c128a6938accbf76a911b2baa05b6043e929b183b9",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "75c86e811109cfe6c09a4e6177ddab748454503f55b3ca6788f1a9b0a18fec02",
+        "raw_evaluation_report_sha256": "69aa107de40b4562991c74c548a3eba9a8444115d7e114ca9b8c5eceb8ad3c55",
+        "report_file": "no_uncertainty.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "a64f9d3dbf8b71644decbc0e3ff934e0e1d276df8c60a75563087e767f4447a4",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "17cae766f3ffe87fdd6c49dfd62e247fdf48c1ce2748cea1e02dd2283e6e5527",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C07_FINAL_FILTER": {
+        "adapter_tree_sha256": "6a149d82e886b8aa99f60700cbebf2c4c030a9f0cfce2fd02930eec25a8cf860",
+        "case_id": "C07_FINAL_FILTER",
+        "case_sha256": "fd660f43f494a3a2263b6c9f33e920986489b6e3e45640c4048cae81a0247a06",
+        "case_specification": {
+          "goal": "Only fully passing post-correction public programs get CE weight",
+          "id": "C07_FINAL_FILTER",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "final_correctness"
+        },
+        "collected_sha256": "90d6327952d204b6fbdfc9bc139d3b9d44f9072f25b42527449c3f11733ed5d6",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "5a11cfaa4f7fef46ecb62757b4f4750955728dd95675d30458082b261cf5c032",
+        "raw_evaluation_report_sha256": "3fe2a51b63cb6e5acd58ccc0aa16e2c9787ad5bc96eadcb1e3e2b592bb56a2d6",
+        "report_file": "final_filter.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "420d19b2cda761e8dbc3d0023ebe823d3289dca6bcf71ad1df79be156a1a2b12",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "4d6e58af48d08948a69e42612fec6ca350c0c8f04f66d555cc130496392b5235",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C08_CONFIDENCE": {
+        "adapter_tree_sha256": "0de5c1237713580abbe28694939f3fd905f6da01a17910bb074bf4734be0ffb3",
+        "case_id": "C08_CONFIDENCE",
+        "case_sha256": "fa9824015f544eaf5342ede5b0332d0d43a93da0e209d3ebc208bb867ca78882",
+        "case_specification": {
+          "goal": "Weight by final public pass fraction; tests simple outcome confidence",
+          "id": "C08_CONFIDENCE",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX",
+            "kZZR"
+          ],
+          "token": "uniform",
+          "weight": "scalar_confidence"
+        },
+        "collected_sha256": "ce684489481b9a8bfe64c3ede663f3b51e801a353332f7a9255cf6a3ba6c19c2",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "30fc36132d422ea2d2322ee5421ecacb160e4cdbe91d05fe962b05a52e4596df",
+        "raw_evaluation_report_sha256": "ec7508121bda909375a19b050f8430074d303e4d3bd1d93615c471a716ac6540",
+        "report_file": "confidence.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "37c9a57f9999fbf52228c9a91162872f424599dd2359e2797db9d30cff9ec5f1",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "f79764e7105354dc488b481a62c0c00fe83ded9df311cb755306ac35ca204252",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C09_TERMINAL_EED": {
+        "adapter_tree_sha256": "8a519eac57bfacaeb1e1f6ec56a8ec6a31492c9b69d6490c8622bd4df20db569",
+        "case_id": "C09_TERMINAL_EED",
+        "case_sha256": "38b24beb03ab817b35a6856b129b43de38e0cf4daa01c242bcef317985b4cb16",
+        "case_specification": {
+          "goal": "Reviewer-motivated terminal quality gate w_EED*post-pass fraction",
+          "id": "C09_TERMINAL_EED",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "eed_terminal_quality"
+        },
+        "collected_sha256": "aedaf0924c78545b5ee9cf9eb705e64f56f9684ac3323ad5d754c95b32d35c16",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "c4bd572aab0e710d31dafc3d5ce9353d5eb8d74ac1a603477407167ecbbc4836",
+        "raw_evaluation_report_sha256": "01a14b5ad04e6923d70a3948ab2280e9528793f112dd0014f0b2a0fc07d5c05b",
+        "report_file": "terminal_eed.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "f1bd948f7106a41a0de86098cb75bfed0cd9322f6eb24ae45e93d9182f7abf18",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "68af109e8a4829e417f5da433b1c48c0805155751ed43a13261ede8eafad3a22",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C10_FIXED_EDIT": {
+        "adapter_tree_sha256": "2517006c78071705d3af46f41363cea655c6e454e104344589ebd607973905eb",
+        "case_id": "C10_FIXED_EDIT",
+        "case_sha256": "c5af09db0e3dd5db2e1d62a1565e497bd82945885abe14ff1714254ec94fd35e",
+        "case_specification": {
+          "goal": "Fixed Dirichlet with changed-token credit; independent granularity main effect",
+          "id": "C10_FIXED_EDIT",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX",
+            "GRLz"
+          ],
+          "token": "edit",
+          "weight": "fixed_mass"
+        },
+        "collected_sha256": "87f32c5a0a1449092735ab2f8db09d24f95d3f6dbef08606be05a7e8213296f0",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "3bc93ceb824f2f7dcaf16376b88b7345a122f8d41338a0c85bc5ddaccbdff3fd",
+        "raw_evaluation_report_sha256": "7bd4f1b433fb3e282a93705f3cd9141a73a93d1b24b6641e78f9cd1907e40352",
+        "report_file": "fixed_edit.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "a5dce620b2b40d4551f11d8a18f2cbaf141e425b47fa11d948a699fc501a3b75",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "0d9417c1d295f8cc6a0614b4cc06a3a512b0bbc9298451232cb087dfe761065a",
+          "token_weighting": "edit",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C11_EED_EDIT": {
+        "adapter_tree_sha256": "e05ba78e372777e87aec0cb1c51a81d2590e240c5ba72b1e569eb748e15a7dad",
+        "case_id": "C11_EED_EDIT",
+        "case_sha256": "35444be4ebf87bf3ef4e321e09bd638e3148eed98c32c959263d9f65d9218edc",
+        "case_specification": {
+          "goal": "Token-aware Dirichlet extension (NOT the submitted original method)",
+          "id": "C11_EED_EDIT",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX",
+            "GRLz",
+            "kZZR"
+          ],
+          "token": "edit",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "39471d05d45ffa732c95d9957c2606e220883d394a880fcc073e9d914ad1b19d",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "25f0f7e6958be4c4d633cd9bbb39e76f13532bc4af9bae00880b5900677a1bc9",
+        "raw_evaluation_report_sha256": "406cf3c4ef86c6227f4d767182308c184fc084bc1b4115a16c3a9e6f2c9c7bad",
+        "report_file": "adaptive_edit.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "2421d08f67704a38f8a2273220ffc40b21dfc54826499f6091452cb2c17b576e",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "9ce8b2002577b5fffba19b763bb2e6f10772f84166370c32045a418bb06dad0c",
+          "token_weighting": "edit",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C12_EED_RANDOM_TOKEN": {
+        "adapter_tree_sha256": "2e68e2d27820d1ed753e7711096b1d54f0ef6f091e1c1e98d5a1863cab532a57",
+        "case_id": "C12_EED_RANDOM_TOKEN",
+        "case_sha256": "6cff994129c89809e5d3efa20c0dcff71626f8f5e77d24516091f2cc1be83d51",
+        "case_specification": {
+          "goal": "Random positions with same count & normalized weight as C11",
+          "id": "C12_EED_RANDOM_TOKEN",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "original",
+          "reviewers": [
+            "JToX",
+            "GRLz"
+          ],
+          "token": "random",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "9ba3531bce69a78a7eb93b2a52a9d64fa779bc82ee7679b68d8cf41435bb4870",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "7ba6f1a152430d19c2cc52f29522b1d008704847e77ae98144cff07f8af2856e",
+        "raw_evaluation_report_sha256": "f74e751006acc9ffea71d8ca064ab0a6e5c94a068ea3b4d8f48e5fe62981be86",
+        "report_file": "adaptive_random.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "1b3e4a9cf43e5f5cb5b10068f6b1e9bfb8fd1909aa1336c70ac05084ba1ed9c7",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "ee24dda501cb8f436300b1032c785058fb988a1f375b49c5d3b148ee00ed9cbf",
+          "token_weighting": "random",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C13_KAPPA8": {
+        "adapter_tree_sha256": "21181eba94a689cbe8619d26382d7d31ab9ae6efffb1344d2886c7a9d6d17c72",
+        "case_id": "C13_KAPPA8",
+        "case_sha256": "73606146c1d9ac67a9f38746c90eeb4bdb9ba1c818b101a2f00e038701c3442b",
+        "case_specification": {
+          "goal": "Frozen lexical kernel temperature kappa=8, full downstream optional",
+          "id": "C13_KAPPA8",
+          "kappa": 8,
+          "kind": "train",
+          "priority": 2,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "47243b178dfbb060401cc996f3cd3e831c9a4d6d43e11e74d811b689ab2094f6",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "284f4398363d5e158128900f802384580efc137f18c435a9142f9bebd8aedb31",
+        "raw_evaluation_report_sha256": "b961fd0e28d5e1e04da9b810dfafe36d49aaefba3ed4db2ee383a9363a1eee56",
+        "report_file": "kappa8.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "1eda8c664643bc61f99d2fc9ecb873891f7f22fb1874e8b2fda4583574325649",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "4c3b7d40828a409a7e48ad0a2b82caddd33acfdf7bae5a29a09752b27a73b6e0",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C14_KAPPA32": {
+        "adapter_tree_sha256": "60959a62a6c42322ea2377e12a5ecb374c6ae711874163f043397286875f70a9",
+        "case_id": "C14_KAPPA32",
+        "case_sha256": "f0249cf1d48114fe5a5e70b01a500c8025beb1038650e7324f15004530a9502a",
+        "case_specification": {
+          "goal": "Frozen lexical kernel temperature kappa=32, full downstream optional",
+          "id": "C14_KAPPA32",
+          "kappa": 32,
+          "kind": "train",
+          "priority": 2,
+          "relevance_mode": "original",
+          "reviewers": [
+            "GRLz",
+            "JToX"
+          ],
+          "token": "uniform",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "14ce7d6d2e3bcb113d9ec6e6d749cfd94c91b5f15258cc03e8bc3e9581161bee",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "a2c0b811d7fc921d2d64450dafd33f37856f44c2961966b5bf03cf354e692b46",
+        "raw_evaluation_report_sha256": "647360c8f8871a27e69b5a807d8eb76a56d5df6ef5fea52e80a1af5b6a18b438",
+        "report_file": "kappa32.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "13ac0d32df8837241983783380e46716a70dbbb3353e26184f9f4593f98a893f",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "2d6fa1a915962554570e57a048dc96c098d70bed9cbe813019780daa9e1ad406",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C15_UNIFORM_RELEVANCE": {
+        "adapter_tree_sha256": "9b7cff9e3ce0e5682f8325a6f6fca889d19225d3cf634460dbbf85dd8b788060",
+        "case_id": "C15_UNIFORM_RELEVANCE",
+        "case_sha256": "d2e28a049306c8e3bc3c84bbc341235e3413da1c77c8896e9e1275a3fa6cdd54",
+        "case_specification": {
+          "goal": "Ablate lexical relevance entirely with uniform public-test relevance while keeping four-state Dirichlet and KL",
+          "id": "C15_UNIFORM_RELEVANCE",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "uniform",
+          "reviewers": [
+            "JToX",
+            "kZZR"
+          ],
+          "token": "uniform",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "c430be82a672d603f1ce7a45e81ea06205317d4aa61368e7d949d009ff4ecfb3",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "e1f7bf2b4844e81bac94ebd8ab3c2f240957d1d8d991109f0a470d597309688c",
+        "raw_evaluation_report_sha256": "4631f00b6a51b8714052a987632fea90ddabf83fe27cc2f3fb506bd3ed40d0b7",
+        "report_file": "uniform_relevance.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "67a50490c7f642e61864b13ba5772e2b1acd07b1c64c4437d52cff80ae778b4a",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "99bb544126018ea8562edf479de6a14721f176a7dbc47013106bd0bde35e439b",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      },
+      "C16_PERMUTED_RELEVANCE": {
+        "adapter_tree_sha256": "d5a16bf6e3ff025a9dbff8fa276749a3d2acd6bf1d3d66b82275e09ba46dab15",
+        "case_id": "C16_PERMUTED_RELEVANCE",
+        "case_sha256": "055f5573ce4b3636d6eeb6520a340883a2b029a65ece43254af1699502bf90be",
+        "case_specification": {
+          "goal": "Preserve relevance concentration and its value distribution, shuffle relevance-to-public-test alignment deterministically",
+          "id": "C16_PERMUTED_RELEVANCE",
+          "kappa": 16,
+          "kind": "train",
+          "priority": 1,
+          "relevance_mode": "permuted",
+          "reviewers": [
+            "JToX",
+            "GRLz",
+            "kZZR"
+          ],
+          "token": "uniform",
+          "weight": "adaptive_eed"
+        },
+        "collected_sha256": "d4d5f445dff98b9a6b3e23a389f0a7464048f468ac569324b13566f4c2070dad",
+        "data_provenance_sha256": "071bc1e39109f5e55c0bd5e7d4313776b389f7f8ecc668359a3e5412a5f5613c",
+        "evaluation_plan_sha256": "5b747ea62420285eca7fcd9a997dd9e102cf8d7141671e7ea587041b82d9700f",
+        "raw_evaluation_report_sha256": "3bc97cb7eec6f6dd2cb3a456a1a7988b46877427becb599b554d7f0885127bb6",
+        "report_file": "permuted_relevance.json",
+        "training": {
+          "dependency_versions": {
+            "bitsandbytes": "0.48.2",
+            "peft": "0.14.0",
+            "torch": "2.8.0a0+5228986c39.nv25.6",
+            "transformers": "5.3.0"
+          },
+          "loss_normalization": "response_tokens",
+          "micro_steps": 2252,
+          "optimizer_steps": 141,
+          "report_sha256": "39a5a867268529afda6e4a06a60b361978a9724c7fa51ac2537d1e1641da3b2a",
+          "response_tokens": 524288,
+          "scheduled_training_trajectories": 149,
+          "scored_input_sha256": "9c626428d5e29aac895eb5fc4d828df595e467db49807cbcd7fde06968dc937f",
+          "token_weighting": "uniform",
+          "training_schedule_schema": "eesd-scheduled-response-tokens-v1",
+          "training_schedule_sha256": "5e3d0b9d1a7db73fbb7b081dde744709b1e1dce3b42be06ad0612dd2c56ab0b5"
+        }
+      }
+    },
+    "collection_manifest_sha256": "dc343532cecc8bc967b7cf333236d1a855ce7557c137f91574c85233414996cf",
+    "corrections_sha256": "f79105902f32ffd88afcfaa295800e8f4f92177d7f7464a0c049b4871a7d3749",
+    "problem_map_sha256": "6a5057fb3582a4b851b2fa117e9c1435bdf2cdecedf8b36a2232735c8797fa1b"
+  },
+  "schema": "eesd-iclr2027-case-heldout-paired-summary-v1",
+  "source_count": 500,
+  "status": "existing_heldout_outcomes_summarized_no_new_generation",
+  "study": "runbugrun__qwen25_7b",
+  "training_seed": 1701,
+  "uncertainty": {
+    "confidence_level": 0.95,
+    "degenerate_single_problem": false,
+    "draws": 10000,
+    "method": "paired problem-cluster percentile bootstrap",
+    "multiplicity": "Intervals are descriptive and unadjusted across the named contrasts.",
+    "scope": "Intervals are conditional on these fitted models, their training seed, and the preserved heldout population. They do not estimate variability from retraining or establish exact historical replication.",
+    "seed": 314159
+  }
+}

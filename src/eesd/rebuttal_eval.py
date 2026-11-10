@@ -826,9 +826,16 @@ def generate(case):
                                         quantization_config=quantization, device_map={'': 0}, torch_dtype=torch.bfloat16)
     adapter_config = read_json(Path(plan['adapter_path']) / 'adapter_config.json')
     if plan['family'] == 'gemma3_4b':
-        available = {name for name, _ in base.named_modules()}
-        if any(target not in available for target in adapter_config['target_modules']):
-            raise ValueError('Gemma adapter targets do not match this transformers layout; use the training environment')
+        # PEFT 0.14 saves canonical target names (language_model.layers.*,
+        # base-relative layer names, bare shared projections) that are not
+        # literal members of the transformers 5.x module tree; PeftModel maps
+        # them at load time. Validate against the pinned text decoder layout
+        # patterns instead of literal module membership.
+        from eesd.training_outcomes import gemma_text_lora_targets
+        targets = adapter_config.get('target_modules')
+        if (not isinstance(targets, list) or not targets
+                or gemma_text_lora_targets(targets) != sorted(set(targets))):
+            raise ValueError('Gemma adapter targets do not match a pinned text decoder layout')
     model = PeftModel.from_pretrained(base, plan['adapter_path'], is_trainable=False,
                                      local_files_only=True, autocast_adapter_dtype=False)
     adapter_audit = _verify_loaded_adapter(model, plan['adapter_path'], torch)

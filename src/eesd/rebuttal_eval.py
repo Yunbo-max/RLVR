@@ -897,7 +897,19 @@ def _evaluate_candidate(payload):
         executor_test = dict(test)
         if plan['domain'].endswith('_replay'):
             executor_test['expected'] = test['output']
-        result = execute(candidate['program'], executor_test, timeout=plan['timeout_seconds'])
+        try:
+            result = execute(candidate['program'], executor_test, timeout=plan['timeout_seconds'])
+        except MemoryError as error:
+            if 'too complex to parse' not in str(error):
+                raise
+            # 环境修正:pinned 评分器用 ast.literal_eval 比较字典输出,候选生成
+            # 的病态嵌套字面量会打爆 Python 3.12 解析栈(MemoryError)。解析
+            # 失败意味着输出不等于期望 → 与解析成功但不匹配同语义,记为
+            # WRONG_OUTPUT(带 parse_overflow_recorded 标记,可审计)。
+            result = {'outcome': 'WRONG_OUTPUT', 'stdout': '', 'returncode': None,
+                      'timed_out': False, 'stdout_truncated': False,
+                      'stderr': 'pinned scorer parse overflow on candidate output; recorded as WRONG_OUTPUT',
+                      'parse_overflow_recorded': True}
         _infrastructure_check(result)
         results.append(dict(result, test_id=test['id'], hidden=index >= 4))
     if any(result['outcome'] != 'PASS' for result in results):

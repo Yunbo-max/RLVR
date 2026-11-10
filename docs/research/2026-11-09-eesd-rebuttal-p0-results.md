@@ -99,3 +99,36 @@ All other contrasts straddle zero.
 - Replay cells: blocked (train-reserve re-materialization is a separate
   upstream pipeline).
 - Seeds 1702/1703: after the 1701 gates.
+
+---
+
+## codearc__gemma3_4b (CodeARC / Gemma-3-4B) — added 2026-11-10
+
+Problem-mean all-tests-pass (95% CI), N=500:
+
+| Arm | Estimate | CI |
+|---|---|---|
+| C00 frozen baseline | 11.4% | [8.6, 14.2] |
+| C01 equal weight | **1.4%** | [0.4, 2.6] |
+| C02 fixed-mass Dirichlet | 11.6% | [8.8, 14.6] |
+| C03 adaptive EED (submitted) | 10.8% | [8.0, 13.6] |
+| C04 constant mass | 11.8% | [9.0, 14.6] |
+| C05 shuffled weights | 11.0% | [8.4, 13.8] |
+| C06 lambda=0 | 11.4% | [8.6, 14.2] |
+| C07 final-filter only | **4.2%** | [2.6, 6.0] |
+| C08 confidence | 12.2% | [9.4, 15.2] |
+| C09 terminal EED | 12.0% | [9.2, 14.8] |
+| C10–C12 token arms | 11.4% each | [8.6, 14.2] |
+| C13 kappa=8 / C14 kappa=32 | 12.2% / 11.0% | — |
+| C15 uniform relevance | 11.8% | [9.0, 14.6] |
+| C16 permuted relevance | 12.4% | [9.6, 15.4] |
+
+Key contrasts: **C03−C01 = +9.4pp [+6.6, +12.2] (equal-weight training
+collapses the model: 1.4% vs 11.4% frozen)**; C03−C07 = +6.6pp [+4.2, +9.0]
+(final-filter also destructive); C03−C02 = −0.8pp [−2.8, +1.0] (adaptive vs
+fixed still null); C03−C00 = −0.6pp [−2.6, +1.4] (no gain over frozen).
+
+Interpretation: on Gemma/CodeARC the evidence weighting's protective effect is
+large and significant — uniform-weight correction training destroys the
+policy, EED-weighted arms (fixed and adaptive alike) preserve the frozen
+baseline. The adaptive-vs-fixed distinction remains undetectable.

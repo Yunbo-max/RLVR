@@ -1,77 +1,0 @@
-=== START Sat Oct 24 23:04:52 UTC 2026 ===
-=== downloading Qwen/Qwen2.5-Coder-7B-Instruct (model) @ c03e6d358207e414f1eca0bb1891e29f1db0e242 Sat Oct 24 23:04:52 UTC 2026 ===
-Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py:722: UserWarning: Not enough free disk space to download the file. The expected file size is: 4877.66 MB. The target location /inspire/hdd/global_user/zhangjiaquan-253108540222/hf_cache/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/blobs only has 4479.52 MB free disk space.
-  warnings.warn(
-/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py:722: UserWarning: Not enough free disk space to download the file. The expected file size is: 4932.75 MB. The target location /inspire/hdd/global_user/zhangjiaquan-253108540222/hf_cache/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/blobs only has 4479.52 MB free disk space.
-  warnings.warn(
-Fetching 14 files:   7%|▋         | 1/14 [00:00<00:09,  1.34it/s]Fetching 14 files:  14%|█▍        | 2/14 [00:00<00:05,  2.34it/s]Fetching 14 files:  43%|████▎     | 6/14 [00:02<00:03,  2.16it/s]=== START Sat Oct 24 23:12:32 UTC 2026 ===
-=== downloading Qwen/Qwen2.5-Coder-7B-Instruct (model) @ c03e6d358207e414f1eca0bb1891e29f1db0e242 Sat Oct 24 23:12:32 UTC 2026 ===
-A new version of huggingface_hub (2.3.0) is available! You are using version 1.6.0.
-To update, run: pip install -U huggingface_hub
-
-Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:   7%|▋         | 1/14 [00:00<00:07,  1.63it/s]Fetching 14 files:  21%|██▏       | 3/14 [00:00<00:02,  4.97it/s]Fetching 14 files:  43%|████▎     | 6/14 [00:01<00:01,  5.50it/s]Fetching 14 files:  43%|████▎     | 6/14 [15:32<20:42, 155.34s/it]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py", line 1842, in _download_to_tmp_and_move
-    http_get(
-  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
-    return fn(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py", line 415, in http_get
-    temp_file.write(chunk)
-OSError: [Errno 122] Disk quota exceeded
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/usr/local/bin/hf", line 8, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/cli/hf.py", line 114, in main
-    app()
-  File "/usr/local/lib/python3.12/dist-packages/typer/main.py", line 341, in __call__
-    raise e
-  File "/usr/local/lib/python3.12/dist-packages/typer/main.py", line 324, in __call__
-    return get_command(self)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/click/core.py", line 1442, in __call__
-    return self.main(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/typer/core.py", line 757, in main
-    return _main(
-           ^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/typer/core.py", line 195, in _main
-    rv = self.invoke(ctx)
-         ^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/click/core.py", line 1830, in invoke
-    return _process_result(sub_ctx.command.invoke(sub_ctx))
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/click/core.py", line 1226, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/click/core.py", line 794, in invoke
-    return callback(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-object address  : 0x7f6034340440
-object refcount : 5
-object type     : 0xa34e80
-
-Fetching 14 files:  50%|█████     | 7/14 [26:52<42:30, 364.36s/it]Fetching 14 files:  57%|█████▋    | 8/14 [32:42<36:05, 360.97s/it]Fetching 14 files:  64%|██████▍   | 9/14 [39:32<31:07, 373.58s/it]Fetching 14 files: 100%|██████████| 14/14 [39:32<00:00, 169.46s/it]
-/inspire/qb-ilm2/project/multimodal-diffusion-language-model/zhangjiaquan-253108540222/global_user_mirror/hf_cache_eesd/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/snapshots/c03e6d358207e414f1eca0bb1891e29f1db0e242
-=== done Qwen/Qwen2.5-Coder-7B-Instruct exit=0 Sat Oct 24 23:52:09 UTC 2026 ===
-=== downloading deepseek-ai/deepseek-coder-6.7b-instruct (model) @ e5d64addd26a6a1db0f9b863abf6ee3141936807 Sat Oct 24 23:52:09 UTC 2026 ===
-Fetching 13 files:   0%|          | 0/13 [00:00<?, ?it/s]Fetching 13 files:   8%|▊         | 1/13 [00:00<00:09,  1.26it/s]Fetching 13 files:  15%|█▌        | 2/13 [00:00<00:04,  2.37it/s]Fetching 13 files:  31%|███       | 4/13 [00:01<00:03,  2.57it/s]Fetching 13 files:  46%|████▌     | 6/13 [39:07<1:04:40, 554.41s/it]Fetching 13 files:  69%|██████▉   | 9/13 [43:23<21:13, 318.35s/it]  Fetching 13 files: 100%|██████████| 13/13 [43:23<00:00, 200.25s/it]
-/inspire/qb-ilm2/project/multimodal-diffusion-language-model/zhangjiaquan-253108540222/global_user_mirror/hf_cache_eesd/hub/models--deepseek-ai--deepseek-coder-6.7b-instruct/snapshots/e5d64addd26a6a1db0f9b863abf6ee3141936807
-=== done deepseek-ai/deepseek-coder-6.7b-instruct exit=0 Sun Oct 25 00:35:33 UTC 2026 ===
-=== downloading google/gemma-3-4b-it (model) @ 093f9f388b31de276ce2de164bdc2081324b9767 Sun Oct 25 00:35:33 UTC 2026 ===
-Fetching 15 files:   0%|          | 0/15 [00:00<?, ?it/s]Fetching 15 files:   7%|▋         | 1/15 [00:00<00:07,  1.78it/s]Fetching 15 files:  13%|█▎        | 2/15 [00:00<00:04,  2.86it/s]Fetching 15 files:  27%|██▋       | 4/15 [00:01<00:05,  2.10it/s]Fetching 15 files:  47%|████▋     | 7/15 [20:31<31:22, 235.25s/it]Fetching 15 files: 100%|██████████| 15/15 [20:31<00:00, 82.13s/it]
-/inspire/qb-ilm2/project/multimodal-diffusion-language-model/zhangjiaquan-253108540222/global_user_mirror/hf_cache_eesd/hub/models--google--gemma-3-4b-it/snapshots/093f9f388b31de276ce2de164bdc2081324b9767
-=== done google/gemma-3-4b-it exit=0 Sun Oct 25 00:56:07 UTC 2026 ===
-=== downloading giganticode/run_bug_run (dataset) @ 374251a9d65410f37e1136049cb7ff5dcca3d0ae Sun Oct 25 00:56:07 UTC 2026 ===
-Error: Dataset 'giganticode/run_bug_run' not found. If the repo is private, make sure you are authenticated.
-[90mSet HF_DEBUG=1 as environment variable for full traceback.[0m
-=== done giganticode/run_bug_run exit=1 Sun Oct 25 00:56:08 UTC 2026 ===
-=== downloading Anjiang-Wei/CodeARC (dataset) @ 0e26d76e602a07a21b114fadd325f92c9da875e9 Sun Oct 25 00:56:08 UTC 2026 ===
-Error: Dataset 'Anjiang-Wei/CodeARC' not found. If the repo is private, make sure you are authenticated.
-[90mSet HF_DEBUG=1 as environment variable for full traceback.[0m
-=== done Anjiang-Wei/CodeARC exit=1 Sun Oct 25 00:56:09 UTC 2026 ===
-=== ALL DONE Sun Oct 25 00:56:09 UTC 2026 ===

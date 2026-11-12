@@ -1,0 +1,23 @@
+# Official SDPO 7c457fc, WSL x86_64 Blackwell runtime.
+# NumPy 1.26.4 satisfies upstream setup.py (<2); upstream requirements.txt's
+# NumPy 2.1.0 conflicts with that metadata. vLLM 0.12.0 requires Torch 2.9.0.
+vllm==0.12.0
+torch==2.9.0
+transformers==4.57.1
+peft==0.18.0
+numpy==1.26.4
+datasets==4.4.2
+ray[default]==2.53.0
+hydra-core==1.3.2
+tensordict==0.10.0
+torchdata==0.11.0
+accelerate==1.12.0
+codetiming==1.4.0
+pylatexenc==2.10
+wandb==0.23.1
+tensorboard==2.20.0
+pytest==8.4.2
+pandas==2.3.3
+pyarrow==22.0.0
+psutil==7.1.3
+pybind11==3.0.1

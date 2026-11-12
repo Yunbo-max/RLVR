@@ -1,95 +1,90 @@
-# EESD: Effective-Evidence Self-Distillation
+# RLVR: feedback-conditioned self-distillation
 
-EESD is a testable method for deciding **how strongly a coding agent should learn from its own execution-guided correction**. A correction can look successful on visible tests yet carry weak, concentrated, or misleading evidence. EESD separates the direction of feedback from its effective amount before using it for self-distillation.
+**Use `Yunbo-max/RLVR`, branch `main`, for continued development.**
+The former `Yunbo-max/EESD` address resolves to this same GitHub repository
+(repository ID `1399772435`). It is not a second implementation to maintain.
+The independent `yuhanlydia/PBPF` repository remains an upstream research and
+historical-evidence source.
 
-## Final method
+The current engineering foundation is **behavior-calibrated, token-aware
+Rich64 self-distillation**, including its Shapley and simpler controls. The next
+research question is whether **genuine joint-feedback teachers** provide useful
+learning signals beyond independently conditioned teacher mixtures.
+The new Joint-versus-Mix study is **proposed, not implemented or run** in this
+consolidation. The existing Rich64 runner still uses four feedback groups.
 
-For four public executions, EESD defines a coalition value from the corrected program's edited-token log-probability advantage over the original program. Exact Shapley values attribute that contrast to individual executions. Their absolute magnitudes define normalized relevance `p`; the Rényi-2 effective support
+## Start here
 
-```text
-E(p) = 1 / sum_i p_i^2
-```
-
-sets the total pseudo-count mass of a Jeffreys Dirichlet posterior over `improved / unchanged / regressed`. The positive posterior mean advantage weights correction SFT, while a forward KL penalty anchors the student to its pre-update policy.
-
-## Evidence status — read this first
-
-| Component | Status |
+| Document | Purpose |
 |---|---|
-| Dirichlet/effective-mass mathematics | implemented and unit-tested |
-| Exact four-execution Shapley attribution | implemented and unit-tested |
-| Recorded lexical-EED mechanism study | recorded exploratory evidence |
-| Recorded 12-cell downstream matrix | 4 positive, 1 tie, 7 negative |
-| Final Shapley–EESD signal/mechanism/downstream gates | **not yet run** |
+| [Project status](docs/PROJECT_STATUS.md) | Current research question, available evidence and missing work |
+| [Repository layout](docs/REPOSITORY_LAYOUT.md) | Active code, shared dependencies and cleanup boundaries |
+| [Local handoff](LOCAL_AGENT_RUNBOOK.md) | Safe checkout, existing setup limits and source acceptance |
+| [Archive index](docs/archive/README.md) | Exact historical code, paper and result revisions |
+| [Agent instructions](AGENTS.md) | Scope and evidence rules for future agents |
 
-The recorded DeepSeek-Coder-6.7B + CodeARC result (15.0%→20.4%, +5.4 pp; source-bootstrap 95% CI [+2.8,+8.0]) belongs to the earlier lexical-relevance EED pipeline. It is motivation and a diagnostic-cell choice, **not evidence that the final Shapley method succeeds**.
+## Existing implementation
 
-## Frozen experiment order
+| Component | Entry point |
+|---|---|
+| Freeze the RunBugRun public/calibration/audit/test cohorts | `scripts/prepare_t64_runbugrun_cohort.py` |
+| Create the shared initial adapter | `scripts/create_learning_credit_init.py` |
+| Five-round Rich64 training | `scripts/run_t64_grouped_five_round.py` |
+| Existing comparison matrix | `scripts/run_t64_group_matrix.sh` |
+| Paired Rich64 summaries | `scripts/summarize_t64_group_five_round.py` |
+| Behavioral calibration and token weights | `src/eesd/behavioral_shapley.py` |
+| Grouped feedback and coalition values | `src/eesd/feedback_group_credit.py` |
+| Shapley / DirectMax / control selection | `src/eesd/learning_credit_selection.py` |
+| Isolated program execution | `src/eesd/strict_execution.py`, `src/eesd/recursive_execution.py` |
+| Official SDPO bridge | `scripts/run_sdpo_official.py`, `src/eesd/sdpo_official.py` |
+| Pinned Qwen model configuration | `configs/models/qwen25_7b.yaml` |
 
-```text
-Software → Signal (64 trajectories/cell) → Mechanism → Matched downstream → Expansion
-```
+`run_t64_grouped_five_round.py` reuses `run_learning_credit_five_round.py`, which
+reuses model-loading, LoRA and prompt utilities in
+`run_recursive_shapley_sdpo.py`. Those earlier files are required dependencies.
+The old internal `sdpo` option in the earlier runner is not the authors' SDPO.
+The current Rich64 matrix uses the pinned official implementation separately.
 
-The first three diagnostic cells are:
+The existing comparison config is
+[`configs/experiments/eesd_t64_budget_matched.yaml`](configs/experiments/eesd_t64_budget_matched.yaml).
+Its status remains `official_sdpo_integrated_scientific_rerun_pending`.
+Its schedule-matched random control is not yet the proposed independent-random
+control for the new study.
 
-| Role | Model (pinned) | Dataset | Why |
-|---|---|---|---|
-| Positive preservation | `deepseek-ai/deepseek-coder-6.7b-instruct` | CodeARC | strongest prior positive cell |
-| Moderate signal | `Qwen/Qwen2.5-Coder-7B-Instruct` | RunBugRun | positive but uncertain prior cell |
-| Harm prevention | `google/gemma-3-4b-it` | RunBugRun | prior negative cell |
+## Evidence status
 
-Each downstream comparison uses 500 fresh primary sources, identical candidate/evaluation ancestry, seed 1701 first, 10,000 paired source-cluster bootstrap draws, and the same response-token budget for every training arm. Confirmation seeds 1702/1703 run only after the first gate passes.
+| Lineage | What the retained evidence supports |
+|---|---|
+| Rich64 pilot, seed 1701, 64 evaluation problems | Shapley 31/64, random subset 31/64, DirectMax 30/64, frozen 29/64; no established independent Shapley advantage |
+| Original correction-weight EED, three completed rebuttal cells | Adaptive mass has not established an advantage over fixed mass; this is a different method and protocol |
+| Official SDPO | Source integration and earlier engineering qualification are recorded; the full matched scientific rerun remains pending |
+| Joint teachers versus mixtures | Research decision only; no new result, implementation or validation claim |
 
-### Required downstream baselines
+Read the [Rich64 pilot record](docs/research/2026-11-03-rich64-pilot-results.md)
+alongside the [current interpretation](docs/PROJECT_STATUS.md).
+Historical point-score equality does not establish equivalence or identify the
+cause of the gain. The pilot used 64 evaluation problems; the later full frozen
+test cohort contains 199. Neither is the 500-problem-per-cell rebuttal protocol.
 
-`no_update`, `equal_weight`, `final_correctness`, `scalar_confidence`, `fixed_mass_dirichlet`, `lexical_eed`, `shapley_eed_no_kl`, and `eesd_full`.
+The original ICLR manuscript in `paper/`, the records in `results/recorded/`,
+and the summaries in `reports/rebuttal2027/` are historical evidence. They are
+not a draft or results for the new Joint-versus-Mix paper.
 
-This is essential: comparing only against `no_update` cannot isolate adaptive evidence mass or Shapley attribution.
+## Setup and execution
 
-## Benchmarks
+This consolidation changes repository organization and seven model-config
+paths. It does not change the Rich64 learning rule, run training, or certify a
+new scientific protocol. Follow [LOCAL_AGENT_RUNBOOK.md](LOCAL_AGENT_RUNBOOK.md)
+for acceptance and the
+[official SDPO setup](docs/research/2026-11-07-official-sdpo-reproduction.md)
+for that separate environment. The existing GitHub CI workflow is preserved.
 
-- **RunBugRun** — executable program repair; core hidden-test generalization benchmark.
-- **CodeARC** — interactive inductive program synthesis; core execution-feedback benchmark.
-- **EvalPlus (HumanEval+/MBPP+)** — external functional-correctness transfer after core gates pass.
-- **LiveCodeBench release_v6** — temporally filtered external coding transfer after core gates pass.
-- **APPS/CodeContests Replay** — controlled replay stress tests only; never reported as official benchmark accuracy.
+## Provenance
 
-Exact model and benchmark revisions, quantization, LoRA rank, seeds, budgets, metrics, and arms live in [`configs/experiments/eesd_final.yaml`](configs/experiments/eesd_final.yaml).
-
-## Install and validate
-
-```bash
-uv sync --extra test
-uv run pytest -q
-uv run python scripts/run_stage.py \
-  --config configs/experiments/eesd_final.yaml \
-  --stage signal --seed 1701 --dry-run
-```
-
-GPU dependencies are optional:
-
-```bash
-uv sync --extra test --extra ml
-```
-
-## Run order
-
-1. Materialize pinned datasets and model snapshots; record them in an input manifest.
-2. Inspect the dry-run plan for a stage.
-3. Run the worker scripts listed in that plan, one cell at a time, preserving every artifact.
-4. Do not start expansion until the prior gate's decision file says `PASS`.
-
-Example planner invocation:
-
-```bash
-uv run python scripts/run_stage.py \
-  --config configs/experiments/eesd_final.yaml \
-  --stage downstream --seed 1701 --dry-run > downstream-plan.json
-```
-
-The research design and PASS/REVISE/KILL logic are in [`docs/research/2026-10-02-eesd-final-design.md`](docs/research/2026-10-02-eesd-final-design.md). The latest ICLR paper source is under [`paper/`](paper/); it still reports the recorded lexical-EED evidence and must be revised only after the prospective Shapley gates are run.
-
-## Repository provenance
-
-The mathematical core and experiment utilities were extracted from `yuhanlydia/PBPF` commit `d00969ce49bde6108aa4f53dccb09eeb150db601`. The paper source is the reviewed `EESD_Overleaf_FullText_Reviewed_9pages` archive. See [`PROVENANCE.md`](PROVENANCE.md).
-
+The Rich64 foundation comes from
+[`c44efb97`](https://github.com/Yunbo-max/RLVR/tree/c44efb97332e0432023d32e7e34d484dce2c54f6).
+The complete C00-C16 rebuttal implementation and its later fixes remain at
+[`b8974183`](https://github.com/Yunbo-max/RLVR/tree/b8974183142a99574cca0b74daf57cca2035eebf).
+The original namespace extraction came from PBPF
+[`d00969ce`](https://github.com/yuhanlydia/PBPF/tree/d00969ce49bde6108aa4f53dccb09eeb150db601).
+See [PROVENANCE.md](PROVENANCE.md) and the [archive index](docs/archive/README.md).

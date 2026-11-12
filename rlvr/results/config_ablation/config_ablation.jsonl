@@ -1,4 +1,0 @@
-{"config": "1_base", "pass_counts": [0, 0, 0, 0, 0, 0, 0, 0], "nonzero": 0}
-{"config": "2_prepare", "pass_counts": [0, 0, 0, 0, 0, 0, 0, 0], "nonzero": 0}
-{"config": "3_lora", "pass_counts": [0, 0, 0, 0, 0, 0, 0, 0], "nonzero": 0}
-{"config": "4_prepare_lora", "pass_counts": [0, 0, 0, 0, 0, 0, 0, 0], "nonzero": 0}

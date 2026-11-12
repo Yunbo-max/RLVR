@@ -1,47 +1,0 @@
-=== START Sun Oct 25 09:59:06 UTC 2026 ===
-=== 1. offline install peft/bitsandbytes ===
-Looking in links: /inspire/hdd/global_user/zhangjiaquan-253108540222/research/DiffRwkv/new/EESD/wheels
-Processing ./wheels/peft-0.14.0-py3-none-any.whl
-Processing ./wheels/bitsandbytes-0.48.2-py3-none-manylinux_2_24_x86_64.whl
-Requirement already satisfied: psutil in /usr/local/lib/python3.12/dist-packages (7.0.0)
-Requirement already satisfied: tqdm in /usr/local/lib/python3.12/dist-packages (4.66.5)
-Requirement already satisfied: safetensors in /usr/local/lib/python3.12/dist-packages (0.5.3)
-Installing collected packages: peft, bitsandbytes
-
-Successfully installed bitsandbytes-0.48.2 peft-0.14.0
-WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
-torch 2.8.0a0+5228986c39.nv25.06 | tf 5.3.0 | peft 0.14.0 | bnb 0.48.2
-GPU NVIDIA H100 80GB HBM3 devices 1
-=== 2. HF cache reachability ===
-c03e6d358207e414f1eca0bb1891e29f1db0e242
-=== 3. Shapley scoring (2 trajectories) ===
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:01<07:36,  1.35s/it]Loading weights:   1%|          | 2/339 [00:02<08:13,  1.46s/it]Loading weights:   1%|          | 4/339 [00:04<06:43,  1.20s/it]Loading weights:   1%|▏         | 5/339 [00:06<07:02,  1.26s/it]Loading weights:   2%|▏         | 6/339 [00:07<07:02,  1.27s/it]Loading weights:   3%|▎         | 9/339 [00:10<05:36,  1.02s/it]Loading weights:   3%|▎         | 10/339 [00:11<06:14,  1.14s/it]Loading weights:   4%|▎         | 12/339 [00:13<05:44,  1.05s/it]Loading weights:   4%|▍         | 14/339 [00:15<05:54,  1.09s/it]Loading weights:   5%|▍         | 16/339 [00:18<05:56,  1.10s/it]Loading weights:   5%|▌         | 17/339 [00:20<06:47,  1.26s/it]Loading weights:   5%|▌         | 18/339 [00:21<07:12,  1.35s/it]Loading weights:   6%|▌         | 21/339 [00:23<05:22,  1.01s/it]Loading weights:   6%|▋         | 22/339 [00:24<05:22,  1.02s/it]Loading weights:  86%|████████▌ | 291/339 [00:24<00:00, 69.38it/s]Loading weights: 100%|██████████| 339/339 [00:24<00:00, 13.64it/s]
-{"effective_mass": 2.1675566525424848, "game_span": 1.4990284768864512, "scored": 1, "signed_attribution": [-0.15010233217617494, -0.08682038326514885, 0.0018962667284843915, -0.39125425067807856], "task_id": "preflight/task/0", "total": 2}
-{"effective_mass": 2.319733476684663, "game_span": 1.7136984711978585, "scored": 2, "signed_attribution": [-0.12043836963130158, -0.11647292593261224, -0.022621206337741243, -0.3953269240640414], "task_id": "preflight/task/1", "total": 2}
-{"adapter_sha256": null, "hidden_evidence_used": false, "input_sha256": "2ec9b89957e3d454821289b75ec04e146060f7745fecc007a83392a46da2ffd3", "max_effective_mass": 2.319733476684663, "mean_attribution_l1": 0.6424663294067916, "mean_changed_tokens": 4.0, "mean_effective_mass": 2.243645064613574, "mean_game_span": 1.6063634740421548, "median_game_span": 1.6063634740421548, "min_effective_mass": 2.1675566525424848, "mode": "exact", "model_config_sha256": "e037ff922e8cfc3033908efb78c42517c6e83ad03f0c0b700225a7faf6fefbd6", "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct", "model_revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242", "output_sha256": "b08072a541ab31d9936437afde4463d14ca6b5a1553fea4be87d7c36d508ba9c", "population_trajectories": 2, "sample_seed": 1701, "sample_size": null, "schema": "eesd-shapley-relevance-v1", "selected_input_indices": [0, 1], "trajectories": 2, "uniform_fallbacks": 0, "value_function": "contrastive mean teacher-forced log-probability on edit tokens only"}
-shapley exit=0
-=== 4. 1-step LoRA training (eesd_full) ===
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<02:44,  2.06it/s]Loading weights:   1%|          | 2/339 [00:01<02:50,  1.97it/s]Loading weights:   1%|          | 4/339 [00:01<02:13,  2.51it/s]Loading weights:   1%|▏         | 5/339 [00:02<02:18,  2.42it/s]Loading weights:   2%|▏         | 6/339 [00:02<02:22,  2.34it/s]Loading weights:   3%|▎         | 9/339 [00:03<01:39,  3.33it/s]Loading weights:   3%|▎         | 10/339 [00:03<01:55,  2.84it/s]Loading weights:   4%|▎         | 12/339 [00:04<01:52,  2.90it/s]Loading weights:   4%|▍         | 14/339 [00:04<01:43,  3.15it/s]Loading weights:   5%|▍         | 16/339 [00:05<01:44,  3.09it/s]Loading weights:   5%|▌         | 17/339 [00:06<02:00,  2.66it/s]Loading weights:   5%|▌         | 18/339 [00:06<02:15,  2.37it/s]Loading weights:   6%|▌         | 21/339 [00:07<01:37,  3.27it/s]Loading weights:  84%|████████▍ | 286/339 [00:07<00:00, 187.51it/s]Loading weights: 100%|██████████| 339/339 [00:07<00:00, 45.50it/s] 
-Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<02:53,  1.95it/s]Loading weights:   1%|          | 2/339 [00:01<02:56,  1.91it/s]Loading weights:   1%|          | 4/339 [00:01<02:16,  2.46it/s]Loading weights:   1%|▏         | 5/339 [00:02<02:20,  2.38it/s]Loading weights:   2%|▏         | 6/339 [00:02<02:45,  2.01it/s]Loading weights:   3%|▎         | 9/339 [00:03<01:40,  3.28it/s]Loading weights:   3%|▎         | 10/339 [00:03<02:04,  2.64it/s]Loading weights:   4%|▎         | 12/339 [00:04<01:44,  3.12it/s]Loading weights:   4%|▍         | 14/339 [00:04<01:33,  3.48it/s]Loading weights:   5%|▍         | 16/339 [00:05<01:26,  3.73it/s]Loading weights:   5%|▌         | 17/339 [00:05<01:46,  3.02it/s]Loading weights:   5%|▌         | 18/339 [00:06<02:10,  2.47it/s]Loading weights:   6%|▌         | 21/339 [00:07<01:33,  3.39it/s]Loading weights:   6%|▋         | 22/339 [00:07<01:30,  3.51it/s]Loading weights:  86%|████████▋ | 293/339 [00:07<00:00, 234.63it/s]Loading weights: 100%|██████████| 339/339 [00:07<00:00, 45.30it/s] 
-{"mean_ce": 0.1794730662368238, "mean_kl": 1.4006676593780867, "mean_loss": 0.1725459024310112, "mean_weight": 0.7272727272727274, "micro_steps": 6, "optimizer_step": 6, "response_tokens": 64}
-/usr/local/lib/python3.12/dist-packages/peft/utils/save_and_load.py:246: UserWarning: Could not find a config file in Qwen/Qwen2.5-Coder-7B-Instruct - will assume that the vocabulary was not modified.
-  warnings.warn(
-{"all_trajectories": 3, "anchor_beta": 0.03, "budget_policy": "exact response tokens; final response prefix cut", "development_trajectories": 1, "gradient_accumulation": 1, "input_sha256": "a6b430123946db7b01b4cf089991d7954bc919ce4d952df9bd6dceae7bcd456c", "learning_rate": 0.0002, "legacy_mean_fields_unit": "microbatch / trajectory", "lora_alpha": 32, "lora_r": 16, "loss_normalization": "response_tokens", "max_length": 4608, "max_steps": 1, "mean_ce": 0.1794730662368238, "mean_kl": 1.4006676593780867, "mean_loss": 0.1725459024310112, "mean_training_weight": 0.7272727272727274, "micro_steps": 6, "model_config_sha256": "e037ff922e8cfc3033908efb78c42517c6e83ad03f0c0b700225a7faf6fefbd6", "model_id": "Qwen/Qwen2.5-Coder-7B-Instruct", "optimizer_steps": 6, "positive_training_trajectories": 2, "previous_adapter": null, "response_token_budget": 64, "response_tokens": 64, "revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242", "rule": "eesd_full", "schema": "eesd-weighted-sft-v1", "seed": 1701, "sources": 2, "token_mean_ce": 0.20178066616063006, "token_mean_kl": 1.290582528638879, "token_mean_loss": 0.1854670587927103, "token_mean_training_weight": 0.7272727272727272, "tokenization_audit": {"max_length": 4608, "max_prompt_tokens": 232, "response_truncated_rows": 0, "rows": 3, "sealed_generation_message_rows": 0}, "trainer_source_sha256": "961e81e75539edbf009bc07232d0fbbb79baa187a4fbe7d366182133f2e89044", "training_outcome_adoption_sha256": "580eeb9b8e9d485e04b53febc989d6d3378cbe484c0bb1975cf07c295fa4fec3", "training_outcome_protocol": "eesd-zero-positive-training-weight-v1", "training_outcomes_source_sha256": "0abcb3eadb6e54e9a15a2d3e6ad53710a54754d4b975584646e9720711b3c17a"}
-training exit=0
-=== DONE Sun Oct 25 10:00:35 UTC 2026 ===
-preflight/shapley-out/:
-total 130
-drwxr-xr-x 2 root root 4096 Oct 25 10:00 .
-drwxr-xr-x 5 root root 4096 Oct 25 10:00 ..
--rw-r--r-- 1 root root 5153 Oct 25 10:00 corrections-shapley.jsonl
--rw-r--r-- 1 root root 1052 Oct 25 10:00 report.json
-
-preflight/training/:
-total 3
-drwxr-xr-x 3 root root 4096 Oct 25 10:00 .
-drwxr-xr-x 5 root root 4096 Oct 25 10:00 ..
-drwxr-xr-x 2 root root 4096 Oct 25 10:00 adapter
--rw-r--r-- 1 root root  137 Oct 25 10:00 tokenization-audit.json
--rw-r--r-- 1 root root 1800 Oct 25 10:00 training-report.json

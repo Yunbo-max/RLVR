@@ -1,0 +1,68 @@
+schema: eesd-behavioral-shapley-v1
+status: PROSPECTIVE_NOT_GPU_RUN
+parent_negative_result: docs/research/2026-10-28-shapley-recursive-sdpo-full-results.md
+model:
+  model_id: Qwen/Qwen2.5-Coder-7B-Instruct
+  revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+  lora_rank: 16
+  lora_alpha: 32
+  quantization: nf4_double_quant
+  dtype: bfloat16
+  gpu: single_H100_80GB
+data:
+  benchmark: RunBugRun
+  language: python
+  source: official_SQLite
+  reference_corrected_code_used: false
+  sources_train: 64
+  sources_eval_unseen: 64
+  split_policy: distinct_problem_id
+  public_feedback_tests_per_train_source: 4
+  training_calibration_tests_per_train_source: 4
+  reserved_train_audit_tests_per_train_source: 4
+  evaluation_tests: all_official_test_split_tests
+  calibration_expected_outputs_used: true
+  fully_unlabeled: false
+training:
+  rollouts_per_train_source: 8
+  sampling_temperature: 0.7
+  recursive_rounds: 3
+  teacher: frozen_round_policy
+  candidate_normalization: stripped_executable_python_code
+  max_new_tokens: 256
+  max_prompt_tokens: 8192
+  optimizer: adamw
+  learning_rate: 0.00001
+  anchor_beta: 0.02
+  gradient_clip_norm: 1.0
+  evidence_shapley:
+    exact_coalitions: 16
+    value: audit_centered_covariance_of_feedback_induced_logprob_shift
+    uncertainty_penalty_on_per_audit_standard_error: 0.5
+    subset_cost_per_feedback_test: 0.001
+    min_gain: 0.001
+    directional_token_shift_scale: 0.15
+  security:
+    generated_code_execution: bubblewrap_required
+    legacy_soft_sandbox_fallback: false
+controls:
+  - no_update
+  - sdpo
+  - audit_gate
+  - shapley_select
+primary_metric: fresh_unseen_problem_all_tests_pass_at_1
+secondary_metrics:
+  - mean_unseen_problem_test_pass_fraction
+  - fixes_and_regressions_relative_to_base
+  - paired_bootstrap_ci95
+  - accepted_training_source_fraction
+  - unique_generated_program_fraction
+  - gpu_time_and_teacher_forward_cost
+  - selected_feedback_subset_distribution
+seed: 1701
+pilot:
+  train: 4
+  eval: 8
+  rollouts: 4
+confirmation_seeds: [1702, 1703]
+gate: shapley_select_must_beat_audit_gate_and_sdpo_on_unseen_tasks_under_matched_audit_budget

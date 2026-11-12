@@ -1,0 +1,465 @@
+{
+  "schema": "rlvr-repository-consolidation-v1",
+  "date": "2026-11-12",
+  "scope": "owner-authorized repository maintenance; no new scientific implementation or execution",
+  "repository": "Yunbo-max/RLVR",
+  "repository_id": 1399772435,
+  "delivery_branch": "main",
+  "former_repository_address": "Yunbo-max/EESD",
+  "former_address_is_same_repository": true,
+  "previous_main": "b773c71dfb33ad492f25503809fc781e5fddac6a",
+  "foundation_commit": "c44efb97332e0432023d32e7e34d484dce2c54f6",
+  "preserved_rebuttal_commit": "b8974183142a99574cca0b74daf57cca2035eebf",
+  "parent_history": [
+    "b773c71dfb33ad492f25503809fc781e5fddac6a",
+    "b8974183142a99574cca0b74daf57cca2035eebf"
+  ],
+  "model_config": {
+    "old_path": "rlvr/models/qwen25_7b.yaml",
+    "new_path": "configs/models/qwen25_7b.yaml",
+    "blob_sha": "472ced3132460d611bbc9ceb081eb1fbc8efc68f",
+    "content_unchanged": true,
+    "updated_default_paths": [
+      "scripts/create_learning_credit_init.py",
+      "scripts/probe_learning_credit_delta_theta.py",
+      "scripts/probe_t64_group_delta_theta.py",
+      "scripts/run_behavioral_shapley.py",
+      "scripts/run_learning_credit_five_round.py",
+      "scripts/run_recursive_shapley_sdpo.py",
+      "scripts/run_t64_grouped_five_round.py"
+    ]
+  },
+  "removed_from_active_tree": [
+    {
+      "path": "logs/qz/download_assets.log",
+      "blob_sha": "10b093ada0f592f7c60f3e70e5cb1031aea3eaec",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "logs/qz/eesd-preflight-env_job_id.txt",
+      "blob_sha": "efc62c85f2ef7e2e50a4db1621b07f9ea38f3251",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "logs/qz/eesd-preflight-gpu_job_id.txt",
+      "blob_sha": "f4c90ddf96a3ba9b0a9b5274d6f0c70705664390",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "logs/qz/mount-probe.log",
+      "blob_sha": "fe75663c95550235f5be3d9ef51b9ef899395150",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "logs/qz/preflight-env.log",
+      "blob_sha": "0629ac9e2dc57a72313c6d5c64131089bbb484fa",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "logs/qz/preflight-gpu.log",
+      "blob_sha": "87db5c6083bb7852652d3d39ea2408e2faad736d",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/corrections-score.jsonl",
+      "blob_sha": "3480121d062dfca06dd6f9971662f5a41f64e095",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/corrections-shapley.jsonl",
+      "blob_sha": "65bec6b22373538eec8f785448d0884f5bf1bf2d",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/scored/scored-corrections.jsonl",
+      "blob_sha": "603308ea542e5c6de9b0342dc6e2d4037af847a5",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/scored/summary.json",
+      "blob_sha": "50c536cdc6dd0e12367ac3e5b10ebfa6e0947bc4",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/shapley-out/corrections-shapley.jsonl",
+      "blob_sha": "4a92e35ad6671aa8e481d18d3dc2a1d178f24757",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/shapley-out/report.json",
+      "blob_sha": "cd0158f44c039d8f70687da6d7b26eeb5b226522",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/training/adapter/README.md",
+      "blob_sha": "ccf337b4fefcdc0b0e0614b82ea8eef18321a082",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/training/adapter/adapter_config.json",
+      "blob_sha": "28e92ace260f652bb096506e6c252189e14b1208",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/training/tokenization-audit.json",
+      "blob_sha": "46a513f819f305fed32e60235c30e1329b3947ab",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "preflight/training/training-report.json",
+      "blob_sha": "5659079063cef83ddb81e69d2e22cdb7921617c9",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/.gitignore",
+      "blob_sha": "18cee56c7f5fa137a80eb786d4d3fbe266f3ea96",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/data.py",
+      "blob_sha": "8c447c20f4945b9c29cd97b34e303adda0989f8f",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose.py",
+      "blob_sha": "0d4857f1888e4ed28de9608255745bad974967cf",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose_config.py",
+      "blob_sha": "f435031bbbed91d4fdf00cbd8212dd3d415b8d9e",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose_g.py",
+      "blob_sha": "58f16a0d16da81a68ac569326656ec28f54ec186",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose_outcome.py",
+      "blob_sha": "6670523109af0c196078d225464cb9e5f6f6998a",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose_speed.py",
+      "blob_sha": "61a6d586a63e45d1ce1cb6be67f5837ebea3680d",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/diagnose_warm.py",
+      "blob_sha": "87d27a74f22d31a094d6436b7acf5ed89bf86f65",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/execution.py",
+      "blob_sha": "de071b703869227c6147134eaf53ac35fb52d516",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/models/qwen25_7b.yaml",
+      "blob_sha": "472ced3132460d611bbc9ceb081eb1fbc8efc68f",
+      "disposition": "moved_unchanged_to_configs/models/qwen25_7b.yaml"
+    },
+    {
+      "path": "rlvr/results/config_ablation/config_ablation.jsonl",
+      "blob_sha": "4c67c430c4ede57ba865e437de0d7f8584303a1b",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/diagnose/diagnose.jsonl",
+      "blob_sha": "3ee5f66853100c2c7d6631619097cc8615ee0edc",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag/outcome.jsonl",
+      "blob_sha": "ea14662c50da9008c436094577e77424c9485b67",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v2/dump.jsonl",
+      "blob_sha": "6a8a22bcc0cbe24f20c29f9d4d6a943f749c9839",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v2/outcome.jsonl",
+      "blob_sha": "ea14662c50da9008c436094577e77424c9485b67",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v3/dump.jsonl",
+      "blob_sha": "b0c7610779a2d6df8674bcd6133e4f56135ca8db",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v3/outcome.jsonl",
+      "blob_sha": "ea14662c50da9008c436094577e77424c9485b67",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v4/dump.jsonl",
+      "blob_sha": "4e7df78c429147c5090910ededdab6e501c47e43",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/outcome_diag_v4/outcome.jsonl",
+      "blob_sha": "29c3ce73e703718dd0ec03c510e0d6e41383bfa2",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/pass_vs_g/pass_vs_g.jsonl",
+      "blob_sha": "748fb83433b6de01b0c7ce60d67c17828013cc40",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_r64/log.jsonl",
+      "blob_sha": "62ca3d5cf66957cef692767379a12731bcce9a9a",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_r64/report.json",
+      "blob_sha": "a1615256b581cc817187652888329c59bad0b279",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_soft/log.jsonl",
+      "blob_sha": "583f9f2a1f1e824421671bc71c504a52269981fb",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_soft/report.json",
+      "blob_sha": "a78dddbc3b048c0f3e68c9497638be7bf2896746",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_t03/log.jsonl",
+      "blob_sha": "aa5223bc56a4960342c3ea332d08b7e7ba0f2bd4",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_evidence_t03/report.json",
+      "blob_sha": "a1615256b581cc817187652888329c59bad0b279",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_plain_r64/log.jsonl",
+      "blob_sha": "a8115f462c6f2a117593b660da9137ca2c99af6e",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_plain_r64/report.json",
+      "blob_sha": "5a3231b16b17a7be97fe6b95811285c92811742c",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_plain_t03/log.jsonl",
+      "blob_sha": "00eea34ae05a85186deba1050311bd9445d1e464",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_plain_t03/report.json",
+      "blob_sha": "5a3231b16b17a7be97fe6b95811285c92811742c",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_soft_plain/log.jsonl",
+      "blob_sha": "eb8758e28bfe483b3b0528b0bc793b3a729382c0",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/run_soft_plain/report.json",
+      "blob_sha": "71a7d72f1262991d1522c9c3c0fd6de16b489e26",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/sft/report.json",
+      "blob_sha": "0e2481b90a603ccf57f0c1a9ca24732196179b06",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/sft_r64/report.json",
+      "blob_sha": "511ac3926235f01196fa03f94fc9b0415a52caca",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/sft_r64_chat/report.json",
+      "blob_sha": "511ac3926235f01196fa03f94fc9b0415a52caca",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/smoke/log.jsonl",
+      "blob_sha": "c6fce10d3a036c972a03dbeb94817c98121ff054",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/smoke/report.json",
+      "blob_sha": "fb6004b830262778d212a2485bffd90d1f1d204f",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/speed/speed.jsonl",
+      "blob_sha": "36687cce1d04e82141d23429a98307a848d6a056",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/warm_check/warm_check.jsonl",
+      "blob_sha": "02353472a3a9339faf0f9aa93d3ec52cbef70fdb",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/warm_check2/warm_check.jsonl",
+      "blob_sha": "7dd75f25c3f7259e521fe092ab50681f4db7bd90",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/results/warm_r64/warm_check.jsonl",
+      "blob_sha": "3d41d1b882a04d29b4f32ee93f3b49c15ca26496",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/reward.py",
+      "blob_sha": "69c5e790c77e4778f70a3d5f175a90f75db836b3",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/run_diagnose.sh",
+      "blob_sha": "a993d7cec22a9556fc988e9a91b7b26b7e9dfc09",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/run_rlvr.sh",
+      "blob_sha": "023e06793a1c05f2f0184dca45404bd90afd8823",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/run_sft.sh",
+      "blob_sha": "c965bd3c31eee4f89ee7ff0e57275b4295bae297",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/sft.py",
+      "blob_sha": "409485b34896c800f84767753692a32564856b0f",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "rlvr/train_grpo.py",
+      "blob_sha": "0da20e524e6f164b63add9f47fb53593a4a992e5",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "scripts/download_assets.sh",
+      "blob_sha": "8ca05a28258b2e2dbd659e83a4e1db9431645250",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "scripts/preflight_gpu.sh",
+      "blob_sha": "d60a1534ad1d61f6c98b37d8c142876b711c1097",
+      "disposition": "retained_in_original_commit_history"
+    },
+    {
+      "path": "scripts/prepare_preflight_data.py",
+      "blob_sha": "a202fb22460257308c41d2058d6458ede97eda46",
+      "disposition": "retained_in_original_commit_history"
+    }
+  ],
+  "retained_rebuttal_reports": [
+    {
+      "path": "reports/rebuttal2027/archived_prediction_audit.json",
+      "blob_sha": "17f8f1dcded0fdb0e0ec94fd96b9b5e2b70842a0",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "path": "reports/rebuttal2027/codearc__gemma3_4b__all_summary.json",
+      "blob_sha": "ee243abb156279d2c8a9e67573badea95c6170f5",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "path": "reports/rebuttal2027/codearc__qwen25_7b__all_summary.json",
+      "blob_sha": "ebc5ef22f2f40483e035f9828b99d662890eb8bc",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "path": "reports/rebuttal2027/codearc__qwen25_7b__p0_summary.json",
+      "blob_sha": "4c85c1186a4074a3fa295f044ca32a593a309665",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "path": "reports/rebuttal2027/runbugrun__qwen25_7b__all_summary.json",
+      "blob_sha": "c4cca91fb2b40dc1e90abece9e6fed07f037d9c9",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "path": "reports/rebuttal2027/runbugrun__qwen25_7b__p0_summary.json",
+      "blob_sha": "c646f16e9d98a6ba5a3fb838c7dc79684cc6dbdb",
+      "source_commit": "b8974183142a99574cca0b74daf57cca2035eebf"
+    }
+  ],
+  "untouched_workflow": {
+    "path": ".github/workflows/ci.yml",
+    "blob_sha": "f597a77d81eb1d0cc4c0ff59a12460f148407bef"
+  },
+  "preserved_branch_heads": [
+    {
+      "name": "research/eesd-behavioral-shapley-20261029",
+      "sha": "fb6c4062a4d99bc2cba52381f05f20fc6069a457"
+    },
+    {
+      "name": "research/eesd-formal-protocol-20261101",
+      "sha": "bb69ad841fbf380d18cbeb3b9427d676270fe867"
+    },
+    {
+      "name": "research/eesd-iclr2027-rebuttal-20261107",
+      "sha": "80830b3f4a0f5c80eac31b4ddd188bdb38f86e72"
+    },
+    {
+      "name": "research/eesd-learning-credit-5round-20261030",
+      "sha": "2993e15cb7f08336f2a25396deda409bc938ae73"
+    },
+    {
+      "name": "research/eesd-rebuttal-per-case-20261107",
+      "sha": "b8974183142a99574cca0b74daf57cca2035eebf"
+    },
+    {
+      "name": "research/eesd-rebuttal-token-aware-20261107",
+      "sha": "e4f0f5dc74a1815c50c9171a59205d984c432258"
+    },
+    {
+      "name": "research/eesd-shapley-recursive-sdpo-20261027",
+      "sha": "15cafc7105e04a8765aab665815046e7531070ba"
+    },
+    {
+      "name": "research/eesd-t64-budget-matched-20261101",
+      "sha": "c44efb97332e0432023d32e7e34d484dce2c54f6"
+    },
+    {
+      "name": "research/eesd-update-admissibility-gate0-20261024",
+      "sha": "b3edd09536ea9c5985e5ef5a512ed8062ab1e1bb"
+    }
+  ],
+  "upstream_sources": [
+    {
+      "repository": "yuhanlydia/PBPF",
+      "commit": "d00969ce49bde6108aa4f53dccb09eeb150db601",
+      "role": "namespace_extraction"
+    },
+    {
+      "repository": "yuhanlydia/PBPF",
+      "commit": "0200283849274b49e303638b91f142acd8bba984",
+      "role": "original_results_and_rebuttal_evaluator"
+    }
+  ],
+  "project_status": {
+    "active_foundation": "existing_grouped_Rich64",
+    "joint_vs_mix": "proposed_not_implemented",
+    "official_sdpo_full_scientific_rerun": "pending",
+    "independent_shapley_advantage": "not_established"
+  },
+  "validation": {
+    "scope": "static_source_review_and_Git_object_readback",
+    "project_tests_run": false,
+    "training_run": false,
+    "inference_run": false,
+    "datasets_downloaded": false,
+    "scientific_evaluation_run": false,
+    "known_existing_setup_gap": "SDPO bridge tests require PyArrow; historical test extra declares pytest only; workflow and dependency lock preserved"
+  }
+}

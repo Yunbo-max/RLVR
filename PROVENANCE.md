@@ -1,5 +1,21 @@
 # Provenance and scientific status
 
+## Current consolidation — November 12, 2026
+
+- Canonical development destination: `Yunbo-max/RLVR`, branch `main`.
+- `Yunbo-max/EESD` resolves to the same repository ID `1399772435`.
+- Existing Rich64 implementation source: `c44efb97332e0432023d32e7e34d484dce2c54f6`.
+- Original-EED rebuttal implementation and reports: `b8974183142a99574cca0b74daf57cca2035eebf`.
+- The cleanup preserves historical commits and result blobs; seven model-config
+  defaults move to `configs/models/qwen25_7b.yaml` without changing YAML content.
+- Joint-versus-Mix is a proposed research direction, not implemented or validated
+  by this repository consolidation. See `docs/PROJECT_STATUS.md`.
+- Exact removed paths and retained identities are in
+  `docs/research/2026-11-12-repository-consolidation.json`; historical replay
+  instructions are in `docs/archive/README.md`.
+
+The original extraction record below describes the earlier repository stage.
+
 ## Code
 
 - Source repository: `yuhanlydia/PBPF`

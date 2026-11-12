@@ -1,7 +1,0 @@
-{
-  "rows": 3,
-  "max_prompt_tokens": 232,
-  "response_truncated_rows": 0,
-  "max_length": 4608,
-  "sealed_generation_message_rows": 0
-}

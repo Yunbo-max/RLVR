@@ -1,0 +1,62 @@
+schema: eesd-recursive-shapley-sdpo-v1
+status: prospective_cpu_tested_gpu_not_run
+model:
+  name: Qwen/Qwen2.5-Coder-7B-Instruct
+  revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+  dtype: bfloat16
+  quantization: nf4_double_quant
+  lora_rank: 16
+  lora_alpha: 32
+benchmark:
+  name: RunBugRun
+  source: giganticode/run_bug_run
+  storage: official_sqlite_dump
+  language: python
+  train_split: 0
+  eval_split: 2
+  grouping: disjoint_problem_id
+  gold_fixed_code_read: false
+  public_train_tests_per_source: 4
+  train_audit_tests_held_out: 4
+protocol:
+  seed: 1701
+  train_sources: 64
+  eval_sources: 64
+  train_source_g: 8
+  recursive_updates: 3
+  max_generation_tokens: 256
+  prompt_token_budget: 4096
+  temperature: 0.7
+  top_p: 0.95
+  optimizer: adamw
+  learning_rate: 0.00001
+  gradient_clip_norm: 1.0
+  anchor_beta: 0.02
+  teacher_subsets_sdpo: 1
+  teacher_subsets_loo: 5
+  teacher_subsets_shapley: 16
+  additional_no_feedback_teacher_reference: true
+arms:
+  - no_update
+  - sdpo
+  - loo
+  - shapley
+baseline_note: 'sdpo here is a matched frozen-round full-feedback reverse-KL implementation; not the full original SDPO EMA/JSD/importance-sampling recipe'
+primary_metric: unseen_problem_all_tests_pass_at_1
+secondary_metrics:
+  - fresh_unseen_problem_test_pass_fraction
+  - existing_correct_task_retention
+  - cross_round_regressions
+  - behavior_diversity
+  - teacher_token_attribution_nonzero_fraction
+  - gpu_time_and_teacher_forward_calls
+randomness:
+  primary_seed: 1701
+  confirmation_seeds: [1702, 1703]
+preflight_gate:
+  sources: 4
+  eval_sources: 8
+  rollouts: 4
+  rounds: 3
+  require_bubblewrap_isolation: true
+  require_real_gpu_training_before_claims: true

@@ -8,9 +8,29 @@ build/
 outputs/
 checkpoints/
 models/
+!configs/models/
+!configs/models/*.yaml
 datasets/
 .superpowers/
 data_raw/
 wheels/
 *.safetensors
+runs/
+logs/qz/full-*.log
+logs/qz/recursive-pilot.log
+logs/qz/lc-pilot.log
+logs/qz/rich64-pilot-*.log
+logs/qz/rich64-pilot-*_job_id.txt
 
+bin/
+logs/qz/behavioral-*.log
+
+# Locally frozen official SDPO datasets and shared initialization.
+/data/rich64-wsl-*/
+/data/sdpo-rich64-*/
+/artifacts/shared-init-*/
+/artifacts/shared-init-*.receipt.json
+
+# Machine-local products; retained historical evidence is indexed in docs/archive.
+/logs/
+/preflight/

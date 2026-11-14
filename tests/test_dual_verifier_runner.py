@@ -29,6 +29,7 @@ def test_parser_arms_and_predeclared_modes():
     opts=m.build_parser().parse_args(['--data-dir','/tmp/data',
              '--init-adapter','/tmp/init','--output','/tmp/out','--arm','dual'])
     assert opts.rounds==5 and opts.verifier_proposals>=1 and opts.rollouts>=2
+    assert opts.memory_limit==0  # Isolate LoRA gradient learning from reflection memory
 
 
 def test_privileged_verifier_teacher_has_mistake_evidence_only():

@@ -47,6 +47,7 @@ prototype:
   reserved_audit_inputs: 8
   max_false_accept_rate: 0.125
   max_false_reject_rate: 0.25
+  memory_history_examples_default: 0  # optional ablation only, isolates verifier LoRA effect
   max_per_class_samples: null
   output: unique_sealed_per_arm_seed_directory
 arms:

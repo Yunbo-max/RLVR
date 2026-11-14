@@ -275,7 +275,7 @@ def build_parser():
     p.add_argument('--min-per-class',type=int,default=4)
     p.add_argument('--error-examples',type=int,default=6)
     p.add_argument('--max-verifier-updates-per-problem',type=int,default=1)
-    p.add_argument('--memory-limit',type=int,default=4)
+    p.add_argument('--memory-limit',type=int,default=0)
     p.add_argument('--max-verifier-tokens',type=int,default=256)
     p.add_argument('--max-new-tokens',type=int,default=256)
     p.add_argument('--max-prompt-tokens',type=int,default=8192)

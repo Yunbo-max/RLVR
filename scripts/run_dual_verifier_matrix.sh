@@ -16,7 +16,7 @@ if [[ "${DRY_RUN}" != "0" && "${DRY_RUN}" != "1" ]]; then
   echo 'DRY_RUN must be 0 or 1' >&2; exit 2
 fi
 mkdir -p "${OUTPUT_ROOT}"
-for arm in dual solver_fixed solver_static_verifier solver_regenerated_verifier verifier_only; do
+for arm in dual solver_fixed solver_oracle_verdict solver_static_verifier solver_regenerated_verifier verifier_only; do
   out="${OUTPUT_ROOT}/${arm}-seed${SEED}-N${TRAIN_LIMIT}-R${ROUNDS}"
   args=(--data-dir "${DATA_DIR}" --init-adapter "${INIT_ADAPTER}"
         --output "${out}" --arm "${arm}" --seed "${SEED}"

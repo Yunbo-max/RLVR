@@ -26,12 +26,12 @@ sys.path.insert(0,str(ROOT/'src'))
 sys.path.insert(0,str(ROOT/'scripts'))
 import run_joint_mix as previous  # reuse pinned RunBugRun cohort, eval and model setup
 from eesd.dual_verifier import (Audit,VerdictCase,make_cases,split_tests,execute_verifier,
-    audit_verdicts,admit,feedback_mistakes,choose_candidate,verifier_source_sanity,
-    safe_feedback_for_solver)
+    audit_verdicts,admit,verifier_training_mistakes,choose_candidate,verifier_source_sanity,
+    safe_feedback_for_solver,oracle_verdict_feedback)
 from eesd.strict_execution import run_test,run_tests_batched
 from eesd.dual_verifier_loss import reverse_kl_from_logits
 
-ARMS=('dual','solver_fixed','solver_static_verifier','solver_regenerated_verifier','verifier_only')
+ARMS=('dual','solver_fixed','solver_oracle_verdict','solver_static_verifier','solver_regenerated_verifier','verifier_only')
 
 
 def _save_json(path:Path,payload):
@@ -191,7 +191,8 @@ def _task_verifier_rows(teacher,tokenizer,row,solver_samples,args,rnd:int,*,memo
         pred_gate=execute_verifier(source,gate_cases) if okay else [None]*len(gate_cases)
         train_audit=audit_verdicts(train_cases,pred_train)
         gate_audit=audit_verdicts(gate_cases,pred_gate)
-        corrections=feedback_mistakes(train_cases,pred_train,limit=args.error_examples)
+        corrections=verifier_training_mistakes(source,okay,reason,train_cases,pred_train,
+                                               limit=args.error_examples)
         r={'source_id':row['source_id'],'problem_id':row['problem_id'],
            'proposal':i,'verifier_code_sha256':sha256(source.encode()).hexdigest(),
            'verifier_code':source,'response_ids':tokens,'static_valid':okay,'static_reason':reason,
@@ -276,6 +277,8 @@ def build_parser():
     p.add_argument('--error-examples',type=int,default=6)
     p.add_argument('--max-verifier-updates-per-problem',type=int,default=1)
     p.add_argument('--memory-limit',type=int,default=0)
+    p.add_argument('--missing-verifier',choices=('skip','fixed'),default='skip',
+                   help='Generated-verifier arms: skip when no verifier is admitted; fixed is explicit oracle-backed ablation')
     p.add_argument('--max-verifier-tokens',type=int,default=256)
     p.add_argument('--max-new-tokens',type=int,default=256)
     p.add_argument('--max-prompt-tokens',type=int,default=8192)
@@ -288,6 +291,16 @@ def build_parser():
     return p
 
 
+def _check_saved_adapter_integrity(receipt:dict,digest_fn)->None:
+    """Resume must verify both adapter trees, not merely path existence."""
+    for role in ('solver','verifier'):
+        path=Path(receipt[role+'_adapter'])
+        if not path.is_dir():
+            raise FileNotFoundError('missing '+role+' round adapter')
+        if receipt.get(role+'_adapter_sha256') != digest_fn(path):
+            raise ValueError(role+' round adapter hash mismatch')
+
+
 def _validate(args):
     if (args.rounds<1 or args.train_limit<1 or args.eval_limit<1 or
         args.rollouts<2 or args.verifier_proposals<1 or
@@ -296,7 +309,9 @@ def _validate(args):
         args.max_new_tokens<1 or args.max_verifier_tokens<1 or
         args.generate_batch<1 or not 0<=args.max_false_accept_rate<=1 or
         not 0<=args.max_false_reject_rate<=1 or args.error_examples<1 or
-        not 0<=args.memory_limit<=16 or args.beta<0):
+        not 0<=args.memory_limit<=16 or args.beta<0 or
+        not 0<args.learning_rate<1 or not 0<args.temperature<=2 or
+        args.max_prompt_tokens<1):
         raise ValueError('invalid dual recursive experiment configuration')
     previous.existing.previous.legacy._require_model_config(args.model_config)
     if not (args.init_adapter/'adapter_config.json').is_file():
@@ -349,8 +364,7 @@ def main(argv=None):
             if data.get('status')!='completed':raise ValueError('non-complete round receipt')
             solver_adapter=Path(data['solver_adapter'])
             verifier_adapter=Path(data['verifier_adapter'])
-            if not solver_adapter.exists() or not verifier_adapter.exists():
-                raise FileNotFoundError('round checkpoint not found')
+            _check_saved_adapter_integrity(data,previous.existing.previous._digest_adapter)
             frozen_verifiers=data.get('frozen_verifiers',{})
             memories=data.get('training_memories',{})
             start_round=rnd+1
@@ -373,7 +387,7 @@ def main(argv=None):
         # ON-POLICY continuation tokens from the privileged mistake-conditioned
         # self-teacher. Independent reserved audit is read only AFTER selection.
         selected_verifiers={};solver_tests={};train_proposals={};new_memories={}
-        if args.arm!='solver_fixed':
+        if args.arm not in ('solver_fixed','solver_oracle_verdict'):
             model_v=attach(verifier_adapter,trainable=False)
             update_v=args.arm in ('dual','verifier_only')
             student_v=attach(verifier_adapter,trainable=True) if update_v else None
@@ -410,7 +424,7 @@ def main(argv=None):
                         record={**item,'selected_for_solver':i==chosen,
                                 'reserved_audit_reporting_only':audits[i]}
                         _json_line(fp,record)
-                        if update_v and v_updates<args.max_verifier_updates_per_problem and item['static_valid'] and item['train_mistakes']:
+                        if update_v and v_updates<args.max_verifier_updates_per_problem and item['train_mistakes']:
                             plain=verifier_messages(row,memory=memories.get(sid))
                             privileged=verifier_messages(row,memory=memories.get(sid),
                                                   mistakes=item['train_mistakes'])
@@ -447,13 +461,31 @@ def main(argv=None):
                         if not tokens or len(code)>16000 or not code.strip():
                             _json_line(f,{'source_id':sid,'rollout':i,'step':False,'skip':'invalid_code'});continue
                         tests=solver_tests[sid]
-                        if source:
-                            feedback,disagreement=_verifier_feedback_as_teacher(code,tests,source)
-                            feedback_source='generated_audit_gated_verifier'
-                        else:
+                        if args.arm=='solver_fixed':
                             feedback=_trusted_feedback_as_teacher(code,tests)
                             disagreement={}
-                            feedback_source='fixed_trusted_fallback'
+                            feedback_source='fixed_full_oracle'
+                        elif args.arm=='solver_oracle_verdict':
+                            feedback=oracle_verdict_feedback(code,tests)
+                            disagreement={}
+                            feedback_source='oracle_verdict_information_matched'
+                        elif source:
+                            feedback,disagreement=_verifier_feedback_as_teacher(code,tests,source)
+                            feedback_source='generated_audit_gated_verifier'
+                            if all(x['verifier_verdict']=='ABSTAIN' for x in feedback):
+                                _json_line(f,{'source_id':sid,'problem_id':row['problem_id'],
+                                     'rollout':i,'step':False,'source':feedback_source,
+                                     'skip':'all_generated_verdicts_abstained'})
+                                continue
+                        else:
+                            if args.missing_verifier=='skip':
+                                _json_line(f,{'source_id':sid,'problem_id':row['problem_id'],
+                                     'rollout':i,'step':False,'source':'no_admitted_verifier',
+                                     'skip':'no_admitted_verifier'})
+                                continue
+                            feedback=_trusted_feedback_as_teacher(code,tests)
+                            disagreement={}
+                            feedback_source='fixed_trusted_fallback_opt_in'
                         base=previous.existing.previous.legacy.prompt_messages(row)
                         priv=previous.existing.previous.legacy.prompt_messages(row,feedback)
                         result=_distill_response(model_s,student_s,tokenizer,base,priv,
@@ -477,6 +509,8 @@ def main(argv=None):
            'verifier_adapter':str(next_v.resolve()),
            'frozen_verifiers':frozen_verifiers,
            'training_memories':memories,
+           'solver_adapter_sha256':previous.existing.previous._digest_adapter(next_s),
+           'verifier_adapter_sha256':previous.existing.previous._digest_adapter(next_v),
            'accepted_verifiers':sum(bool(v) for v in selected_verifiers.values()),
            'train_tasks':len(rows),'solver_candidate_count':sum(len(x) for x in solver_rollouts.values()),
            'elapsed_seconds':time.perf_counter()-start}

@@ -25,7 +25,8 @@ roles:
     sandbox: mandatory_bubblewrap
     gate: finite_sample_FPR_FNR_and_coverage
     heldout_audit: independent_reserved_inputs_report_only
-    fallback_when_no_accepted_verifier: fixed_trusted_feedback
+    missing_verifier_default: skip  # prevents implicit oracle-label rescue confound
+    optional_missing_verifier_ablation: fixed_trusted_fallback_opt_in
     guarantee: empirical_gate_not_formal_proof
   solver:
     output: complete_Python_stdin_stdout_program
@@ -53,6 +54,7 @@ prototype:
 arms:
   - dual
   - solver_fixed
+  - solver_oracle_verdict
   - solver_static_verifier
   - solver_regenerated_verifier
   - verifier_only
@@ -67,3 +69,12 @@ scientific_requirements:
   - solver_pass_at_1_at_every_round_with_problem_clustered_pairs
   - matched_GPU_hours_and_generation_tokens_as_well_as_test_executions
   - no_SC_Qwen_results_claim_without_real_runs
+
+post_review_controls:
+  oracle_verdict_info_matched: true
+  no_implicit_expected_output_fallback: true
+  dual_missing_verifier_default: skip
+  invalid_verifier_static_feedback: true
+  checkpoint_hashes_verified_on_resume: true
+  metrics_include_all_proposals_not_just_admitted: true
+  cpu_tests_passed_local: 26

@@ -39,20 +39,37 @@ def load_one(path:Path):
                   if 'reserved_audit_reporting_only' in x]
         solver=_lines(path/f'round_{r}'/'solver_updates.jsonl')
         audited=[x['reserved_audit_reporting_only'] for x in verifier if x['selected_for_solver']]
+        all_audits=[x['reserved_audit_reporting_only'] for x in verifier]
         gates=[x['gate_audit'] for x in verifier if x['selected_for_solver']]
         v_steps=[x['verifier_opsd_update'] for x in _lines(path/f'round_{r}'/'verifier_proposals.jsonl')
                  if 'verifier_opsd_update' in x]
         s_steps=[x.get('update',{}) for x in solver if 'update' in x]
+        generated=[x for x in solver if x.get('source')=='generated_audit_gated_verifier']
+        missed=[x for x in solver if x.get('skip')=='no_admitted_verifier']
+        fallback=[x for x in solver if x.get('source')=='fixed_trusted_fallback_opt_in']
         metrics.append({'round':r,'accepted_verifier_tasks':receipt['accepted_verifiers'],
+                        'verifier_acceptance_rate':receipt['accepted_verifiers']/receipt['train_tasks'] if receipt.get('train_tasks') else None,
+                        'all_proposal_verifier_n':len(verifier),
+                        'all_proposal_source_valid_fraction':sum(bool(x['static_valid']) for x in verifier)/len(verifier) if verifier else None,
+                        'all_proposal_hidden_balanced_accuracy':float(np.mean([x['balanced_accuracy'] for x in all_audits])) if all_audits else None,
+                        'all_proposal_hidden_coverage':float(np.mean([x['coverage'] for x in all_audits])) if all_audits else None,
+                        'all_proposal_hidden_false_accept_rate':float(np.mean([x['false_accept_rate'] for x in all_audits])) if all_audits else None,
+                        'all_proposal_hidden_false_reject_rate':float(np.mean([x['false_reject_rate'] for x in all_audits])) if all_audits else None,
                         'solver_candidate_count':receipt['solver_candidate_count'],
                         'verifier_hidden_audit_n':len(audited),
                         'verifier_hidden_balanced_accuracy':float(np.mean([x['balanced_accuracy'] for x in audited])) if audited else None,
+                        'verifier_hidden_coverage':float(np.mean([x['coverage'] for x in audited])) if audited else None,
                         'verifier_hidden_false_accept_rate':float(np.mean([x['false_accept_rate'] for x in audited])) if audited else None,
                         'verifier_hidden_false_reject_rate':float(np.mean([x['false_reject_rate'] for x in audited])) if audited else None,
                         'verifier_gate_balanced_accuracy':float(np.mean([x['balanced_accuracy'] for x in gates])) if gates else None,
                         'verifier_opsd_steps':sum(bool(x.get('step')) for x in v_steps),
                         'solver_opsd_steps':sum(bool(x.get('step')) for x in s_steps),
-                        'solver_fixed_feedback_fraction':sum(x.get('source')=='fixed_trusted_fallback' for x in solver)/len(solver) if solver else None,
+                        'generated_verifier_rollout_fraction':len(generated)/len(solver) if solver else None,
+                        'missing_verifier_skip_fraction':len(missed)/len(solver) if solver else None,
+                        'explicit_fixed_fallback_fraction':len(fallback)/len(solver) if solver else None,
+                        'solver_verdict_oracle_fraction':sum(x.get('source')=='oracle_verdict_information_matched' for x in solver)/len(solver) if solver else None,
+                        'solver_full_oracle_fraction':sum(x.get('source')=='fixed_full_oracle' for x in solver)/len(solver) if solver else None,
+                        'solver_fixed_feedback_fraction':sum(x.get('source') in ('fixed_full_oracle','fixed_trusted_fallback_opt_in') for x in solver)/len(solver) if solver else None,
                         'elapsed_seconds':receipt['elapsed_seconds']})
     for a in evaluation[1:]:
         if set(a)!=set(evaluation[0]):raise ValueError('evaluation problem drift across rounds')
@@ -91,7 +108,7 @@ def summarize(runs):
     for seed,arms in byseed.items():
         if len({x['init_adapter_sha256'] for x in arms.values()})>1:
             raise ValueError('same-seed arms require identical initial adapters')
-        for left,right in [('dual','solver_fixed'),('dual','solver_static_verifier'),
+        for left,right in [('dual','solver_fixed'),('dual','solver_oracle_verdict'),('dual','solver_static_verifier'),
                            ('dual','solver_regenerated_verifier')]:
             if left in arms and right in arms:
                 a=arms[left]['evaluation'];b=arms[right]['evaluation']

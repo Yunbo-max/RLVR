@@ -18,7 +18,7 @@ At round r:
 
 `L_V = E_{v~g_phi_r} [ mean_t KL(g_phi(v_t|x,v_<t) || stopgrad(g_phi_r(v_t|x,error(v),v_<t))) + beta KL(g_phi||g_phi_r(v_t|x,v_<t)) ]`.
 
-`y_ij^r ~ pi_theta_r(y|x)`; `F_ij^r = selected_verifier_r(x, execute(y_ij^r))`, but only from candidates accepted by a disjoint **TRAIN-SIDE gate**. Any source failing the gate triggers a transparent fixed-oracle fallback.
+`y_ij^r ~ pi_theta_r(y|x)`; `F_ij^r = selected_verifier_r(x, execute(y_ij^r))`, but only from candidates accepted by a disjoint **TRAIN-SIDE gate**. A source failing the gate is **skipped by default**, avoiding oracle-label contamination. Only the explicitly opted-in `--missing-verifier fixed` ablation uses fixed-trusted fallback.
 
 `L_S = E_{y~pi_theta_r} [ mean_t KL(pi_theta(y_t|x,y_<t) || stopgrad(pi_theta_r(y_t|x,F_r,y_<t))) + beta KL(pi_theta||pi_theta_r(y_t|x,y_<t)) ]`.
 
@@ -61,19 +61,20 @@ At R0, use the same immutable LoRA initialization for both roles. Each round:
 1. Freeze current Solver; sample **new** Solver on-policy codes; evaluate untouched final problems at this fixed checkpoint. Original sampled token IDs are preserved for reverse KL, while executable code is extracted separately.
 2. Freeze current Verifier policy; generate `K_v` executable verification programs **per task**. Execute each on balanced training anchor cases and disjoint gate cases. Derive true verifier false-positive/false-negative mistakes from trusted anchors. Use independently reserved inputs for report-only audit.
 3. If arm is `dual` or `verifier_only`, train the **Verifier LoRA** on its **own current-round sampled verifier tokens**: teacher conditions on training-anchor mistakes, student does not. Store new mistakes as auditable training records. **Reflection memory is OFF by default** (`--memory-limit 0`) so dual versus regenerated isolates token-level Verifier parameter learning; turn on bounded memory only for a separate ablation. Freeze the completed adapter until the next round.
-4. Gate generated verifier programs **using gate only**; if no program passes, record fallback to the fixed trusted execution feedback. Solver `dual/static/regenerated` self-teacher uses gate-accepted verdicts. The fixed arm uses the same direct reference feedback as the historic RunBugRun program repair pipeline, not a generated verifier.
+4. Gate generated verifier programs **using gate only**; if no program passes, **skip the Solver update by default**; fixed fallback requires `--missing-verifier fixed`. Solver `dual/static/regenerated` self-teacher uses gate-accepted verdicts. The fixed arm uses the same direct reference feedback as the historic RunBugRun program repair pipeline, not a generated verifier.
 5. If arm updates Solver, train separate Solver LoRA on its own current-round generated program tokens using standard reverse-KL against the frozen feedback-conditioned self-teacher. No Shapley, token weighting, BO, 2^T query, external reward model, or GRPO.
 6. Save each adapter and `round_receipt.json` *before* entering the next round. Re-sample both roles; repeat. R5 is the fixed final endpoint, not the best intermediate checkpoint.
 
 ### Ablations
 
-- `solver_fixed`: fixed trusted program execution feedback; Solver OPSD only.
+- `solver_fixed`: fixed trusted program execution feedback (including expected stdout); Solver OPSD only.
+- `solver_oracle_verdict`: trusted verdicts in **the same feedback schema** as the generated verifier (without expected stdout); Solver OPSD only. This is the crucial equal-information oracle upper-bound control.
 - `solver_static_verifier`: Verifier program proposed/selected once at round 0, reused for all Solver rounds; no Verifier weight updates.
 - `solver_regenerated_verifier`: new Verifier programs each round from a **frozen** Verifier model; no Verifier weight updates.
 - `verifier_only`: Verifier OPSD runs, Solver remains frozen; measures verifier improvement without solver co-evolution.
 - `dual`: new verifier proposals each round with explicit mistake-conditioned Verifier OPSD; current solver learns from the selected verifier feedback via OPSD.
 
-Treat `solver_fixed` as **information-different** (it sees oracle expected outputs), not as an equal-information comparison. Add compute-matched token-budget baselines and offline SFT/verdict RL if full paper experiments support the hypothesis.
+Treat `solver_fixed` as **information-different** (it sees oracle expected outputs). `solver_oracle_verdict` is the new information-format-matched perfect-verdict benchmark; do not confuse its privileged verdict source with a self-generated verifier. Add compute-matched token-budget baselines and offline SFT/verdict RL if full paper experiments support the hypothesis.
 
 ### Prospective metrics
 
@@ -134,6 +135,7 @@ SOLVER_ROLLOUTS=4 VERIFIER_PROPOSALS=2 DRY_RUN=0 \
 python scripts/summarize_dual_verifier_opsd.py \
  --runs /ABS/dual-opsd-runs/dual-seed1701-N32-R5 \
         /ABS/dual-opsd-runs/solver_fixed-seed1701-N32-R5 \
+        /ABS/dual-opsd-runs/solver_oracle_verdict-seed1701-N32-R5 \
         /ABS/dual-opsd-runs/solver_static_verifier-seed1701-N32-R5 \
         /ABS/dual-opsd-runs/solver_regenerated_verifier-seed1701-N32-R5 \
         /ABS/dual-opsd-runs/verifier_only-seed1701-N32-R5 \
@@ -155,3 +157,13 @@ Subsequent confirmatory experiments may use `train-limit 128/512`, `eval-limit 1
 7. The old GitHub CI workflow is left byte-identical, per owner instruction.
 
 **This branch supplies a runnable research implementation under these prerequisites; it does not imply a completed GPU result or a proven improvement over STV, CoVera, CoVer, SPADE, or any other benchmark.**
+
+## 7. Post-review hardening (November 14, 2026)
+
+A second code audit uncovered a **scientific confound**: the initial `dual` runner silently replaced rejected generated verifiers with a trusted full-output oracle, allowing measured gains to originate from *extra answer information* rather than verifier evolution. **This is fixed**: `--missing-verifier skip` is the new default for all generated-verifier arms; use `--missing-verifier fixed` only for a clearly labeled extra ablation. The runner logs skipped rollouts and source provenance. A separate `solver_oracle_verdict` benchmark uses the **same input/actual/status/verdict feedback schema** as generated verifier feedback with perfect local oracle verdicts, but does not expose canonical expected stdout.
+
+A sampled code program that fails to execute is no longer passed to the generated verifier as if its (possibly empty) stdout were valid; the execution failure itself produces `FAIL`. Neither the privileged source type nor the correct output is included as a feature of the generated-verifier/ideal-verdict teacher's feedback payload; provenance is kept in separate training ledgers. Unsafe nested imports are rejected by the AST preflight (mandatory bwrap remains the security boundary). Resume receipts include both role-adapter directory hashes and reject modified or corrupted checkpoints. Malformed verifier source also produces safe static-error feedback for Verifier OPSD rather than suppressing all Verifier gradients; the teacher never sees the sampled program's future source as a copied label. The summarizer reports **all** generated verifier proposals (including those rejected by the gate), alongside admitted-only verifier performance and abstention/coverage, to avoid selection-only metric inflation. This still requires real model + bubblewrap smoke and official RunBugRun matcher qualification.
+
+The **core research limitation remains**: `verify(input_text, candidate_output)` requires solving the general output-checking task, often as hard as the original program. On heterogeneous RunBugRun tasks, a high no-admission/skip rate would invalidate claims of successful verifier evolution. Measure admission and held-out FPR/FNR before large-scale training; consider a scoped domain with checkable task semantics if this fails.
+
+**Validation after hardening:** 26/26 local CPU tests pass, Python modules compile and the launcher passes `bash -n`. Runtime model, dataset, official scorer and bubblewrap remain unqualified in this environment.

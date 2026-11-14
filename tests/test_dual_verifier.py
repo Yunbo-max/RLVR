@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from eesd.dual_verifier import (
     VerdictCase,audit_verdicts,admit,verifier_source_sanity,make_cases,split_tests,
-    execute_verifier,feedback_mistakes,choose_candidate,safe_feedback_for_solver,
+    execute_verifier,feedback_mistakes,verifier_training_mistakes,choose_candidate,safe_feedback_for_solver,oracle_verdict_feedback,
 )
 
 
@@ -135,3 +135,42 @@ def test_synthetic_negative_reproducible_and_not_actual_gold():
     a=make_cases(t,seed=12)
     b=make_cases(t,seed=12)
     assert a==b and a[1].candidate_output.strip()!='13'
+
+
+def test_rejects_nested_unapproved_import():
+    code='def verify(input_text,candidate_output):\n    import os\n    return candidate_output==input_text'
+    assert not verifier_source_sanity(code)[0]
+
+def test_execution_failure_cannot_be_overruled_by_generated_verifier():
+    cases=[{'id':'t1','input':'1','expected':'2'},
+           {'id':'t2','input':'2','expected':'4'}]
+    def run_program(code, tests):
+        return [Outcome('RUNTIME_EXCEPTION',''),Outcome('WRONG_OUTPUT','5')]
+    def run_verifier(code, cases):
+        assert len(cases)==1 and cases[0].input_text=='2'
+        return [False]
+    feedback,stats=safe_feedback_for_solver('def verify(a,b):return True',
+          'broken',cases,run_program=run_program,run_verifier=run_verifier)
+    assert feedback[0]['verifier_verdict']=='FAIL'
+    assert feedback[0]['program_execution_status']=='RUNTIME_EXCEPTION'
+    assert feedback[1]['program_execution_status']=='EXECUTED'
+    assert stats['verifier_disagreements_with_local_oracle']==0
+
+def test_oracle_verdict_baseline_uses_identical_format_without_gold_stdout():
+    cases=[{'id':'t1','input':'1','expected':'2'},
+           {'id':'t2','input':'2','expected':'4'}]
+    def run_program(code, tests):
+        return [Outcome('PASS','2'),Outcome('WRONG_OUTPUT','5')]
+    oracle=oracle_verdict_feedback('code',cases,run_program=run_program)
+    assert [r['verifier_verdict'] for r in oracle]==['PASS','FAIL']
+    assert all('expected' not in r and r['program_execution_status']=='EXECUTED' for r in oracle)
+    assert all('verdict_origin' not in r for r in oracle)
+
+
+def test_invalid_verifier_proposal_produces_actionable_training_signal():
+    cases=[VerdictCase('one','2','4',True,'trusted_expected')]
+    hints=verifier_training_mistakes('def verify((',False,'syntax',cases,[None],limit=2)
+    assert len(hints)==1
+    assert hints[0]['kind']=='invalid_verifier_source'
+    assert hints[0]['static_reason']=='syntax'
+    assert not any('correct_verdict' in h or 'verifier_excerpt' in h for h in hints)

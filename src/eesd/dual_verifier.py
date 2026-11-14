@@ -120,6 +120,12 @@ def verifier_source_sanity(source: str) -> tuple[bool, str]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in FORBIDDEN_CALLS:
             return False, "forbidden_call"
+        if isinstance(node, ast.Import):
+            if any(n.name.split('.')[0] not in ALLOWED_IMPORTS for n in node.names):
+                return False, "unapproved_nested_import"
+        if isinstance(node, ast.ImportFrom):
+            if node.level or (node.module or '').split('.')[0] not in ALLOWED_IMPORTS:
+                return False, "unapproved_nested_import"
         if isinstance(node, ast.Attribute) and node.attr.startswith('__'):
             return False, "dunder_attribute"
         if isinstance(node, ast.Name) and node.id.startswith('__'):
@@ -252,6 +258,21 @@ def feedback_mistakes(cases:Sequence[VerdictCase],verdicts:Sequence[bool|None],*
     return problems[:limit]
 
 
+def verifier_training_mistakes(source:str,static_valid:bool,reason:str,
+                               cases:Sequence[VerdictCase],verdicts:Sequence[bool|None],*,
+                               limit:int=8)->list[dict]:
+    """Give the privileged teacher actionable STATIC failures too.
+
+    Otherwise malformed verifier programs generate no gradient at all, and a
+    policy that mostly emits invalid Python cannot self-improve. Static reasons
+    are safe to reveal; gate and reserved-audit labels are NEVER used here.
+    """
+    if not static_valid:
+        # Never put the verifier's own future source tokens into the teacher prompt.
+        return [{'kind':'invalid_verifier_source','static_reason':reason}]
+    return feedback_mistakes(cases,verdicts,limit=limit)
+
+
 def choose_candidate(items:Sequence[tuple[str,Audit]],*,max_fpr:float,max_fnr:float,
                      min_per_class:int)->int|None:
     """Gate using TRAIN-SIDE, held-out-from-repair cases only."""
@@ -280,15 +301,44 @@ def safe_feedback_for_solver(source:str,candidate_code:str,tests:Sequence[dict],
     if len(outcomes)!=len(tests):
         raise RuntimeError('execution result count mismatch')
     cases=[VerdictCase(str(t['id']),str(t['input']),o.actual,False,'solver') for t,o in zip(tests,outcomes)]
-    verdicts=run_verifier(source,cases)
+    # An exception or timeout already proves a candidate failed to execute.
+    # Do not let a generated checker reinterpret missing stdout as a valid answer.
+    eligible=[i for i,o in enumerate(outcomes) if o.status in ('PASS','WRONG_OUTPUT')]
+    verdicts=[False if i not in eligible else None for i in range(len(tests))]
+    if eligible:
+        predictions=run_verifier(source,[cases[i] for i in eligible])
+        if len(predictions)!=len(eligible):
+            raise RuntimeError('generated verifier verdict count mismatch')
+        for i,v in zip(eligible,predictions):verdicts[i]=v
     feedback=[]; mismatches=0
-    for t,o,v in zip(tests,outcomes,verdicts):
+    for i,(t,o,v) in enumerate(zip(tests,outcomes,verdicts)):
         gold=o.status=='PASS'
         if v is not None and v!=gold:mismatches+=1
         feedback.append({'id':str(t['id']),'input':str(t['input'])[:256],
                          'actual':o.actual[:256],
-                         'program_execution_status':('EXECUTED' if o.status in ('PASS','WRONG_OUTPUT') else o.status),
+                         'program_execution_status':('EXECUTED' if i in eligible else o.status),
                          'verifier_verdict':'ABSTAIN' if v is None else ('PASS' if v else 'FAIL')})
     return feedback,{'verifier_disagreements_with_local_oracle':mismatches,
                      'verifier_abstentions':sum(v is None for v in verdicts),
                      'cases':len(tests)}
+
+
+def oracle_verdict_feedback(candidate_code:str,tests:Sequence[dict],*,
+                            run_program:Callable|None=None)->list[dict]:
+    """Information-matched verdict baseline: same schema, no expected output in prompt.
+
+    This is a privileged ideal-feedback comparator, NOT a generated verifier.
+    It must be reported separately from the fixed full-output oracle arm.
+    """
+    if run_program is None:
+        from eesd.strict_execution import run_tests_batched as run_program
+    outcomes=run_program(candidate_code,list(tests))
+    if len(outcomes)!=len(tests):raise RuntimeError('execution result count mismatch')
+    result=[]
+    for t,o in zip(tests,outcomes):
+        failed=o.status not in ('PASS','WRONG_OUTPUT')
+        result.append({'id':str(t['id']),'input':str(t['input'])[:256],
+                       'actual':o.actual[:256],
+                       'program_execution_status':o.status if failed else 'EXECUTED',
+                       'verifier_verdict':'PASS' if o.status=='PASS' else 'FAIL'})
+    return result

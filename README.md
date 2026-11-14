@@ -2,7 +2,7 @@
 
 The new [isolated branch](https://github.com/Yunbo-max/RLVR/tree/research/dual-recursive-verifier-opsd-20261114) implements a coding pilot in which a verifier-generating LLM samples executable Python verification programs, diagnoses mistakes against trusted train-side anchors, and learns via **token-level on-policy reverse-KL self-distillation**. A separately adapted Solver samples its own programs and distils from feedback supplied by gate-accepted verifiers. Both are recursively re-sampled and updated; fixed-oracle fallback is explicit.
 
-**Research implementation only:** 18 CPU tests pass, Python compilation passes, but no real CUDA/bubblewrap training, official RunBugRun scorer-equivalence audit, or scientific performance claim has been completed. The main branch's Joint/Mix and Rich64 paths remain unchanged. See [protocol and commands](docs/research/2026-11-14-dual-recursive-verifier-opsd.md).
+**Research implementation only:** 26 local CPU tests pass, Python compilation and shell syntax checks pass. A post-review code audit has removed silent oracle fallback (generated-verifier arms skip missing verifiers by default), added an information-format-matched oracle-verdict control, fixed nested imports and execution-failure handling, and added verifier-generator-wide audit metrics plus adapter-integrity checks. No real CUDA/bubblewrap training, official RunBugRun scorer-equivalence audit, or scientific performance claim has been completed. The main branch's Joint/Mix and Rich64 paths remain unchanged. See [protocol and commands](docs/research/2026-11-14-dual-recursive-verifier-opsd.md).
 
 # RLVR: feedback-conditioned self-distillation
 

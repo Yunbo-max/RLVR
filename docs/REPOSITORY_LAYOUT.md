@@ -1,3 +1,8 @@
+
+## Update on November 14, 2026 — new code
+
+**Joint/Mix software is now included:** `src/eesd/joint_mix.py`, `scripts/run_joint_mix_experiment1.py`, `scripts/run_joint_mix_experiment2.py`, and `scripts/summarize_joint_mix.py`. The new study compares a genuine pairwise joint teacher with a C8-calibrated mixture, and adds an ungrouped, budgeted actual-joint subset search and independent random-search control. Eleven new CPU tests passed; **no GPU run, scorer-semantic certification or scientific result has been completed**. Read [the complete new protocol](research/2026-11-14-joint-mix-experiments.md) (from docs) or `docs/research/2026-11-14-joint-mix-experiments.md` (from repository root). The remainder of this document describes the historical November 12 consolidation and must not be interpreted as the new method's current implementation status.
+
 # Repository layout and consolidation
 
 ## Canonical repository

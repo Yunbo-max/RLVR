@@ -8,7 +8,7 @@
 - Read `README.md`, `docs/PROJECT_STATUS.md`, `docs/REPOSITORY_LAYOUT.md` and
   `LOCAL_AGENT_RUNBOOK.md` before choosing a runner or changing code.
 - The November 12, 2026 cleanup selects Rich64 as the engineering foundation.
-  Joint-versus-Mix remains proposed. Do not report it as implemented or tested.
+  Joint-versus-Mix is now code-implemented with CPU tests, but has no real GPU experiment or scientific validation. Do not call it a tested scientific result.
 
 ## Preserve the owner's constraints
 
@@ -44,3 +44,7 @@
   the unchanged CI command; they are not the new study's launch contract.
 - Source review, software tests, real training and scientific validation are
   separate statuses. This repository cleanup performs source review only.
+
+## November 14 implementation update
+
+The new `src/eesd/joint_mix.py` and `scripts/run_joint_mix*.py` implement an independent mechanism comparison and five-round teacher-training experiment, plus budgeted ungrouped true-joint subset search. Eleven CPU tests passed in the development environment. Real BF16 GPU training, original RunBugRun output-equivalence qualification and independent scientific results have **not** occurred. Read `docs/research/2026-11-14-joint-mix-experiments.md`. Do not run the new code under an old Rich64 result identity. Preserve `.github/workflows/ci.yml` unchanged.

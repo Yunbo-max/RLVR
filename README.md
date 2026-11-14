@@ -10,8 +10,11 @@ The current engineering foundation is **behavior-calibrated, token-aware
 Rich64 self-distillation**, including its Shapley and simpler controls. The next
 research question is whether **genuine joint-feedback teachers** provide useful
 learning signals beyond independently conditioned teacher mixtures.
-The new Joint-versus-Mix study is **proposed, not implemented or run** in this
-consolidation. The existing Rich64 runner still uses four feedback groups.
+The new Joint/Mix **code has now been added** as separate experiments on top
+of the Rich64 foundation. The mechanism comparison, five-round joint/mix
+training, and budgeted true-joint feedback search are implemented, with eleven
+new CPU tests passing. **No real GPU experiment has yet run.** The old Rich64
+runner still uses four feedback groups.
 
 ## Start here
 
@@ -30,6 +33,11 @@ consolidation. The existing Rich64 runner still uses four feedback groups.
 | Freeze the RunBugRun public/calibration/audit/test cohorts | `scripts/prepare_t64_runbugrun_cohort.py` |
 | Create the shared initial adapter | `scripts/create_learning_credit_init.py` |
 | Five-round Rich64 training | `scripts/run_t64_grouped_five_round.py` |
+| **Joint/Mix experiment 1: frozen mechanism** | `scripts/run_joint_mix_experiment1.py` |
+| **Joint/Mix experiment 2: five-round training** | `scripts/run_joint_mix_experiment2.py` |
+| **New adaptive true-joint search / calibrated mixtures** | `src/eesd/joint_mix.py` |
+| New paired evaluation aggregator | `scripts/summarize_joint_mix.py` |
+| Protocol and launch commands | `docs/research/2026-11-14-joint-mix-experiments.md` |
 | Existing comparison matrix | `scripts/run_t64_group_matrix.sh` |
 | Paired Rich64 summaries | `scripts/summarize_t64_group_five_round.py` |
 | Behavioral calibration and token weights | `src/eesd/behavioral_shapley.py` |
@@ -58,7 +66,7 @@ control for the new study.
 | Rich64 pilot, seed 1701, 64 evaluation problems | Shapley 31/64, random subset 31/64, DirectMax 30/64, frozen 29/64; no established independent Shapley advantage |
 | Original correction-weight EED, three completed rebuttal cells | Adaptive mass has not established an advantage over fixed mass; this is a different method and protocol |
 | Official SDPO | Source integration and earlier engineering qualification are recorded; the full matched scientific rerun remains pending |
-| Joint teachers versus mixtures | Research decision only; no new result, implementation or validation claim |
+| Joint teachers versus mixtures | Implementation and CPU-unit checks added; GPU validation and scientific results pending |
 
 Read the [Rich64 pilot record](docs/research/2026-11-03-rich64-pilot-results.md)
 alongside the [current interpretation](docs/PROJECT_STATUS.md).
@@ -72,9 +80,10 @@ not a draft or results for the new Joint-versus-Mix paper.
 
 ## Setup and execution
 
-This consolidation changes repository organization and seven model-config
-paths. It does not change the Rich64 learning rule, run training, or certify a
-new scientific protocol. Follow [LOCAL_AGENT_RUNBOOK.md](LOCAL_AGENT_RUNBOOK.md)
+The November 12 consolidation changed repository organization and model-config
+paths without modifying the Rich64 learning rule. The November 14 addition
+implements the **separate Joint/Mix research protocol** with independent entry
+points and unit tests; it does not report or certify any new GPU result. Follow [LOCAL_AGENT_RUNBOOK.md](LOCAL_AGENT_RUNBOOK.md)
 for acceptance and the
 [official SDPO setup](docs/research/2026-11-07-official-sdpo-reproduction.md)
 for that separate environment. The existing GitHub CI workflow is preserved.

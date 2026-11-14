@@ -1,0 +1,42 @@
+schema: eesd-joint-mix-prospective-v1
+status: code_ready_cpu_tests_only_gpu_unverified
+repository: Yunbo-max/RLVR
+model: Qwen/Qwen2.5-Coder-7B-Instruct
+revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+benchmark: RunBugRun_Python_pinned_Rich64
+experiment1:
+  entry: scripts/run_joint_mix_experiment1.py
+  comparison: genuine_joint_pair_vs_C8_fit_arithmetic_mixture
+  frozen_teacher: true
+  train_distinct_problems: 128
+  pair_policy: deterministic_hash_no_calibration_outcomes
+  feedback_pools: {public: 64, calibration: 8, reserved_audit: 8}
+  full_vocab_diag: {candidates: 2, tokens: 16, includes_log_additive}
+  primary_measure: reserved_A8_behavioral_alignment_joint_minus_mix
+experiment2:
+  entry: scripts/run_joint_mix_experiment2.py
+  arms: [joint_pair, mix_pair, joint_search, random_search, no_update]
+  train_distinct_problems: 512
+  final_distinct_problems: 199
+  recursive_rounds: 5
+  candidate_programs_per_problem: 8
+  training_seeds: [1701, 1702, 1703]
+  same_initial_adapter_within_seed: true
+  budgeted_joint:
+    true_joint_prompt: true
+    fixed_group_count: null
+    query_budget: 16
+    max_feedback_items_per_prompt: 8
+    includes_pair_proposals: true
+    accepts_if_behaviorally_positive: true
+  distillation: {reverse_KL: true, beta_no_feedback_KL: 0.02, LoRA_rank: 16}
+  primary_contrast: R5_joint_pair_minus_mix_pair
+  secondary_contrast: R5_joint_search_minus_random_search
+  comparison: strict_bwrap_local_scorer_requires_official_equivalence_audit
+constraints:
+  - no_gold_fixed_code
+  - no_audit_or_final_labels_in_teacher_selection
+  - no_fixed_four_group_aggregation
+  - no_precomputed_65G_single_feedback_sweep
+  - preserve_old_ci_workflow
+  - no_publication_claim_without_real_gpu_runs_and_scorer_validation

@@ -1,0 +1,68 @@
+schema: dual-recursive-verifier-opsd-v1
+status: implemented_cpu_tests_only_gpu_and_official_scoring_unqualified
+repository: Yunbo-max/RLVR
+branch: research/dual-recursive-verifier-opsd-20261114
+base_commit: 0a118fdfff068c3c1d9d188394af32293898d776
+benchmark:
+  primary: RunBugRun official Python SQLite via existing strict Rich64 manifest
+  evaluation: independent official test-split problems, full test input bank
+  local_scorer_semantics: must_be_qualified_against_official_matcher
+  secondary_not_implemented: [MBPP_plus, LiveCodeBench, CodeContests]
+models:
+  base: Qwen/Qwen2.5-Coder-7B-Instruct
+  revision: c03e6d358207e414f1eca0bb1891e29f1db0e242
+  init_adapter: identical_immutable_LoRA_initialization_for_both_roles_and_arms
+  solver_lora: independent_round_checkpoints
+  verifier_lora: independent_round_checkpoints
+  student_divergence: reverse_KL_with_optional_no_feedback_KL_anchor
+roles:
+  verifier:
+    output: executable_Python_verify_input_text_candidate_output_to_bool
+    candidate_generation: on_policy_current_verifier_adapter
+    privileged_self_teacher: training_anchor_misclassification_examples
+    student_input: task_and_optional_past_training_mistakes
+    critic: trusted_output_cases_and_executed_solver_wrong_outputs
+    sandbox: mandatory_bubblewrap
+    gate: finite_sample_FPR_FNR_and_coverage
+    heldout_audit: independent_reserved_inputs_report_only
+    fallback_when_no_accepted_verifier: fixed_trusted_feedback
+    guarantee: empirical_gate_not_formal_proof
+  solver:
+    output: complete_Python_stdin_stdout_program
+    candidate_generation: on_policy_current_solver_adapter
+    privileged_self_teacher: accepted_verifier_feedback_or_fixed_fallback
+    feedback_teacher_cannot_see: trusted_output_labels_in_generated_verifier_arm
+    student_input: task_and_buggy_code_only
+    adaptation: token_level_reverse_KL
+  recursion: separate_sequential_updates_per_round
+prototype:
+  rounds: 5
+  train_distinct_problems: 32
+  eval_distinct_problems: 32
+  solver_candidates_per_problem: 4
+  verifier_candidates_per_problem: 2
+  train_anchor_test_inputs: 8
+  gate_test_inputs: 8
+  solver_feedback_test_inputs: 8
+  reserved_audit_inputs: 8
+  max_false_accept_rate: 0.125
+  max_false_reject_rate: 0.25
+  max_per_class_samples: null
+  output: unique_sealed_per_arm_seed_directory
+arms:
+  - dual
+  - solver_fixed
+  - solver_static_verifier
+  - solver_regenerated_verifier
+  - verifier_only
+scientific_requirements:
+  - fixed_model_revision_and_identical_initial_LoRA_within_seed
+  - no_leakage_from_reserved_audit_to_selection_or_teacher
+  - no_executable_verifier_without_mandatory_isolated_sandbox
+  - no_unknown_expected_output_as_verified_truth
+  - both_positive_and_negative_audit_cases
+  - explicit_alternative_valid_output_and_semantic_oracle_limitations
+  - verifier_false_accept_false_reject_abstention_and_coverage_per_round
+  - solver_pass_at_1_at_every_round_with_problem_clustered_pairs
+  - matched_GPU_hours_and_generation_tokens_as_well_as_test_executions
+  - no_SC_Qwen_results_claim_without_real_runs
